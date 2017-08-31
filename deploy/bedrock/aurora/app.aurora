@@ -1,0 +1,130 @@
+# Define application variables
+CLUSTER_NAME= "brnpb"
+APP_NAME = "uds"
+APP_ROLE = "hmheng-uds"
+DOCKER_GROUP = "com-hmhco-uds"
+DOCKER_REGISTRY = "docker.br.hmheng.io"
+AWS_REGION = "us-east-1"
+
+try:
+    import getpass
+except ImportError:
+    print "Python Module `getpass` is required, please install it 'pip install -U getpass'."
+
+class Profile(Struct):
+    cluster = Default(String, CLUSTER_NAME + "-" + AWS_REGION)
+    stage = Default(String, "prod")
+    environment = Default(String, "prod")
+    contact = Default(String, "")
+    instances = Default(Integer, 3)
+    version = Default(String, "n/a")
+    tier = Default(String, "preferred")
+    role = Default(String, getpass.getuser())
+    docker_container = Default(String, DOCKER_REGISTRY + "/" + DOCKER_GROUP + "/" + APP_NAME)
+    docker_tag = Default(String, "{{tag}}")
+    autoscaling=Default(String,"standard-prod")
+
+# -- Profile mappings ---
+# prod|prod
+# prodrv|staging3
+# certrv|staging2
+# cert|staging1
+# int staging0
+# dev devel
+
+# -- Profile instantiations (if any) ---
+PRODUCTION = Profile()
+PRODRV = Profile(
+    instances=3,
+    stage="prodrv",
+    environment="staging3",
+    cluster=CLUSTER_NAME + "-" + AWS_REGION,
+    tier="preferred",
+    autoscaling="standard-nonprod"
+)
+
+CERTRV = Profile(
+    instances=3,
+    stage="certrv",
+    environment="staging2",
+    cluster=CLUSTER_NAME + "-" + AWS_REGION,
+    tier="preferred",
+    autoscaling="standard-nonprod"
+)
+
+CERT = Profile(
+    instances=1,
+    stage="cert",
+    environment="staging1",
+    cluster=CLUSTER_NAME + "-" + AWS_REGION,
+    tier="preferred",
+    autoscaling="standard-nonprod"
+)
+
+INT = Profile(
+    instances=1,
+    stage="int",
+    environment="staging0",
+    cluster=CLUSTER_NAME + "-" + AWS_REGION,
+    tier="preemptible",
+    autoscaling="standard-nonprod"
+)
+DEV = Profile(
+    instances=1,
+    stage="dev",
+    environment="devel",
+    cluster=CLUSTER_NAME + "-" + AWS_REGION,
+    tier="preemptible",
+    autoscaling="standard-nonprod"
+)
+
+jobs = []
+task_res = Resources(cpu=1, ram=1 * GB, disk=5 * GB)
+
+for profile in [DEV, INT, CERT, CERTRV, PRODRV, PRODUCTION]:
+    server_task = Task(
+        name="uds",
+        processes=[
+            Process(
+                name="uds",
+                cmdline="""cd /opt/uds/ && NODE_ENV={{profile.stage}}"""
+                        """ npm run start-transpiled --max-old-space-size=768 --"""
+                        """ port={{thermos.ports[http]}}"""
+                        """ admin_port={{thermos.ports[admin]}}""",
+                logger=Logger(
+                    mode=LoggerMode('rotate'),
+                    rotate=RotatePolicy(log_size=100*MB, backups=5)
+                )
+            ).bind(profile=profile)
+        ],
+        resources=task_res
+    )
+
+    jobs.append(Service(
+        name=APP_NAME,
+        update_config=UpdateConfig(batch_size=1, watch_secs=30).bind(profile=profile),
+        task=server_task,
+        role="{{profile.role}}",
+        contact="{{profile.contact}}",
+        environment="{{profile.environment}}",
+        cluster="{{profile.cluster}}",
+        instances="{{profile.instances}}",
+        tier="{{profile.tier}}",
+        constraints={"host": "limit:1", "rack": "limit:3", "autoscale-type": "{{profile.autoscaling}}"},
+        announce=Announcer(
+            portmap={
+                'health': 'http',
+            }
+        ),
+        container=Container(
+            docker=Docker(
+                image="{{profile.docker_container}}:{{profile.docker_tag}}"
+            ).bind(profile=profile)
+        ),
+        health_check_config={"health_checker": HealthCheckerConfig(
+            {"http": HttpHealthChecker({"expected_response_code": 200, "expected_response": ""})}
+        )},
+        lifecycle=LifecycleConfig(http=HttpLifecycleConfig(
+            port="health", graceful_shutdown_endpoint="/shutdown", shutdown_endpoint="/shutdown"
+        ))
+    ).bind(profile=profile))
