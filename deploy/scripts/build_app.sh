@@ -22,3 +22,6 @@ cp -Rf out app_deploy/out
 
 echo Transpiling source folders
 ./node_modules/.bin/babel app --out-dir app_deploy/app
+
+echo Transpiling test folders
+./node_modules/.bin/babel test --out-dir app_deploy/test

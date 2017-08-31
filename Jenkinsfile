@@ -77,6 +77,22 @@ node {
       }
     }
 
+    stage("Launch BVT Docker Containers") {
+      sh "docker ps"
+      sh "docker stop uds-$git_commit || true"
+      sh "docker rm uds-$git_commit || true"
+      sh "docker run --name uds-$git_commit -e NODE_ENV=docker -d $generated_docker_image_name npm start"
+      sh "docker ps"
+      sh "sleep 20" // Give UDS a moment to start up before executing
+      sh "docker logs uds-$git_commit"
+      docker.image(generated_docker_image_name).inside("--link uds-$git_commit:uds $dind_cmd_line_params") {
+        stage("Run BVT: docker") {
+          sh "npm run bvt:docker"
+        }
+      }
+      sh "docker logs uds-$git_commit"
+    }
+
     if (jenkins_env.equalsIgnoreCase("prod")) {
       deploy_container(app_name, docker_tag, "dev")
       run_bvt("dev", dind_image_name, dind_cmd_line_params)
@@ -93,6 +109,8 @@ node {
       echo "Skipping deploy and BVT stages in non-production Jenkins environment: $jenkins_env"
     }
 
+    stop_docker_containers(git_commit)
+
     def result_message = "Successfully deployed UDS version: $docker_tag"
     publish_status_message(result_message, "good", jenkins_env)
   } catch (error) {
@@ -101,9 +119,17 @@ node {
     def failure_message = "Error deploying UDS version: $docker_tag"
     publish_status_message(failure_message, "danger", jenkins_env)
 
+    stop_docker_containers(git_commit)
+
     // After sending Slack message, throw the error to fail the build
     throw error
   }
+}
+
+def stop_docker_containers(String git_commit) {
+  // Stop Docker containers
+  sh "docker stop uds-$git_commit || true"
+  sh "docker rm uds-$git_commit || true"
 }
 
 def find_git_commit() {

@@ -20,6 +20,7 @@
     "stop:local": "./deploy/local/stop.sh",
     "clean:local": "./deploy/local/nuke.sh",
     "bvt:local": "better-npm-run bvt:local",
+    "bvt:docker": "better-npm-run bvt:docker",
     "bvt:dev": "better-npm-run bvt:dev",
     "bvt:int": "better-npm-run bvt:int",
     "bvt:cert": "better-npm-run bvt:cert",
@@ -32,6 +33,14 @@
         "NODE_ENV": "local",
         "REPLICATION_DELAY_TOLERANCE": 50,
         "ENDPOINT": "http://localhost:5200/"
+      }
+    },
+    "bvt:docker": {
+      "command": "mocha --opts test/bvt/mocha.opts 'test/bvt/**/*.test.js'",
+      "env": {
+        "NODE_ENV": "docker",
+        "REPLICATION_DELAY_TOLERANCE": 50,
+        "ENDPOINT": "http://uds:5100/"
       }
     },
     "bvt:dev": {

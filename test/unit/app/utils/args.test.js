@@ -8,7 +8,7 @@ describe('Args Utilities', () => {
   describe('parseArgv', () => {
     const args = [
       '/usr/local/bin/node',
-      '/dmps/app/index.js',
+      '/uds/app/index.js',
       'run',
       'port=1234',
       'admin_port=7890',
