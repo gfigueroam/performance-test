@@ -40,7 +40,7 @@
       "env": {
         "NODE_ENV": "docker",
         "REPLICATION_DELAY_TOLERANCE": 50,
-        "ENDPOINT": "http://uds:5100/"
+        "ENDPOINT": "http://uds:5200/"
       }
     },
     "bvt:dev": {
