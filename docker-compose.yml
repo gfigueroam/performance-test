@@ -1,0 +1,13 @@
+version: '2'
+services:
+  uds:
+    depends_on:
+      - mysql
+    image: docker.br.hmheng.io/com-hmhco-uds/uds
+    volumes:
+      - .:/code
+    command: npm start
+    ports:
+      - "5200:5200"
+    environment:
+      - NODE_ENV=docker

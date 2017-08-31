@@ -1,0 +1,128 @@
+{
+  "name": "hmh.uds",
+  "version": "0.0.1",
+  "description": "UDS (User-Centric Data Service) is a service to track user-specific data across applications, built in Docker image for deployment into Bedrock.",
+  "engines": {
+    "node": ">=6.3.0",
+    "npm": ">=3.10.3"
+  },
+  "main": "/app/index.js",
+  "scripts": {
+    "start": "nodemon app/index --exec babel-node --presets es2015,stage-2 | bunyan",
+    "start-transpiled": "node app/index",
+    "build:app": "./deploy/scripts/build_app.sh",
+    "build:apidocs": "mkdir -p out/api/source && mkdir -p out/api/html && for f in docs/api/*.apib ; do hercule \"$f\" -o \"out/api/source/$(basename $f .apib).md\" && aglio -i \"out/api/source/$(basename $f .apib).md\" -o \"out/api/html/$(basename $f .apib).html\"; done",
+    "build:jsdoc": "jsdoc app -r -c .jsdoc.conf -d out/jsdoc",
+    "lint": "./node_modules/.bin/eslint --ext .js --ext .json app/* config/* test/*",
+    "test": "nyc mocha --opts test/unit/mocha.opts 'test/unit/**/*.test.js'",
+    "docker:local": "./deploy/local/docker.sh",
+    "run:local": "./deploy/local/run.sh",
+    "stop:local": "./deploy/local/stop.sh",
+    "clean:local": "./deploy/local/nuke.sh",
+    "bvt:local": "better-npm-run bvt:local",
+    "bvt:dev": "better-npm-run bvt:dev",
+    "bvt:int": "better-npm-run bvt:int",
+    "bvt:cert": "better-npm-run bvt:cert",
+    "bvt:prod": "better-npm-run bvt:prod"
+  },
+  "betterScripts": {
+    "bvt:local": {
+      "command": "mocha --opts test/bvt/mocha.opts 'test/bvt/**/*.test.js'",
+      "env": {
+        "NODE_ENV": "local",
+        "REPLICATION_DELAY_TOLERANCE": 50,
+        "ENDPOINT": "http://localhost:5200/"
+      }
+    },
+    "bvt:dev": {
+      "command": "mocha --opts test/bvt/mocha.opts 'test/bvt/**/*.test.js'",
+      "env": {
+        "NODE_ENV": "dev",
+        "REPLICATION_DELAY_TOLERANCE": 500,
+        "ENDPOINT": "http://uds.devel.hmheng-uds.brnp.internal/"
+      }
+    },
+    "bvt:int": {
+      "command": "mocha --opts test/bvt/mocha.opts 'test/bvt/**/*.test.js'",
+      "env": {
+        "NODE_ENV": "int",
+        "REPLICATION_DELAY_TOLERANCE": 1000,
+        "ENDPOINT": "http://uds.staging0.hmheng-uds.brnp.internal/"
+      }
+    },
+    "bvt:cert": {
+      "command": "mocha --opts test/bvt/mocha.opts 'test/bvt/**/*.test.js'",
+      "env": {
+        "NODE_ENV": "cert",
+        "REPLICATION_DELAY_TOLERANCE": 1000,
+        "ENDPOINT": "http://uds.staging1.hmheng-uds.brnp.internal/"
+      }
+    },
+    "bvt:prod": {
+      "command": "mocha --opts test/bvt/mocha.opts 'test/bvt/**/*.test.js'",
+      "env": {
+        "NODE_ENV": "prod",
+        "REPLICATION_DELAY_TOLERANCE": 1000,
+        "ENDPOINT": "http://uds.prod.hmheng-uds.brnp.internal/"
+      }
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:hmhco/uds.git"
+  },
+  "keywords": [
+    "node",
+    "uds"
+  ],
+  "author": "BFM Team",
+  "license": "UNLICENSED",
+  "homepage": "https://github.com/hmhco/uds/",
+  "devDependencies": {
+    "aglio": "^2.3.0",
+    "babel-cli": "^6.24.1",
+    "babel-core": "^6.24.1",
+    "babel-eslint": "^7.2.3",
+    "babel-plugin-root-import": "^5.1.0",
+    "babel-plugin-transform-async-to-generator": "^6.24.1",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-stage-2": "^6.24.1",
+    "better-npm-run": "^0.0.15",
+    "chai": "^4.0.2",
+    "chai-as-promised": "^7.1.1",
+    "chai-http": "^3.0.0",
+    "eslint": "^3.19.0",
+    "eslint-config-airbnb-base": "^11.2.0",
+    "eslint-import-resolver-babel-root-import": "0.0.2",
+    "eslint-plugin-babel": "^4.1.1",
+    "eslint-plugin-import": "^2.3.0",
+    "eslint-plugin-json": "^1.2.0",
+    "eslint-plugin-promise": "^3.5.0",
+    "hercule": "^4.0.1",
+    "jsdoc": "^3.4.3",
+    "jsdoc-babel": "^0.3.0",
+    "mocha": "^3.4.2",
+    "mocha-eslint": "^3.0.1",
+    "nodemon": "^1.11.0",
+    "nyc": "^11.0.1",
+    "should": "^11.1.2",
+    "sinon": "^2.3.8"
+  },
+  "dependencies": {
+    "bunyan": "^1.8.10",
+    "grid-framework": "github:hmhco/hmh.grid.framework#v1.0.2",
+    "jsonwebtoken": "^7.4.2",
+    "koa-bodyparser": "^3.2.0",
+    "koa-bunyan-logger": "^2.0.0",
+    "koa-compress": "^2.0.0",
+    "koa-static-server": "1.0.0",
+    "nconf": "^0.8.4",
+    "pidusage": "^1.1.5",
+    "prom-client": "^9.0.0",
+    "swatchjs": "^2.0.0",
+    "swatchjs-koa": "^1.1.0",
+    "uuid": "^3.0.1"
+  }
+}

@@ -1,0 +1,25 @@
+{
+    "extends": "airbnb-base",
+    "plugins": [
+        "babel",
+        "import",
+        "json",
+        "promise"
+    ],
+    "settings": {
+        "import/resolver": {
+            "eslint-import-resolver-babel-root-import": {}
+        }
+    },
+    "parserOptions": {
+        "ecmaVersion": 8,
+        "sourceType": "module",
+        "ecmaFeatures": {}
+    },
+    "rules": {
+        "arrow-parens": "off",
+        "no-param-reassign": ["error", { "props": false }],
+        "promise/prefer-await-to-then": "error",
+        "promise/prefer-await-to-callbacks": "error"
+    }
+}
