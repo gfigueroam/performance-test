@@ -1,0 +1,13 @@
+{
+  "plugins": [
+    "promise"
+  ],
+  "env": {
+    "mocha": true,
+  },
+  "rules": {
+    "import/no-extraneous-dependencies": ["error", { "devDependencies": true }],
+    "promise/prefer-await-to-then": "off",
+    "promise/prefer-await-to-callbacks": "off"
+  }
+}

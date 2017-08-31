@@ -1,0 +1,22 @@
+# Log files and folders
+*.log
+npm-debug.log*
+
+# JSDoc output directory
+out
+
+# Mac related files
+.DS_Store
+
+# Code coverage artifacts
+coverage
+.nyc_output
+
+# Node modules package directory
+node_modules
+
+# npm cache directory
+.npm
+
+# Build directory with deployable files
+app_deploy

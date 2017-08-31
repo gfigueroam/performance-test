@@ -1,0 +1,18 @@
+{
+    "require": [
+      "babel-core/register"
+    ],
+    "reporter": [
+        "lcov",
+        "text"
+    ],
+    "include": [
+        "app/**"
+    ],
+    "all": true,
+    "statements": 43,
+    "branch": 37,
+    "functions": 50,
+    "lines": 43,
+    "check-coverage": true
+}
