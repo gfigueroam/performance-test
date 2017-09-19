@@ -147,7 +147,7 @@ def deploy_container(String app, String tag, String deploy_env) {
   stage("Deploy Environment: $deploy_env") {
     def role = "hmheng-uds"
     def aurora_filename = "deploy/bedrock/aurora/app.aurora"
-    def ssh_agent_deploy_credentials = "e2382aa2-471e-43c1-aff3-579304d7aa09"
+    def ssh_agent_deploy_credentials = "hmheng-uds" // From Jenkins instance
 
     sshagent([ssh_agent_deploy_credentials]) {
       sh "builder deploy -f $aurora_filename $role $app $tag $deploy_env"
