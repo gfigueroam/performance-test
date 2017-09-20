@@ -1,0 +1,38 @@
+FORMAT: 1A
+
+# data.admin.apps
+
+List apps for a given user.
+
+:[](common-args.md url:"data.admin.apps" token:"Requires a service token.")
+
+| Argument  | Example       | Required  | Description
+|:---       |:---           |:---       |:---
+| `realm`   | `json`        | Required  | One of `json` or `blob`.
+| `user`    | `user_345`    | Required  | The user as which to get the data.
+
+## Result
+
+```javascript
+{
+    "ok": true,
+    "result": [
+        {
+            "realm": "json",
+            "user": "user_345",
+            "list": [
+                "app_1",
+                // ...
+            ]
+        }
+    ]
+}
+```
+
+## Errors
+
+:[](common-errors.md)
+
+| Error                 | Description
+|:---                   |:---
+| `wrong_token_type`    | This endpoint requires a service token.

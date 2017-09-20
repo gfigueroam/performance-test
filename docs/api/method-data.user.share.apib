@@ -1,0 +1,36 @@
+FORMAT: 1A
+
+# data.user.set
+
+Share data for a given user.
+
+:[](common-args.md url:"data.user.set" token:"Can be used with either a service token or a user token.")
+
+| Argument      | Example                   | Required  | Description
+|:---           |:---                       |:---       |:---
+| `key`         | `annotation_id123`        | Required  | A unique key to identify the data being stored.
+| `authz`       | `shared_text`             | Required  | The name of the authorization mode to use.
+| `ctx`         | `id_123`                  | Required  | A context to be used for authorization.
+| `user`        | `user_345`                | Optional  | The user as which to get the data. Required if token type is service token.
+
+## Result
+
+```javascript
+{
+    "ok": true,
+    "result": {
+        "id": "z3Gh7pQ12z"
+    }
+}
+```
+
+## Errors
+
+:[](common-errors.md)
+
+| Error             | Description
+|:---               |:---
+| `key_not_found`   | `key` does not describe an existing key for user.
+| `authz_not_found` | `authz` does not describe an existing authorization mode.
+| `user_not_passed` | Token is a service token, but no user was provided.
+| `forbidden`       | Token is a user token, and `user` was specified.

@@ -1,0 +1,36 @@
+FORMAT: 1A
+
+# data.user.set
+
+Store data for a given user.
+
+See [Naming rules](common-names.html) for more information on names.
+
+:[](common-args.md url:"data.user.set" token:"Can be used with either a service token or a user token.")
+
+| Argument      | Example                   | Required  | Description
+|:---           |:---                       |:---       |:---
+| `key`         | `annotation_id123`        | Required  | A unique key to identify the data being stored.
+| `type`        | `text`                    | Required  | The type of data being stored. Must be one of the known types.
+| `data`        | `data`                    | Required  | The data to store.
+| `user`        | `user_345`                | Optional  | The user as which to get the data. Required if token type is service token.
+
+## Result
+
+```javascript
+{
+    "ok": true
+}
+```
+
+## Errors
+
+:[](common-errors.md)
+
+| Error             | Description
+|:---               |:---
+| `name_in_use`     | `key` is already in use.
+| `invalid_key`     | `key` does not conform to the naming rules.
+| `user_not_passed` | Token is a service token, but no user was provided.
+| `forbidden`       | Token is a user token, and user was specified.
+| `quota_exceeded`  | The user does not have sufficient quota to store the data.

@@ -59,6 +59,20 @@ routes.forEach(route => {
 // Set up static path to serve API documentation
 //  API docs are available at: /docs/api.html
 app.use(serve({
+  rootDir: 'out/api/html',
+  rootPath: '/docs',
+}));
+
+// UDS does not use Swagger, but we redirect from /swagger to our /docs
+//  endpoint to stay consistent with other HMH services using Swagger
+app.use(serve({
+  rootDir: 'static/swagger',
+  rootPath: '/swagger',
+}));
+
+// Set up static path to serve API documentation
+//  API docs are available at: /docs/api.html
+app.use(serve({
   rootPath: '/docs',
   rootDir: 'out/api/html',
 }));

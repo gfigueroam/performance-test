@@ -1,0 +1,27 @@
+FORMAT: 1A
+
+# apps.list
+
+List all existing apps.
+
+:[](common-args.md url:"apps.list" token:"Requires a service token.")
+
+## Result
+
+```javascript
+{
+    "ok": true,
+    "result": [
+        "browser_client",
+        // ...
+    ]
+}
+```
+
+## Errors
+
+:[](common-errors.md)
+
+| Error                     | Description
+|:---                       |:---
+| `wrong_token_type`        | This endpoint requires a service token.

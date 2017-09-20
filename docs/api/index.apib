@@ -1,0 +1,92 @@
+FORMAT: 1A
+
+# Group Basics
+
+## Introduction
+
+The API consists of a collection of methods, grouped by areas of functionality.
+The naming convention is `group.actionName`.
+
+The supported ways of invoking these methods (including how to provide
+authentication and pass arguments) is described in detail
+[here](common-conventions.html).
+
+## Examples
+
+The [examples](examples-index.html) page features some ways in which the API can
+be consumed.
+
+# Group Methods
+
+## authz
+
+Manage the authorization modes for cross-user access to user data.
+
+| Method                                                    | Description
+|:---                                                       |:---
+| [authz.add](method-authz.add.html)                        | Registers an authorization mode
+| [authz.info](method-authz.info.html)                      | Gets information about an authorization mode
+| [authz.list](method-authz.list.html)                      | Lists all authorization modes
+| [authz.remove](method-authz.remove.html)                  | Unregisters an authorization mode
+
+## apps
+
+Manage the apps allowed to save data to the service.
+
+| Method                                                    | Description
+|:---                                                       |:---
+| [apps.add](method-apps.add.html)                          | Registers an app
+| [apps.info](method-apps.info.html)                        | Gets information about an app
+| [apps.passwords.add](method-apps.passwords.add.html)      | Adds a password to an app
+| [apps.passwords.remove](method-apps.passwords.remove.html)| Removes a password from an app
+| [apps.list](method-apps.list.html)                        | Lists all registered apps
+| [apps.remove](method-apps.remove.html)                    | Unregisters an app
+| [apps.setQuotaPerUser](method-apps.setQuotaPerUser.html)  | Unregisters an app
+
+## data.admin
+
+Data admin APIs.
+
+| Method                                                    | Description
+|:---                                                       |:---
+| [data.admin.apps](method-data.admin.apps.html)            | Lists all apps with records for a given user
+| [data.admin.users](method-data.admin.users.html)          | Lists all users with records in the user store
+
+## data.app
+
+Manages data on a per application per user basis.
+
+| Method                                                    | Description
+|:---                                                       |:---
+| [data.app.json.delete](method-data.app.json.delete.html)  | Removes a JSON document
+| [data.app.json.get](method-data.app.json.get.html)        | Retrieves a JSON document
+| [data.app.json.list](method-data.app.json.list.html)      | Lists all JSON documents for a given user
+| [data.app.json.merge](method-data.app.json.merge.html)    | Appends a JSON document to an existing one
+| [data.app.json.set](method-data.app.json.set.html)        | Stores a JSON document
+| [data.app.blob.delete](method-data.app.blob.delete.html)  | Removes a binary blob
+| [data.app.blob.get](method-data.app.blob.get.html)        | Retrieves a binary blob
+| [data.app.blob.set](method-data.app.blob.set.html)        | Stores a binary blob
+
+## data.hmh
+
+These methods are provided for convenience. The data managed by them can also
+be accessed through the `data.app.json` methods, as the `hmh` app.
+
+| Method                                                    | Description
+|:---                                                       |:---
+| data.hmh.contentProgression.get                           | Reads the content progression for a student
+| data.hmh.contentProgression.set                           | Stores the content progression for a student
+
+## data.user
+
+Manages data on a per user basis.
+
+| Method                                                    | Description
+|:---                                                       |:---
+| [data.user.delete](method-data.user.delete.html)          | Removes a record from the user store
+| [data.user.get](method-data.user.get.html)                | Retrieves a record from the user store
+| [data.user.getShared](method-data.user.getShared.html)    | Retrieves a record from the user store
+| [data.user.list](method-data.user.list.html)              | Lists all records for a given user
+| [data.user.set](method-data.user.set.html)                | Stores a record in the user store
+| [data.user.share](method-data.user.share.html)            | Shares a record in the user store with other users
+| [data.user.unshare](method-data.user.unshare.html)        | Unshares a record in the user store with other users

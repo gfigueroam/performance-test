@@ -1,0 +1,38 @@
+FORMAT: 1A
+
+# data.user.list
+
+List data for a given user.
+
+:[](common-args.md url:"data.user.list" token:"Can be used with either a service token or a user token.")
+
+| Argument      | Example                   | Required  | Description
+|:---           |:---                       |:---       |:---
+| `user`        | `user_345`                | Optional  | The user as which to get the data. Required if token type is service token.
+
+## Result
+
+```javascript
+{
+    "ok": true,
+    "result": {
+        "keys": [
+            "key1",
+            // ...
+        ],
+        "shared": [
+            "shared1",
+            // ...
+        ]
+    }
+}
+```
+
+## Errors
+
+:[](common-errors.md)
+
+| Error             | Description
+|:---               |:---
+| `user_not_passed` | Token is a service token, but no user was provided.
+| `forbidden`       | Token is a user token, and `user` was specified.

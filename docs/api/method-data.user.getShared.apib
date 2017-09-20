@@ -1,0 +1,34 @@
+FORMAT: 1A
+
+# data.user.getShared
+
+Retrieve data for a given user.
+
+:[](common-args.md url:"data.user.getShared" token:"Requires a user token.")
+
+| Argument      | Example           | Required  | Description
+|:---           |:---               |:---       |:---
+| `id`          | `z3Gh7pQ12z`      | Required  | A unique key to identify the data being stored.
+
+## Result
+
+```javascript
+{
+    "ok": true,
+    "result": {
+        "key":  "annotation_id123",
+        "type": "text",
+        "data": "data",
+    }
+}
+```
+
+## Errors
+
+:[](common-errors.md)
+
+| Error                 | Description
+|:---                   |:---
+| `wrong_token_type`    | This endpoint requires a service token.
+| `id_not_found`        | `id` does not describe an existing sharing ID for user.
+| `forbidden`           | User does not have permission to access shared data.

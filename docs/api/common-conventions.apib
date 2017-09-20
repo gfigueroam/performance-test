@@ -1,0 +1,54 @@
+FORMAT: 1A
+
+# Calling conventions
+
+## Invocation
+
+When consumed as HTTP requests, they are exposed as RPC-style methods on
+`https://ADDRESS/api/v1/METHOD`, and must be called using HTTPS. Each method can
+be invoked either as `GET` or `POST` requests. When called as `GET` requests,
+all required input must be passed as query parameters. When called as `POST`,
+the parameters must be passed in the request body as a JSON object.
+
+## Response
+
+The response is a JSON object, and it contains boolean `ok` property, which
+indicates whether or not the request was successful. If the request was
+successful, there is an optional `result` property which contains the result of
+the operation. In case of failures, the `error` property will be set, and will
+contain a machine-readable error code.
+
+```javascript
+{
+    "ok": true
+}
+```
+
+```javascript
+{
+    "ok": true,
+    "result": "this is dependent on the method"
+}
+```
+
+```javascript
+{
+    "ok": false,
+    "error": "machine_readable_code"
+}
+```
+
+Each method will document what its result looks like, and what unique errors it
+can generate. Errors generated from incorrect usage of the API are common to all
+methods, and are described in [API errors](errors-api.html).
+
+## Authentication
+
+Method calls must be authenticated using a bearer token, which should be passed
+to all methods as the HTTP `Authorization` header.
+
+The bearer token can be either a user token obtained from the IDM User API (SUS)
+or a service token from a whitelist of known HMH applications. Each method has
+a description of the type of token it expects.
+
+An invalid bearer token can produce the following [errors](errors-auth.html).

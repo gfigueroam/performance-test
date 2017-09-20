@@ -1,0 +1,36 @@
+FORMAT: 1A
+
+# data.admin.users
+
+List users with data in the store.
+
+:[](common-args.md url:"data.admin.users" token:"Requires a service token.")
+
+| Argument  | Example       | Required  | Description
+|:---       |:---           |:---       |:---
+| `realm`   | `user`        | Required  | One of `app`, `hmh`, or `user`.
+
+## Result
+
+```javascript
+{
+    "ok": true,
+    "result": [
+        {
+            "realm": "user",
+            "list": [
+                "user_abc",
+                // ...
+            ]
+        }
+    ]
+}
+```
+
+## Errors
+
+:[](common-errors.md)
+
+| Error                 | Description
+|:---                   |:---
+| `wrong_token_type`    | This endpoint requires a service token.

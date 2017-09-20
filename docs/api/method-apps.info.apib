@@ -1,0 +1,39 @@
+FORMAT: 1A
+
+# apps.info
+
+Get information on an existing app.
+
+:[](common-args.md url:"apps.info" token:"Requires a service token.")
+
+| Argument      | Example           | Required  | Description
+|:---           |:---               |:---       |:---
+| `name`        | `browser_client`  | Required  | The name of the app.
+
+## Result
+
+```javascript
+{
+    "ok": true,
+    "result": {
+        "name": "browser_client",
+        "quota": 1024,
+        "passwords": [
+            {
+                "id": "e3K8Bxpq76",
+                "created_at": "date",
+            },
+            //...
+        ]
+    }
+}
+```
+
+## Errors
+
+:[](common-errors.md)
+
+| Error                     | Description
+|:---                       |:---
+| `wrong_token_type`        | This endpoint requires a service token.
+| `app_not_found`           | `name` does not name an existing app.

@@ -1,0 +1,33 @@
+FORMAT: 1A
+
+# apps.setQuotaPerUser
+
+Sets the quota on an existing app.
+
+Decreasing the quota does not cause data to be deleted. In other words, if the
+new value causes any users to be over the quota, their data will not be deleted,
+but future write operations will fail.
+
+:[](common-args.md url:"apps.setQuotaPerUser" token:"Requires a service token.")
+
+| Argument          | Example           | Required  | Description
+|:---               |:---               |:---       |:---
+| `name`            | `browser_client`  | Required  | The name of the app.
+| `quota_per_user`  | `1024`            | Required  | The storage available to the app per user, in bytes.
+
+## Result
+
+```javascript
+{
+    "ok": true
+}
+```
+
+## Errors
+
+:[](common-errors.md)
+
+| Error                     | Description
+|:---                       |:---
+| `wrong_token_type`        | This endpoint requires a service token.
+| `app_not_found`           | `name` does not name an existing app.

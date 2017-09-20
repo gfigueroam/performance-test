@@ -1,0 +1,38 @@
+FORMAT: 1A
+
+# apps.add
+
+Adds support for a new app.
+
+Apps will use their name and password when storing data. In scenarios where the
+app data must not be accessed by other apps, it is recommended that accessing
+the data be done through an intermediary web service (to avoid making the
+password obtainable).
+
+See [Naming rules](common-names.html) for more information on names.
+
+:[](common-args.md url:"apps.add" token:"Requires a service token.")
+
+| Argument          | Example           | Required  | Description
+|:---               |:---               |:---       |:---
+| `name`            | `browser_client`  | Required  | The name of the app.
+| `quota_per_user`  | `1024`            | Required  | The storage available to the app per user, in bytes.
+| `password`        | `2*HF9H[eQsWSc#k` | Optional  | The password for the app. Leave blank for no password.
+
+## Result
+
+```javascript
+{
+    "ok": true
+}
+```
+
+## Errors
+
+:[](common-errors.md)
+
+| Error                     | Description
+|:---                       |:---
+| `wrong_token_type`        | This endpoint requires a service token.
+| `name_in_use`             | `name` is already used for an existing app.
+| `invalid_name`            | `name` does not conform to the naming rules.

@@ -1,0 +1,47 @@
+FORMAT: 1A
+
+# authz.add
+
+Create an authorization mode, which can be used to validate cross-user access
+to data.
+
+See [Naming rules](common-names.html) for more information on names.
+
+:[](common-args.md url:"authz.add" token:"Requires a service token.")
+
+| Argument      | Example                   | Required  | Description
+|:---           |:---                       |:---       |:---
+| `name`        | `shared_text`             | Required  | The name of the authorization mode.
+| `url`         | `https://example/authz`   | Required  | The authorization URL.
+
+The authorization URL described by the `url` parameter must be an SSL URL (it
+begins with `https`). It must be a `GET` URL, which take the following query
+parameters:
+
+| Query parameter   | Example           | Description
+|:---               |:---               |:---
+| `name`            | `shared_text`     | The name of the authorization mode
+| `ctx`             | `id_123`          | Some context passed as a parameter
+| `user_id`         | `user_abc`        | The ID of the user trying to access the data
+
+The result of the URL should be an HTTP 200, with a JSON boolean (`true` or
+`false`) describing the authorization status.
+
+## Result
+
+```javascript
+{
+    "ok": true
+}
+```
+
+## Errors
+
+:[](common-errors.md)
+
+| Error                     | Description
+|:---                       |:---
+| `wrong_token_type`        | This endpoint requires a service token.
+| `name_in_use`             | `name` is already used for an existing authorization mode.
+| `invalid_name`            | `name` does not conform to the naming rules.
+| `invalid_url`             | `url` does not conform to a valid URL schema.

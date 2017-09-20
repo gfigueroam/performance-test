@@ -1,0 +1,27 @@
+FORMAT: 1A
+
+# authz.list
+
+List all existing authorization modes.
+
+:[](common-args.md url:"authz.list" token:"Requires a service token.")
+
+## Result
+
+```javascript
+{
+    "ok": true,
+    "result": [
+        "shared_text",
+        // ...
+    ]
+}
+```
+
+## Errors
+
+:[](common-errors.md)
+
+| Error                     | Description
+|:---                       |:---
+| `wrong_token_type`        | This endpoint requires a service token.

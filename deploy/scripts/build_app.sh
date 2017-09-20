@@ -20,6 +20,9 @@ echo Building and copying API Docs
 npm run build:apidocs
 cp -Rf out app_deploy/out
 
+echo Copying static folder
+cp -Rf static app_deploy/static
+
 echo Transpiling source folders
 ./node_modules/.bin/babel app --out-dir app_deploy/app
 
