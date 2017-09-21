@@ -1,9 +1,8 @@
 import chai from 'chai';
 import sinon from 'sinon';
 
-import mute from '../../../../test/common/helpers/mute';
-
 import errorHandler from '../../../../app/utils/error';
+import mute from '../../../common/helpers/mute';
 
 const expect = chai.expect;
 

@@ -21,13 +21,13 @@ import uncaughtExceptionHandler from './utils/exceptions';
 
 // Boot the server using shared HMH Grid framework
 const app = gridFramework({
+  health,
   helmet: {
     csp: {
-      server_host: 'localhost',
       defaultSrc: ["'self'"],
+      server_host: 'localhost',
     },
   },
-  health,
   validate_token: false, // Skip SIF token validation on all endpoints
 });
 
@@ -73,8 +73,8 @@ app.use(serve({
 // Set up static path to serve API documentation
 //  API docs are available at: /docs/api.html
 app.use(serve({
-  rootPath: '/docs',
   rootDir: 'out/api/html',
+  rootPath: '/docs',
 }));
 
 logger.info('Initializing server...');

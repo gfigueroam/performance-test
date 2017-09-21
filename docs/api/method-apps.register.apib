@@ -1,8 +1,8 @@
 FORMAT: 1A
 
-# apps.add
+# apps.register
 
-Adds support for a new app.
+Registers a new app.
 
 Apps will use their name and password when storing data. In scenarios where the
 app data must not be accessed by other apps, it is recommended that accessing
@@ -11,13 +11,13 @@ password obtainable).
 
 See [Naming rules](common-names.html) for more information on names.
 
-:[](common-args.md url:"apps.add" token:"Requires a service token.")
+:[](common-args.md url:"apps.register" token:"Requires a service token.")
 
 | Argument          | Example           | Required  | Description
 |:---               |:---               |:---       |:---
 | `name`            | `browser_client`  | Required  | The name of the app.
-| `quota_per_user`  | `1024`            | Required  | The storage available to the app per user, in bytes.
 | `password`        | `2*HF9H[eQsWSc#k` | Optional  | The password for the app. Leave blank for no password.
+| `quota`           | `1024`            | Required  | The storage available to the app per user, in bytes.
 
 ## Result
 

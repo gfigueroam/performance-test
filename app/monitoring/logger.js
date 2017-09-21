@@ -2,11 +2,11 @@ import bunyan from 'bunyan';
 import config from '../config';
 
 const logger = bunyan.createLogger({
-  environment: config.get('env'),
   application: 'uds',
   component: 'uds',
-  name: 'uds',
+  environment: config.get('env'),
   level: config.get('logger:level'),
+  name: 'uds',
 });
 
 export default logger;

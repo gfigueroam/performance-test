@@ -1,19 +1,19 @@
 FORMAT: 1A
 
-# apps.setQuotaPerUser
+# apps.setPerUserQuota
 
-Sets the quota on an existing app.
+Sets the per-user storage quota on an existing app.
 
 Decreasing the quota does not cause data to be deleted. In other words, if the
 new value causes any users to be over the quota, their data will not be deleted,
 but future write operations will fail.
 
-:[](common-args.md url:"apps.setQuotaPerUser" token:"Requires a service token.")
+:[](common-args.md url:"apps.setPerUserQuota" token:"Requires a service token.")
 
-| Argument          | Example           | Required  | Description
-|:---               |:---               |:---       |:---
-| `name`            | `browser_client`  | Required  | The name of the app.
-| `quota_per_user`  | `1024`            | Required  | The storage available to the app per user, in bytes.
+| Argument       | Example           | Required  | Description
+|:---            |:---               |:---       |:---
+| `name`         | `browser_client`  | Required  | The name of the app.
+| `quota`        | `1024`            | Required  | The storage available to the app, per user, in bytes.
 
 ## Result
 

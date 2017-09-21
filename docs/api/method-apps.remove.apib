@@ -9,7 +9,6 @@ Unregister an existing authorization mode.
 | Argument      | Example           | Required  | Description
 |:---           |:---               |:---       |:---
 | `name`        | `browser_client`  | Required  | The name of the app.
-| `force`       | `true`            | Optional  | Remove the app, even if it's being used. Defaults to false.
 
 ## Result
 
@@ -27,4 +26,3 @@ Unregister an existing authorization mode.
 |:---                       |:---
 | `wrong_token_type`        | This endpoint requires a service token.
 | `app_not_found`           | `name` does not name an existing app.
-| `app_in_use`              | The app specified in `name` is being used, and `force` is false.

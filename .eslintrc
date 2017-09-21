@@ -20,6 +20,7 @@
         "arrow-parens": "off",
         "no-param-reassign": ["error", { "props": false }],
         "promise/prefer-await-to-then": "error",
-        "promise/prefer-await-to-callbacks": "error"
+        "promise/prefer-await-to-callbacks": "error",
+        "sort-keys": "error"
     }
 }

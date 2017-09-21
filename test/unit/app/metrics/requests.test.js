@@ -1,7 +1,7 @@
 import chai from 'chai';
 
-import metricsRoutes from '../../../../app/metrics/routes';
 import metricsMiddleware from '../../../../app/metrics/requests';
+import metricsRoutes from '../../../../app/metrics/routes';
 
 const expect = chai.expect;
 
@@ -9,9 +9,9 @@ describe('Metrics Requests', () => {
   it('should wrap requests and store metrics', () => {
     // Create mock object to simulate a koa ctx
     const mockCtx = {
-      status: 200,
       method: 'GET',
       path: 'test/endpoint',
+      status: 200,
     };
 
     // Mock a handler that takes 200ms to do something

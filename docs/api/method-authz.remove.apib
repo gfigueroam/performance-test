@@ -9,7 +9,6 @@ Unregister an existing authorization mode.
 | Argument      | Example       | Required  | Description
 |:---           |:---           |:---       |:---
 | `name`        | `shared_text` | Required  | The name of the authorization mode.
-| `force`       | `true`        | Optional  | Remove the authorization mode, even if it's being used. Defaults to false.
 
 ## Result
 
@@ -27,4 +26,3 @@ Unregister an existing authorization mode.
 |:---                       |:---
 | `wrong_token_type`        | This endpoint requires a service token.
 | `authz_not_found`         | `name` does not name an existing authorization mode.
-| `authz_in_use`            | The authorization mode specified in `name` is being used, and `force` is false.
