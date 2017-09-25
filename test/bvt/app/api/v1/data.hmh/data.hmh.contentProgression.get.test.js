@@ -1,6 +1,5 @@
 import apiTestStub from '../stub';
 
-describe('HMH Data API', () => {
+describe('data.hmh.contentProgression.get', () => {
   apiTestStub('data.hmh', 'contentProgression.get', {});
-  apiTestStub('data.hmh', 'contentProgression.set', {});
 });

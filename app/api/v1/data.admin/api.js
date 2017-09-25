@@ -1,4 +1,6 @@
 /* eslint-disable sort-keys */
+import parsers from '../../parsers';
+
 import appsHandler from './apps';
 import usersHandler from './users';
 
@@ -9,10 +11,12 @@ export default {
       {
         name: 'realm',
         optional: false,
+        parse: parsers.strings.parseString,
       },
       {
         name: 'user',
         optional: false,
+        parse: parsers.strings.parseString,
       },
     ],
   },
@@ -22,6 +26,7 @@ export default {
       {
         name: 'realm',
         optional: false,
+        parse: parsers.strings.parseString,
       },
     ],
   },

@@ -1,4 +1,6 @@
 /* eslint-disable sort-keys */
+import parsers from '../../parsers';
+
 import infoHandler from './info';
 import listHandler from './list';
 import passwordsAddHandler from './passwords.add';
@@ -14,13 +16,16 @@ export default {
       {
         name: 'name',
         optional: false,
+        parse: parsers.strings.parseString,
       },
       {
         name: 'password',
+        parse: parsers.strings.parseOptionalString,
       },
       {
         name: 'quota',
         optional: false,
+        parse: parsers.numbers.parseQuota,
       },
     ],
   },
@@ -30,6 +35,7 @@ export default {
       {
         name: 'name',
         optional: false,
+        parse: parsers.strings.parseString,
       },
     ],
   },
@@ -42,6 +48,7 @@ export default {
       {
         name: 'name',
         optional: false,
+        parse: parsers.strings.parseString,
       },
     ],
   },
@@ -51,10 +58,12 @@ export default {
       {
         name: 'name',
         optional: false,
+        parse: parsers.strings.parseString,
       },
       {
         name: 'password',
         optional: false,
+        parse: parsers.strings.parseString,
       },
     ],
   },
@@ -64,10 +73,12 @@ export default {
       {
         name: 'name',
         optional: false,
+        parse: parsers.strings.parseString,
       },
       {
         name: 'passwordId',
         optional: false,
+        parse: parsers.strings.parseString,
       },
     ],
   },
@@ -77,10 +88,12 @@ export default {
       {
         name: 'name',
         optional: false,
+        parse: parsers.strings.parseString,
       },
       {
         name: 'quota',
         optional: false,
+        parse: parsers.numbers.parseQuota,
       },
     ],
   },

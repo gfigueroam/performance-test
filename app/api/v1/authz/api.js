@@ -1,4 +1,6 @@
 /* eslint-disable sort-keys */
+import parsers from '../../parsers';
+
 import infoHandler from './info';
 import listHandler from './list';
 import registerHandler from './register';
@@ -11,10 +13,12 @@ export default {
       {
         name: 'name',
         optional: false,
+        parse: parsers.strings.parseString,
       },
       {
         name: 'url',
         optional: false,
+        parse: parsers.strings.parseString,
       },
     ],
   },
@@ -24,6 +28,7 @@ export default {
       {
         name: 'name',
         optional: false,
+        parse: parsers.strings.parseString,
       },
     ],
   },
@@ -36,6 +41,7 @@ export default {
       {
         name: 'name',
         optional: false,
+        parse: parsers.strings.parseString,
       },
     ],
   },

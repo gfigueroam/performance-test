@@ -1,4 +1,6 @@
 /* eslint-disable sort-keys */
+import parsers from '../../parsers';
+
 import deleteHandler from './delete';
 import getHandler from './get';
 import getSharedHandler from './getShared';
@@ -14,9 +16,11 @@ export default {
       {
         name: 'key',
         optional: false,
+        parse: parsers.strings.parseString,
       },
       {
         name: 'user',
+        parse: parsers.strings.parseOptionalString,
       },
     ],
   },
@@ -26,6 +30,7 @@ export default {
       {
         name: 'id',
         optional: false,
+        parse: parsers.strings.parseString,
       },
     ],
   },
@@ -34,6 +39,7 @@ export default {
     args: [
       {
         name: 'user',
+        parse: parsers.strings.parseOptionalString,
       },
     ],
   },
@@ -43,10 +49,12 @@ export default {
       {
         name: 'key',
         optional: false,
+        parse: parsers.strings.parseString,
       },
       {
         name: 'type',
         optional: false,
+        parse: parsers.strings.parseString,
       },
       {
         name: 'data',
@@ -54,8 +62,14 @@ export default {
       },
       {
         name: 'user',
+        parse: parsers.strings.parseOptionalString,
       },
     ],
+    metadata: {
+      middleware: [
+        // middleware.data.parseUserData, (Parse `data` based on `type`)
+      ],
+    },
   },
   'data.user.delete': {
     handler: deleteHandler,
@@ -63,9 +77,11 @@ export default {
       {
         name: 'key',
         optional: false,
+        parse: parsers.strings.parseString,
       },
       {
         name: 'user',
+        parse: parsers.strings.parseOptionalString,
       },
     ],
   },
@@ -75,17 +91,21 @@ export default {
       {
         name: 'key',
         optional: false,
+        parse: parsers.strings.parseString,
       },
       {
         name: 'authz',
         optional: false,
+        parse: parsers.strings.parseString,
       },
       {
         name: 'ctx',
         optional: false,
+        parse: parsers.strings.parseString,
       },
       {
         name: 'user',
+        parse: parsers.strings.parseOptionalString,
       },
     ],
   },
@@ -95,9 +115,11 @@ export default {
       {
         name: 'id',
         optional: false,
+        parse: parsers.strings.parseString,
       },
       {
         name: 'user',
+        parse: parsers.strings.parseOptionalString,
       },
     ],
   },

@@ -1,4 +1,6 @@
 /* eslint-disable sort-keys */
+import parsers from '../../parsers';
+
 import blobDeleteHandler from './blob.delete';
 import blobGetHandler from './blob.get';
 import blobSetHandler from './blob.set';
@@ -15,12 +17,15 @@ export default {
       {
         name: 'app',
         optional: false,
+        parse: parsers.strings.parseString,
       },
       {
         name: 'password',
+        parse: parsers.strings.parseOptionalString,
       },
       {
         name: 'user',
+        parse: parsers.strings.parseOptionalString,
       },
     ],
   },
@@ -30,16 +35,20 @@ export default {
       {
         name: 'data',
         optional: false,
+        parse: parsers.strings.parseString,
       },
       {
         name: 'app',
         optional: false,
+        parse: parsers.strings.parseString,
       },
       {
         name: 'password',
+        parse: parsers.strings.parseOptionalString,
       },
       {
         name: 'user',
+        parse: parsers.strings.parseOptionalString,
       },
     ],
   },
@@ -49,12 +58,15 @@ export default {
       {
         name: 'app',
         optional: false,
+        parse: parsers.strings.parseString,
       },
       {
         name: 'password',
+        parse: parsers.strings.parseOptionalString,
       },
       {
         name: 'user',
+        parse: parsers.strings.parseOptionalString,
       },
     ],
   },
@@ -64,16 +76,20 @@ export default {
       {
         name: 'key',
         optional: false,
+        parse: parsers.strings.parseString,
       },
       {
         name: 'app',
         optional: false,
+        parse: parsers.strings.parseString,
       },
       {
         name: 'password',
+        parse: parsers.strings.parseOptionalString,
       },
       {
         name: 'user',
+        parse: parsers.strings.parseOptionalString,
       },
     ],
   },
@@ -83,20 +99,25 @@ export default {
       {
         name: 'key',
         optional: false,
+        parse: parsers.strings.parseString,
       },
       {
         name: 'data',
         optional: false,
+        parse: parsers.objects.parseData,
       },
       {
         name: 'app',
         optional: false,
+        parse: parsers.strings.parseString,
       },
       {
         name: 'password',
+        parse: parsers.strings.parseOptionalString,
       },
       {
         name: 'user',
+        parse: parsers.strings.parseOptionalString,
       },
     ],
   },
@@ -106,12 +127,15 @@ export default {
       {
         name: 'app',
         optional: false,
+        parse: parsers.strings.parseString,
       },
       {
         name: 'password',
+        parse: parsers.strings.parseOptionalString,
       },
       {
         name: 'user',
+        parse: parsers.strings.parseOptionalString,
       },
     ],
   },
@@ -121,16 +145,20 @@ export default {
       {
         name: 'key',
         optional: false,
+        parse: parsers.strings.parseString,
       },
       {
         name: 'app',
         optional: false,
+        parse: parsers.strings.parseString,
       },
       {
         name: 'password',
+        parse: parsers.strings.parseOptionalString,
       },
       {
         name: 'user',
+        parse: parsers.strings.parseOptionalString,
       },
     ],
   },
@@ -140,20 +168,25 @@ export default {
       {
         name: 'key',
         optional: false,
+        parse: parsers.strings.parseString,
       },
       {
         name: 'data',
         optional: false,
+        parse: parsers.objects.parseData,
       },
       {
         name: 'app',
         optional: false,
+        parse: parsers.strings.parseString,
       },
       {
         name: 'password',
+        parse: parsers.strings.parseOptionalString,
       },
       {
         name: 'user',
+        parse: parsers.strings.parseOptionalString,
       },
     ],
   },

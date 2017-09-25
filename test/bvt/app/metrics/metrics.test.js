@@ -2,7 +2,7 @@ import chai from 'chai';
 
 const expect = chai.expect;
 
-describe('Metrics', () => {
+describe('metrics', () => {
   describe('GET', () => {
     it('should return process metrics', done => {
       chai.request(process.env.ENDPOINT)
