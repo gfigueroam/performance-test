@@ -1,11 +1,8 @@
 import errors from '../models/errors';
-import logger from '../monitoring/logger';
 
 const codes = Object.values(errors.codes);
 
 export default function onException(error) {
-  logger.error(`Exception thrown by Swatch handler: ${error}`);
-
   // Get the error message from the exception
   const code = (error && error.message) || error;
 

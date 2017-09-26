@@ -8,8 +8,6 @@ import gridFramework from 'grid-framework';
 
 import http from 'http';
 
-import uuid from 'uuid';
-
 import routes from './router';
 import config from './config';
 import metrics from './metrics';
@@ -39,12 +37,15 @@ app.use(compress({}));
 
 // Set up custom request logger using Bunyan
 app.use(koaBunyanLogger(logger));
+app.use(koaBunyanLogger.requestIdContext({
+  field: 'correlationId',
+  prop: 'correlationId',
+  requestProp: 'correlationId',
+}));
 app.use(koaBunyanLogger.requestLogger({
   updateLogFields(fields) {
     fields.req = undefined;
     fields.res = undefined;
-    fields.authorization = this.request.header.authorization;
-    fields.correlationId = this.request.header.correlationid || uuid.v4();
   },
 }));
 
@@ -68,13 +69,6 @@ app.use(serve({
 app.use(serve({
   rootDir: 'static/swagger',
   rootPath: '/swagger',
-}));
-
-// Set up static path to serve API documentation
-//  API docs are available at: /docs/api.html
-app.use(serve({
-  rootDir: 'out/api/html',
-  rootPath: '/docs',
 }));
 
 logger.info('Initializing server...');
