@@ -40,8 +40,13 @@ Returns the merged object.
 | Error                 | Description
 |:---                   |:---
 | `invalid_key`         | `key` does not conform to the naming rules.
-| `invalid_credentials` | `app` does not name an existing app, or password is not valid.
-| `user_not_passed`     | Token is a service token, but no user was provided.
-| `invalid_data`        | `data` is not a valid serialized JSON document.
+| `name_in_use`         | `key` is already in use.
+| `invalid_data`        | `data` is missing or not a serialized JSON document.
+| `invalid_app`         | `app` does not conform to the naming rules.
+| `app_not_found`       | `app` does not name an existing app.
+| `invalid_password`    | `password` is required but missing.
+| `invalid_credentials` | Combination of `app` and `password` is not valid.
+| `invalid_user`        | `user` is not a valid user identifier.
+| `user_not_found`      | User specified in `user` or user token was not found.
 | `forbidden`           | Token is a user token, and user was specified.
 | `quota_exceeded`      | The user does not have sufficient quota to store the data.

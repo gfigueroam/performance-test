@@ -34,5 +34,6 @@ List data for a given user.
 
 | Error             | Description
 |:---               |:---
-| `user_not_passed` | Token is a service token, but no user was provided.
+| `invalid_user`    | `user` is not a valid user identifier.
+| `user_not_found`  | User specified in `user` or user token was not found.
 | `forbidden`       | Token is a user token, and `user` was specified.

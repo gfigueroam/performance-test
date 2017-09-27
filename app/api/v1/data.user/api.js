@@ -1,5 +1,6 @@
 /* eslint-disable sort-keys */
 import parsers from '../../parsers';
+import validators from '../../validators';
 
 import deleteHandler from './delete';
 import getHandler from './get';
@@ -17,10 +18,12 @@ export default {
         name: 'key',
         optional: false,
         parse: parsers.strings.parseString,
+        validate: validators.strings.validateKey,
       },
       {
         name: 'user',
         parse: parsers.strings.parseOptionalString,
+        validate: validators.strings.validateOptionalUser,
       },
     ],
   },
@@ -31,6 +34,7 @@ export default {
         name: 'id',
         optional: false,
         parse: parsers.strings.parseString,
+        validate: validators.strings.validateShareId,
       },
     ],
   },
@@ -40,6 +44,7 @@ export default {
       {
         name: 'user',
         parse: parsers.strings.parseOptionalString,
+        validate: validators.strings.validateOptionalUser,
       },
     ],
   },
@@ -50,11 +55,13 @@ export default {
         name: 'key',
         optional: false,
         parse: parsers.strings.parseString,
+        validate: validators.strings.validateKey,
       },
       {
         name: 'type',
         optional: false,
         parse: parsers.strings.parseString,
+        validate: validators.strings.validateType,
       },
       {
         name: 'data',
@@ -63,11 +70,13 @@ export default {
       {
         name: 'user',
         parse: parsers.strings.parseOptionalString,
+        validate: validators.strings.validateOptionalUser,
       },
     ],
     metadata: {
       middleware: [
         // middleware.data.parseUserData, (Parse `data` based on `type`)
+        // middleware.data.validateUserData, (Validate `data` based on `type`)
       ],
     },
   },
@@ -78,10 +87,12 @@ export default {
         name: 'key',
         optional: false,
         parse: parsers.strings.parseString,
+        validate: validators.strings.validateKey,
       },
       {
         name: 'user',
         parse: parsers.strings.parseOptionalString,
+        validate: validators.strings.validateOptionalUser,
       },
     ],
   },
@@ -92,20 +103,24 @@ export default {
         name: 'key',
         optional: false,
         parse: parsers.strings.parseString,
+        validate: validators.strings.validateKey,
       },
       {
         name: 'authz',
         optional: false,
         parse: parsers.strings.parseString,
+        validate: validators.strings.validateAuthz,
       },
       {
         name: 'ctx',
         optional: false,
         parse: parsers.strings.parseString,
+        validate: validators.strings.validateCtx,
       },
       {
         name: 'user',
         parse: parsers.strings.parseOptionalString,
+        validate: validators.strings.validateOptionalUser,
       },
     ],
   },
@@ -116,10 +131,12 @@ export default {
         name: 'id',
         optional: false,
         parse: parsers.strings.parseString,
+        validate: validators.strings.validateShareId,
       },
       {
         name: 'user',
         parse: parsers.strings.parseOptionalString,
+        validate: validators.strings.validateOptionalUser,
       },
     ],
   },

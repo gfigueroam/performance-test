@@ -4,7 +4,7 @@ import getSharedHandler from '../../../../../../app/api/v1/data.user/getShared';
 
 const expect = chai.expect;
 
-const id = 'test.data.user.getShared.id';
+const id = 'bvtshare1234id';
 
 describe('data.user.getShared', () => {
   it('returns an empty stub value', done => {

@@ -29,6 +29,7 @@ Retrieve data for a given user.
 
 | Error                 | Description
 |:---                   |:---
-| `wrong_token_type`    | This endpoint requires a service token.
-| `id_not_found`        | `id` does not describe an existing sharing ID for user.
+| `wrong_token_type`    | This endpoint requires a user token.
+| `invalid_share_id`    | `id` does not conform to the naming rules.
+| `share_id_not_found`  | `id` does not describe an existing sharing ID for user.
 | `forbidden`           | User does not have permission to access shared data.

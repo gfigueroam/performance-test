@@ -1,5 +1,6 @@
 /* eslint-disable sort-keys */
 import parsers from '../../parsers';
+import validators from '../../validators';
 
 import infoHandler from './info';
 import listHandler from './list';
@@ -17,15 +18,18 @@ export default {
         name: 'name',
         optional: false,
         parse: parsers.strings.parseString,
+        validate: validators.strings.validateName,
       },
       {
         name: 'password',
         parse: parsers.strings.parseOptionalString,
+        validate: validators.strings.validateOptionalPassword,
       },
       {
         name: 'quota',
         optional: false,
         parse: parsers.numbers.parseQuota,
+        validate: validators.numbers.validateQuota,
       },
     ],
   },
@@ -36,6 +40,7 @@ export default {
         name: 'name',
         optional: false,
         parse: parsers.strings.parseString,
+        validate: validators.strings.validateName,
       },
     ],
   },
@@ -49,6 +54,7 @@ export default {
         name: 'name',
         optional: false,
         parse: parsers.strings.parseString,
+        validate: validators.strings.validateName,
       },
     ],
   },
@@ -59,11 +65,13 @@ export default {
         name: 'name',
         optional: false,
         parse: parsers.strings.parseString,
+        validate: validators.strings.validateName,
       },
       {
         name: 'password',
         optional: false,
         parse: parsers.strings.parseString,
+        validate: validators.strings.validatePassword,
       },
     ],
   },
@@ -74,11 +82,13 @@ export default {
         name: 'name',
         optional: false,
         parse: parsers.strings.parseString,
+        validate: validators.strings.validateName,
       },
       {
         name: 'passwordId',
         optional: false,
         parse: parsers.strings.parseString,
+        validate: validators.strings.validatePasswordId,
       },
     ],
   },
@@ -89,11 +99,13 @@ export default {
         name: 'name',
         optional: false,
         parse: parsers.strings.parseString,
+        validate: validators.strings.validateName,
       },
       {
         name: 'quota',
         optional: false,
         parse: parsers.numbers.parseQuota,
+        validate: validators.numbers.validateQuota,
       },
     ],
   },

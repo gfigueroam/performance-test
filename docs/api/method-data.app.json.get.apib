@@ -31,7 +31,13 @@ Retrieve a JSON document for a given user.
 
 | Error                 | Description
 |:---                   |:---
+| `invalid_key`         | `key` does not conform to the naming rules.
 | `key_not_found`       | `key` does not describe an existing key for user.
-| `invalid_credentials` | `app` does not name an existing app, or password is not valid.
-| `user_not_passed`     | Token is a service token, but no user was provided.
+| `invalid_app`         | `app` does not conform to the naming rules.
+| `app_not_found`       | `app` does not name an existing app.
+| `invalid_password`    | `password` is required but missing.
+| `invalid_credentials` | Combination of `app` and `password` is not valid.
+| `invalid_user`        | `user` is not a valid user identifier.
+| `user_not_found`      | User specified in `user` or user token was not found.
+| `no_user_data`        | User does not have a matching JSON document saved.
 | `forbidden`           | Token is a user token, and user was specified.

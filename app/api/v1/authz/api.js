@@ -1,5 +1,6 @@
 /* eslint-disable sort-keys */
 import parsers from '../../parsers';
+import validators from '../../validators';
 
 import infoHandler from './info';
 import listHandler from './list';
@@ -14,11 +15,13 @@ export default {
         name: 'name',
         optional: false,
         parse: parsers.strings.parseString,
+        validate: validators.strings.validateName,
       },
       {
         name: 'url',
         optional: false,
         parse: parsers.strings.parseString,
+        validate: validators.strings.validateURL,
       },
     ],
   },
@@ -29,6 +32,7 @@ export default {
         name: 'name',
         optional: false,
         parse: parsers.strings.parseString,
+        validate: validators.strings.validateName,
       },
     ],
   },
@@ -42,6 +46,7 @@ export default {
         name: 'name',
         optional: false,
         parse: parsers.strings.parseString,
+        validate: validators.strings.validateName,
       },
     ],
   },

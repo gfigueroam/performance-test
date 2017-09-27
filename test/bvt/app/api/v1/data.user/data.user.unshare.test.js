@@ -2,7 +2,7 @@ import apiTestStub from '../stub';
 
 import seed from '../../../../../common/seed';
 
-const id = `uds.bvt.data.user.unshare.test.${seed.buildNumber}`;
+const id = `bvtunshareid${seed.buildNumber}`;
 const user = 'data.admin.test.user.1';
 
 describe('data.user.unshare', () => {

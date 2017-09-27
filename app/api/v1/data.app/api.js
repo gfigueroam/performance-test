@@ -1,5 +1,6 @@
 /* eslint-disable sort-keys */
 import parsers from '../../parsers';
+import validators from '../../validators';
 
 import blobDeleteHandler from './blob.delete';
 import blobGetHandler from './blob.get';
@@ -18,14 +19,17 @@ export default {
         name: 'app',
         optional: false,
         parse: parsers.strings.parseString,
+        validate: validators.strings.validateApp,
       },
       {
         name: 'password',
         parse: parsers.strings.parseOptionalString,
+        validate: validators.strings.validateOptionalPassword,
       },
       {
         name: 'user',
         parse: parsers.strings.parseOptionalString,
+        validate: validators.strings.validateOptionalUser,
       },
     ],
   },
@@ -36,19 +40,23 @@ export default {
         name: 'data',
         optional: false,
         parse: parsers.strings.parseString,
+        validate: validators.objects.validateTextData,
       },
       {
         name: 'app',
         optional: false,
         parse: parsers.strings.parseString,
+        validate: validators.strings.validateApp,
       },
       {
         name: 'password',
         parse: parsers.strings.parseOptionalString,
+        validate: validators.strings.validateOptionalPassword,
       },
       {
         name: 'user',
         parse: parsers.strings.parseOptionalString,
+        validate: validators.strings.validateOptionalUser,
       },
     ],
   },
@@ -59,14 +67,17 @@ export default {
         name: 'app',
         optional: false,
         parse: parsers.strings.parseString,
+        validate: validators.strings.validateApp,
       },
       {
         name: 'password',
         parse: parsers.strings.parseOptionalString,
+        validate: validators.strings.validateOptionalPassword,
       },
       {
         name: 'user',
         parse: parsers.strings.parseOptionalString,
+        validate: validators.strings.validateOptionalUser,
       },
     ],
   },
@@ -77,19 +88,23 @@ export default {
         name: 'key',
         optional: false,
         parse: parsers.strings.parseString,
+        validate: validators.strings.validateKey,
       },
       {
         name: 'app',
         optional: false,
         parse: parsers.strings.parseString,
+        validate: validators.strings.validateApp,
       },
       {
         name: 'password',
         parse: parsers.strings.parseOptionalString,
+        validate: validators.strings.validateOptionalPassword,
       },
       {
         name: 'user',
         parse: parsers.strings.parseOptionalString,
+        validate: validators.strings.validateOptionalUser,
       },
     ],
   },
@@ -100,24 +115,29 @@ export default {
         name: 'key',
         optional: false,
         parse: parsers.strings.parseString,
+        validate: validators.strings.validateKey,
       },
       {
         name: 'data',
         optional: false,
         parse: parsers.objects.parseData,
+        validate: validators.objects.validateJsonData,
       },
       {
         name: 'app',
         optional: false,
         parse: parsers.strings.parseString,
+        validate: validators.strings.validateApp,
       },
       {
         name: 'password',
         parse: parsers.strings.parseOptionalString,
+        validate: validators.strings.validateOptionalPassword,
       },
       {
         name: 'user',
         parse: parsers.strings.parseOptionalString,
+        validate: validators.strings.validateOptionalUser,
       },
     ],
   },
@@ -128,14 +148,17 @@ export default {
         name: 'app',
         optional: false,
         parse: parsers.strings.parseString,
+        validate: validators.strings.validateApp,
       },
       {
         name: 'password',
         parse: parsers.strings.parseOptionalString,
+        validate: validators.strings.validateOptionalPassword,
       },
       {
         name: 'user',
         parse: parsers.strings.parseOptionalString,
+        validate: validators.strings.validateOptionalUser,
       },
     ],
   },
@@ -146,19 +169,23 @@ export default {
         name: 'key',
         optional: false,
         parse: parsers.strings.parseString,
+        validate: validators.strings.validateKey,
       },
       {
         name: 'app',
         optional: false,
         parse: parsers.strings.parseString,
+        validate: validators.strings.validateApp,
       },
       {
         name: 'password',
         parse: parsers.strings.parseOptionalString,
+        validate: validators.strings.validateOptionalPassword,
       },
       {
         name: 'user',
         parse: parsers.strings.parseOptionalString,
+        validate: validators.strings.validateOptionalUser,
       },
     ],
   },
@@ -169,24 +196,29 @@ export default {
         name: 'key',
         optional: false,
         parse: parsers.strings.parseString,
+        validate: validators.strings.validateKey,
       },
       {
         name: 'data',
         optional: false,
         parse: parsers.objects.parseData,
+        validate: validators.objects.validateJsonData,
       },
       {
         name: 'app',
         optional: false,
         parse: parsers.strings.parseString,
+        validate: validators.strings.validateApp,
       },
       {
         name: 'password',
         parse: parsers.strings.parseOptionalString,
+        validate: validators.strings.validateOptionalPassword,
       },
       {
         name: 'user',
         parse: parsers.strings.parseOptionalString,
+        validate: validators.strings.validateOptionalUser,
       },
     ],
   },
