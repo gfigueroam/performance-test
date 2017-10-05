@@ -1,0 +1,118 @@
+FORMAT: 1A
+
+# Annotations
+
+[scenario source](https://hmhco.slack.com/files/U07CMCTU1/F6SHY9X08/user-centric-content.pdf)
+
+Throughout our ebooks we offer the ability for users to take notes directly in the text book. A typical annotation object would be:
+
+```
+{
+  userID:	UserIDfromIDS,
+  contentID:	IDfromcatalog,
+  coordinate_locator:	wheretheannotationislocated,
+  annotationtext:	freetextoftheannotation,
+  annotationflags:	{
+    color:	acolorsetting,
+    ...
+  }
+}
+```
+
+This would be paired with a make/delete/change API set.
+
+## Data Modeling
+Annotations are user data and therefore stored in `data.user`. Each annotation has a content ID, a locator, and the text of the annotation itself. In addition there is some annotation metadata such as the color to use for highlighting. Annotations need to be retrieved in batch for a given user by content ID to enable highlighting of all annotations within a given content ID.
+
+*Assumption*: There is no need to get a list of content IDs which contain annotations for a given user. (This would be useful if there was the need to display a list of content to the user and denote in some way which ones the user has annotated.)
+
+## Data Definition
+Annotations are a built-in data type and there is no additional configuration necessary.
+
+## Data Manipulation (for a given user)
+### Get existing annotations for a piece of content
+```
+data.user.get({
+  key: 'contentID',
+  type: 'list<annotation>' // Despite not being part of the API,
+                           // may want to attach user data of different types
+                           // to the same content ID. Needs more thought.
+})
+
+Response:
+{
+  "ok": true,
+  "result": [{
+    coordinates: 145,
+    annotationText: "this is the text that is highlighted",
+    metadata: {
+      color: "#ffff00"
+    }
+  }]
+}
+```
+
+### Add a new annotation
+Even if there are no existing annotations, the `data.user.append` method operates the same way as though there was an empty list.
+```
+data.user.append({
+  key: 'contentID',
+  type: 'list<annotation>',
+  data: {
+    coordinates: 145,
+    annotationText: "this is the text that is highlighted",
+    metadata: {
+      color: "#ffff00"
+    }
+  }
+})
+
+Response:
+{
+  "ok": true
+}
+```
+
+### Delete an annotation
+Deletions are difficult. First the set of annotations must be retrieved from UDS, the appropriate annotation removed, and the remaining annotations re-added one at a time.
+
+```
+const existingAnnotations = await data.user.get({
+  key: 'contentID',
+  type: 'list<annotation>' // Despite not being part of the API,
+                           // may want to attach user data of different types
+                           // to the same content ID. Needs more thought.
+});
+
+if (existingAnnotations.ok) {
+  // Delete all annotations to prepare for re-adding
+  const deletion = await data.user.delete({
+    key: 'contentID',
+    type: 'list<annotation>'
+  });
+
+  if (deletion.ok) {
+    for(let i = 0; i < existingAnnotations.result.length; i++) {
+      // Don't append the annotation we want to delete.
+      if (existingAnnotations.result[i].coordinates != 5) {
+        const appendResult = await data.user.append({
+          key: 'contentID',
+          type: 'list<annotation>',
+          data: existingAnnotations.result[i]
+        });
+        if (!appendResult.ok) {
+          throw new Error('Something went wrong :(');
+        }
+      }
+    }
+  }
+}
+```
+
+## Limitations
+UDS does not:
+* allow a user to apply a custom order to their annotations
+* allow a user to delete a single annotation atomically
+
+UDS should, but does not:
+* limit the number of annotations stored for a given user for each content ID

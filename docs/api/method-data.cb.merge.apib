@@ -1,0 +1,31 @@
+FORMAT: 1A
+
+# data.cb.merge
+
+Merges a new `object` into the existing value stored at the specified `key`. If no value has been stored, it is implicitly `{}` and the resulting value will be identical to `object`. This method throws an error if there is an existing stored value which is not an object.
+
+See [Naming rules](common-names.html) for more information on names.
+
+:[](common-args.md url:"data.cb.merge" token:"Can be used with either a service token or a user token.")
+
+| Argument          | Example           | Required  | Description
+|:---               |:---               |:---       |:---
+| `key`             | `achievements`      | Required  | The key whose stored value is to be updated.
+| `object`          | `{"achievementXYZ": true}`      | Required  | The object which is to be merged with the existing stored value. The merge will overwrite any existing properties specified in `object` which also exist in the value, and will add any properties specified in `object` which are not present on value. Merge is superficial (not deep).
+| `user`            | `<userID>`        | Optional  | The user whose stored value is to be updated. Required when a service token is used, otherwise is derived from the user auth token.
+
+## Result
+
+```javascript
+{
+    "ok": true
+}
+```
+
+## Errors
+
+:[](common-errors.md)
+
+| Error                     | Description
+|:---                       |:---
+| `non_object_value`        | The value identified by key is not an object and cannot be merged.

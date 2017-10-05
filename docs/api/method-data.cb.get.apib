@@ -1,0 +1,31 @@
+FORMAT: 1A
+
+# data.cb.get
+
+Retrieves whatever value is stored under the specified key for a user.
+
+See [Naming rules](common-names.html) for more information on names.
+
+:[](common-args.md url:"data.cb.get" token:"Can be used with either a service token or a user token.")
+
+| Argument          | Example           | Required  | Description
+|:---               |:---               |:---       |:---
+| `key`             | `annotations`     | Required  | The key whose stored value is to be returned.
+| `user`            | `<userID>`        | Optional  | The user whose stored value is to be returned. Required when a service token is used, otherwise is derived from the user auth token.
+
+## Result
+The result is whatever value is stored at the specified `key` for the user identified by the authentication token or `user` parameter. The result will be either a `number`, a `string`, or an `object`. If the key has not been set for the user, the result will be `null`.
+
+```javascript
+{
+    "ok": true,
+    "result": {
+      "contentIdA": {...},
+      "contentIdC": {...}
+    }
+}
+```
+
+## Errors
+
+:[](common-errors.md)

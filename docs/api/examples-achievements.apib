@@ -1,0 +1,43 @@
+FORMAT: 1A
+
+# Achievements
+
+[scenario source](https://hmhco.slack.com/files/U07CMCTU1/F6SHY9X08/user-centric-content.pdf)
+
+Achievements are a gamification mechanic to motivate learners to achieve specific tasks or set of tasks, boosting engagement.
+
+## Achievement Data Model
+Achievements will be modelled in UDS as calculated behavior. All achievements will be stored under a single key, `achievements`, with the value being an object keyed by achievement ID. The values of each achievement ID will be metadata necessary to display the achievement, such as score, date awarded, level, etc.
+
+## Awarding an Achievement
+Any system that wishes to award an achievement to a user will emit a kafka message to UDS with the following data:
+```
+user: <user>,
+key: "achievements",
+operation: "merge",
+value: {"<achievementID>": {"awarded": "October 31, 2018"}}
+```
+
+The UDS kafka consumer will translate this message into the following call to the UDS API:
+
+`uds.data.cb.merge(user: <user>, key: "achievements", object: {"<achievementID>": {"awarded": "October 31, 2018"}})`
+
+## Querying Achievements Awarded to a User
+```
+uds.data.cb.get(user: <user>, key: "achievements")
+
+{
+  "ok": true,
+  "result": {
+    "<achivementID1>": {
+      "awarded": "October 31, 2018"
+    },
+    "<achievementID2>": {
+      "awarded": "December 1, 2019"
+    }
+  }
+}
+```
+
+## Querying All Users Awarded a Given Achievement
+UDS is a user-centric data store and does not allow this type of query. Such information should be retrieved from ElasticSearch.

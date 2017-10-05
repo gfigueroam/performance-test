@@ -1,0 +1,21 @@
+FORMAT: 1A
+
+# Images
+
+[scenario source](https://hmhco.slack.com/files/U07CMCTU1/F6SHY9X08/user-centric-content.pdf)
+
+ If we created a student profile image, we would expect that the client application would support the upload, and call a UDS API to create a record in the created content portion of the tree. The image file would be stored in S3, and a reference to it would be stored in the users created content, images section. Clients would interpret that list of created content on their own with UDS responsible for maintaining the tree, and returning the appropriate responses to queries, etc.
+
+## Data Modeling
+The image schema is a built-in type.
+
+## Data Definition
+Since the image schema is a built-in type, no data definition needs to occur.
+
+## Data Manipulation
+
+### Retrieving a list of images and thumbnails
+
+### Retrieving a resized single image
+
+### Storing a new image

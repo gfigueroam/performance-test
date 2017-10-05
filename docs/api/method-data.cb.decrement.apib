@@ -1,0 +1,30 @@
+FORMAT: 1A
+
+# data.cb.decrement
+
+Decrements the numeric value stored at the specified `key`. If no value has been stored, it is implicitly 0 and the resulting value will be -1. This method throws an error if there is an existing stored value which is not a number.
+
+See [Naming rules](common-names.html) for more information on names.
+
+:[](common-args.md url:"data.cb.decrement" token:"Can be used with either a service token or a user token.")
+
+| Argument          | Example           | Required  | Description
+|:---               |:---               |:---       |:---
+| `key`             | `loginCount`      | Required  | The key whose stored value is to be decremented.
+| `user`            | `<userID>`        | Optional  | The user whose stored value is to be decremented. Required when a service token is used, otherwise is derived from the user auth token.
+
+## Result
+
+```javascript
+{
+    "ok": true
+}
+```
+
+## Errors
+
+:[](common-errors.md)
+
+| Error                     | Description
+|:---                       |:---
+| `non_numeric_value`       | The value identified by key is not a number and cannot be decremented.

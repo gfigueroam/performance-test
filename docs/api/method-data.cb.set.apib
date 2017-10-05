@@ -1,0 +1,27 @@
+FORMAT: 1A
+
+# data.cb.set
+
+Sets the value stored at the specified `key`, overwriting any previously existing value.
+
+See [Naming rules](common-names.html) for more information on names.
+
+:[](common-args.md url:"data.cb.set" token:"Can be used with either a service token or a user token.")
+
+| Argument          | Example           | Required  | Description
+|:---               |:---               |:---       |:---
+| `key`             | `loginCount`      | Required  | The key whose stored value is to be updated.
+| `value`          | `"anything"`       | Required  | Any value is permitted: a JSON object, a number, a string, or a boolean. The type will affect what future operations are permitted on the key (eg, `data.cb.increment` will not be allowed if `value` is not numeric).
+| `user`            | `<userID>`        | Optional  | The user whose stored value is to be updated. Required when a service token is used, otherwise is derived from the user auth token.
+
+## Result
+
+```javascript
+{
+    "ok": true
+}
+```
+
+## Errors
+
+:[](common-errors.md)

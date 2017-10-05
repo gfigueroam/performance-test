@@ -1,0 +1,35 @@
+FORMAT: 1A
+
+# Login Count
+
+[scenario source](https://hmhco.slack.com/archives/C6MP6P7NE/p1503651890000160)
+
+We will validate UDS by incrementing a login count for a user by receiving an event from Data Services when a user logs in.
+
+## UDS Calculated Behavior Kafka Messages
+Each UDS Calculated Behavior message will have:
+* `user` - the user affected by this message
+* `key` - the key to use for this message
+* `operation` - the operation to perform. One of: `increment`, `decrement`, `merge`, `set`.
+* `value` - the value to use for `merge` and `set` operations.
+
+## Processing Login Events
+Today, Apache Spark receives login events and stores them in ElasticSearch where they can be queried. The Apache Spark data team will add a spark worker which will emit a calculated behavior message on the UDS Kafka queue. UDS will have a kafka consumer listening for these events which will call the appropriate API, `data.cb.<operation>`. For login events, the operation will be `increment`, and the UDS API call will be:
+
+  `uds.data.cb.increment(user: <user>, key: "loginCount")`
+
+When a user logs in for the first time, they will not have a value for the "loginCount" key. However, the `data.cb.increment` method functions as though the pre-existing value is 0, and the resulting stored loginCount will be 1. Subsequent login messages will continue to increment this value.
+
+### Duplicate Messages
+While rare, duplicate messages _may_ arrive. In such a case, the loginCount for a given user will be double-incremented for the same actual login. With Kafka's at-least-once messaging semantics, the login count for any user is an upper bound of actual logins.
+
+## Querying A User's Login Count
+Simply get the current value:
+
+  `uds.data.cb.get(user: <user>, key: "loginCount")`
+
+## Teacher Querying For All Students' Login Count
+Should a teacher need to see login counts across a section they teach, first the roster for the section would be retrieved, then UDS would be queried for each student in the section.
+
+## HMH BI Team Querying For Login Counts Across Entire Userbase
+UDS is a user-centric data store and BI queries to understand broad analytics are not supported. For this, ElasticSearch will continue to be used.

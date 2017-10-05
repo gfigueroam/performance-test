@@ -67,19 +67,9 @@ Manages data on a per application per user basis.
 | [data.app.blob.get](method-data.app.blob.get.html)        | Retrieves a binary blob
 | [data.app.blob.set](method-data.app.blob.set.html)        | Stores a binary blob
 
-## data.hmh
-
-These methods are provided for convenience. The data managed by them can also
-be accessed through the `data.app.json` methods, as the `hmh` app.
-
-| Method                                                    | Description
-|:---                                                       |:---
-| data.hmh.contentProgression.get                           | Reads the content progression for a student
-| data.hmh.contentProgression.set                           | Stores the content progression for a student
-
 ## data.user
 
-Manages data on a per user basis.
+Manages created content data on a per user basis.
 
 | Method                                                    | Description
 |:---                                                       |:---
@@ -90,3 +80,15 @@ Manages data on a per user basis.
 | [data.user.set](method-data.user.set.html)                | Stores a record in the user store
 | [data.user.share](method-data.user.share.html)            | Shares a record in the user store with other users
 | [data.user.unshare](method-data.user.unshare.html)        | Unshares a record in the user store with other users
+
+## data.cb
+
+Manages calculated behavior data. Calculated behavior is data which is implicitly set on the user (as opposed to explicitly which would be data set at the user's explicit request to store data).
+
+| Method                                                    | Description
+|:---                                                       |:---
+| [data.cb.get](method-data.cb.get.html)                    | Retrieves the current value for the specified key for a user.
+| [data.cb.set](method-data.cb.set.html)                    | Stores a new value for the specified key for a user.
+| [data.cb.increment](method-data.cb.increment.html)        | Increments the existing numeric value stored at the specified key by one for a user.
+| [data.cb.decrement](method-data.cb.decrement.html)        | Decrements the existing numeric value stored at the specified key by one for a user.
+| [data.cb.merge](method-data.cb.merge.html)                | Merges the specified value with the existing object stored at the specified key for a user.

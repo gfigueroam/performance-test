@@ -5,21 +5,80 @@ FORMAT: 1A
 The following examples illustrate ways to combine method calls to create user
 experiences.
 
-## Data definition vs. manipulation
+# UDS Usage Scenarios
 
-In all of the examples, we differentiate between the _data definition_ and
-the _data manipulation_ stages.
+## Calculated Behavior
 
-_Data definition_ is the stage in which settings are created in the system. This
-happens during the development of the systems that will consume the setting.
-These operations are usually not triggered by end-user behavior. For instance:
-in a SQL system, `CREATE TABLE` is considered a data definition command.
+HMH is currently planning to connect their raw event streams to a Spark cluster
+to do more complex processing and aggregation. The resulting calculated behavior
+events will be emitted automatically to the UDS data store. The following
+scenarios have been identified for the first release of UDS: Calculated Behavior.
 
-_Data manipulation_, on the other hand, is usually the operations that are
-triggered as a result of some user action. For instance: in a SQL system,
-`INSERT INTO` is considered a data manipulation command.
+1. Login Count: UDS will track a user login count value, and emitted events will
+inform UDS when to increment the login count in response to a user action. UDS
+will expect this value to be a positive integer with an initial default of 0.
+
+2. Content Progression: Currently the content progression tracks user status
+within a resource by table of contents. In the future, HMH will define arbitrary
+'skills' with prerequisites and status (not started, incomplete, failed, ...).
+Each content item will be referenced by a unique identifier, which will store
+an arbitrary JSON document.
+
+3. Learning Factors: UDS will record specific learning factors for various HMH
+courses and content. Each factor will be referenced by a unique identifier and
+can store a value along with metadata in a JSON document.
+
+4. Achievements and Awards: HMH services will watch for user actions that trigger
+the creation of an achievement with arbitrary properties. Each achievement or
+award will be referenced by a unique identifier, along with an arbitrary JSON
+document. HMH services can create or update/merge data for a single achievement
+and retrieve a list of achievements for a user.
+
+The primary interface for collecting calculated behavior metrics will be via the
+interface with the Spark/Kafka cluster and will be processed asynchronously.
+
+## User Created Content
+
+UDS will initially support unstructured data for HMH users, specifically text
+and annotations. Each time a user creates a new entry, the client HMH service
+must provide UDS with a unique identifier to denote the content associated with
+the entry. This identifier is required to let clients come back to UDS and query
+entries related to that specific piece of content, like a specific chapter in a
+textbook or a specific interaction block in an assessment. The structure of an
+annotation blob will be decided by the client and would allow for additional
+parameters or keys (book + chapter, ...), but should be sent as a JSON blob.
+
+UDS will support the following access patterns to load or view text annotations:
+- Show all for a user by ID
+- Show all for a piece of content by ID
+- Show all to teacher for a set of students by IDs
+
+The primary interface for managing user created content will be via an API
+available over HTTP which will respond synchronously in the event of an error
+creating or updating the user content.
+
+## Persisted Application Data
+
+UDS will support an additional data store for persisted data scoped to a single
+HMH application. We will support two different types of storage, one a blob
+store identified by a combination of application key and object key, and the
+other a JSON document store identified by a combination application key and
+object key chosen by the client application. The primary different between this
+component and the User Created Content is that the internal schema of the
+objects stored here should be known only to the application which owns the
+resource.
 
 ## List of examples
+Examples are categorized into the three types above.
 
-| Example                                   | Description
-|---                                        |---
+| Example                                   | Type                | Description
+|---                                        |---                  |---
+| [Achievements](examples-achievements.html)| Calculated Behavior | Achievements awarded to users.
+| [Annotations](examples-annotations.html)  | Created Content     | Highlighted text and annotations.
+| [Arbitrary Text Storage](examples-arbitrarytext.html) | Created Content | Storage of arbitrary text snippets by users.
+| [Content Progression](examples-contentProgession.html)| Calculated Behavior | User progress through content.
+| [External Links](examples-links.html)     | Created Content     | External Links and metadata.
+| [Documents](examples-googledocs.html)     | Created Content     | Google Docs
+| [Images](examples-images.html)            | Created Content     | User-uploaded images.
+| [Login Count](examples-logincount.html)   | Calculated Behavior | Tracks how many times a user has logged in.
+| Application Data Blob | Application Data | TBD.
