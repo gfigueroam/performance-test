@@ -98,7 +98,7 @@ describe('String Validators', () => {
     it('should reject invalid passwordIds', () => {
       function checkInvalidPasswordId(value) {
         expect(() => stringValidators.validatePasswordId(value)).to.throw(
-          errors.codes.ERROR_CODE_INVALID_TYPE,
+          errors.codes.ERROR_CODE_INVALID_PASSWORD_ID,
         );
       }
 

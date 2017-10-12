@@ -24,9 +24,7 @@ export default {
   DATA_APP_JSON_MERGE: 'api/v1/data.app.json.merge',
   DATA_APP_JSON_SET: 'api/v1/data.app.json.set',
 
-  DATA_HMH_CONTENT_PROGRESSION_GET: 'api/v1/data.hmh.contentProgression.get',
-  DATA_HMH_CONTENT_PROGRESSION_SET: 'api/v1/data.hmh.contentProgression.set',
-
+  DATA_USER_APPEND: 'api/v1/data.user.append',
   DATA_USER_DELETE: 'api/v1/data.user.delete',
   DATA_USER_GET: 'api/v1/data.user.get',
   DATA_USER_GET_SHARED: 'api/v1/data.user.getShared',

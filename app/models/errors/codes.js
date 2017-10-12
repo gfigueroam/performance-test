@@ -19,6 +19,7 @@ export default {
   ERROR_CODE_INVALID_PASSWORD_ID: 'invalid_password_id',
   ERROR_CODE_INVALID_QUOTA: 'invalid_quota',
   ERROR_CODE_INVALID_SHARE_ID: 'invalid_share_id',
+  ERROR_CODE_INVALID_TYPE: 'invalid_type',
   ERROR_CODE_INVALID_URL: 'invalid_url',
   ERROR_CODE_INVALID_USER: 'invalid_user',
   ERROR_CODE_INVALID_USER_REALM: 'invalid_user_realm',

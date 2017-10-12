@@ -2,7 +2,14 @@ FORMAT: 1A
 
 # data.cb.merge
 
-Merges a new `object` into the existing value stored at the specified `key`. If no value has been stored, it is implicitly `{}` and the resulting value will be identical to `object`. This method throws an error if there is an existing stored value which is not an object.
+Merges new `data` into the existing object stored at the specified `key`.
+If no value has been stored, it is implicitly `{}` and the stored value will
+be identical to `data`. This method throws an error if there is an existing
+stored value which is not an object.
+
+The merge will overwrite any existing properties specified in `data` which
+also exist in the value, and will add any properties specified in `data`
+which are not present in the existing object. Merge is superficial (not deep).
 
 See [Naming rules](common-names.html) for more information on names.
 
@@ -10,8 +17,8 @@ See [Naming rules](common-names.html) for more information on names.
 
 | Argument          | Example           | Required  | Description
 |:---               |:---               |:---       |:---
-| `key`             | `achievements`      | Required  | The key whose stored value is to be updated.
-| `object`          | `{"achievementXYZ": true}`      | Required  | The object which is to be merged with the existing stored value. The merge will overwrite any existing properties specified in `object` which also exist in the value, and will add any properties specified in `object` which are not present on value. Merge is superficial (not deep).
+| `key`             | `achievements`    | Required  | The key whose stored value is to be updated.
+| `data`            | `{"achievementXYZ": true}`    | Required  | The object which is to be merged with the existing stored value.
 | `user`            | `<userID>`        | Optional  | The user whose stored value is to be updated. Required when a service token is used, otherwise is derived from the user auth token.
 
 ## Result
@@ -28,4 +35,10 @@ See [Naming rules](common-names.html) for more information on names.
 
 | Error                     | Description
 |:---                       |:---
-| `non_object_value`        | The value identified by key is not an object and cannot be merged.
+| `invalid_key`             | `key` does not conform to the naming rules.
+| `key_not_found`           | `key` does not describe an existing key for user.
+| `invalid_data`            | `data` is missing or not a serialized JSON document.
+| `invalid_user`            | `user` is not a valid user identifier.
+| `user_not_found`          | User specified in `user` or user token was not found.
+| `invalid_type`            | The value identified by key is not an object and cannot be merged.
+| `forbidden`               | Token is a user token, and user was specified and did not match.

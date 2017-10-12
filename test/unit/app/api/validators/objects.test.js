@@ -18,16 +18,4 @@ describe('Object Validators', () => {
       expect(() => objectValidators.validateTextData('')).to.throw(error);
     });
   });
-
-  describe('validateJsonData', () => {
-    it('should allow a valid object', () => {
-      expect(() => objectValidators.validateJsonData({ a: true })).not.to.throw();
-      expect(() => objectValidators.validateJsonData({ a: 'a', b: 'b' })).not.to.throw();
-    });
-
-    it('should require a non-empty object', () => {
-      const error = errors.codes.ERROR_CODE_INVALID_DATA;
-      expect(() => objectValidators.validateJsonData({})).to.throw(error);
-    });
-  });
 });

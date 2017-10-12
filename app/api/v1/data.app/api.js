@@ -120,8 +120,7 @@ export default {
       {
         name: 'data',
         optional: false,
-        parse: parsers.objects.parseData,
-        validate: validators.objects.validateJsonData,
+        parse: parsers.objects.parseJsonData,
       },
       {
         name: 'app',
@@ -201,8 +200,7 @@ export default {
       {
         name: 'data',
         optional: false,
-        parse: parsers.objects.parseData,
-        validate: validators.objects.validateJsonData,
+        parse: parsers.objects.parseJsonData,
       },
       {
         name: 'app',
