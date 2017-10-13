@@ -1,4 +1,5 @@
 /* eslint-disable sort-keys */
+import middleware from '../../../middleware';
 import parsers from '../../parsers';
 import validators from '../../validators';
 
@@ -24,6 +25,11 @@ export default {
         validate: validators.strings.validateOptionalUser,
       },
     ],
+    metadata: {
+      middleware: [
+        middleware.auth.requireUserTokenOrUserId,
+      ],
+    },
   },
   'data.cb.get': {
     handler: getHandler,
@@ -40,6 +46,11 @@ export default {
         validate: validators.strings.validateOptionalUser,
       },
     ],
+    metadata: {
+      middleware: [
+        middleware.auth.requireUserTokenOrUserId,
+      ],
+    },
   },
   'data.cb.increment': {
     handler: incrementHandler,
@@ -56,6 +67,11 @@ export default {
         validate: validators.strings.validateOptionalUser,
       },
     ],
+    metadata: {
+      middleware: [
+        middleware.auth.requireUserTokenOrUserId,
+      ],
+    },
   },
   'data.cb.merge': {
     handler: mergeHandler,
@@ -77,6 +93,11 @@ export default {
         validate: validators.strings.validateOptionalUser,
       },
     ],
+    metadata: {
+      middleware: [
+        middleware.auth.requireUserTokenOrUserId,
+      ],
+    },
   },
   'data.cb.set': {
     handler: setHandler,
@@ -98,6 +119,11 @@ export default {
         validate: validators.strings.validateOptionalUser,
       },
     ],
+    metadata: {
+      middleware: [
+        middleware.auth.requireUserTokenOrUserId,
+      ],
+    },
   },
 };
 /* eslint-enable sort-keys */

@@ -12,6 +12,7 @@ const routeConfigs = [
 
 const swatchRoutes = routeConfigs.map(config => ({
   options: {
+    authAdapter: config.authAdapter,
     onException,
     prefix: config.prefix,
     rawResponse: config.rawResponse,

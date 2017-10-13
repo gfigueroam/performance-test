@@ -2,6 +2,8 @@
 //  Remove file after actual handlers/tests are implemented
 import chai from 'chai';
 
+import tokens from '../../../../common/helpers/tokens';
+
 const expect = chai.expect;
 
 export default async function apiTestStub(objectName, methodName, params) {
@@ -10,6 +12,7 @@ export default async function apiTestStub(objectName, methodName, params) {
       chai.request(process.env.ENDPOINT)
         .post(`api/v1/${objectName}.${methodName}`)
         .set('Content-Type', 'application/json')
+        .set('Authorization', tokens.serviceToken)
         .send(params)
         .end((err, res) => {
           expect(err).to.equal(null);

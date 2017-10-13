@@ -121,8 +121,10 @@
     "sinon": "^2.3.8"
   },
   "dependencies": {
+    "aguid": "2.0.0",
     "bunyan": "^1.8.10",
     "grid-framework": "github:hmhco/hmh.grid.framework#v1.0.2",
+    "idm-nodejs-common": "hmhco/idm-nodejs-common#v1.0.14",
     "jsonwebtoken": "^7.4.2",
     "koa-bodyparser": "^3.2.0",
     "koa-bunyan-logger": "^2.0.0",

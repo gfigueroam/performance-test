@@ -24,6 +24,12 @@ export default {
   DATA_APP_JSON_MERGE: 'api/v1/data.app.json.merge',
   DATA_APP_JSON_SET: 'api/v1/data.app.json.set',
 
+  DATA_CB_DECREMENT: 'api/v1/data.cb.decrement',
+  DATA_CB_GET: 'api/v1/data.cb.get',
+  DATA_CB_INCREMENT: 'api/v1/data.cb.increment',
+  DATA_CB_MERGE: 'api/v1/data.cb.merge',
+  DATA_CB_SET: 'api/v1/data.cb.set',
+
   DATA_USER_APPEND: 'api/v1/data.user.append',
   DATA_USER_DELETE: 'api/v1/data.user.delete',
   DATA_USER_GET: 'api/v1/data.user.get',

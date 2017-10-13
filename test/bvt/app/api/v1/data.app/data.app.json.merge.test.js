@@ -5,6 +5,7 @@ import errors from '../../../../../../app/models/errors';
 import http from '../../../../../common/helpers/http';
 import paths from '../../../../../common/helpers/paths';
 import seed from '../../../../../common/seed';
+import tokens from '../../../../../common/helpers/tokens';
 
 const path = paths.DATA_APP_JSON_MERGE;
 
@@ -24,10 +25,10 @@ describe('data.app.json.merge', () => {
       password,
       user,
     };
-    const emptyToken = '';
+    const serviceToken = tokens.serviceToken;
     const errorCode = errors.codes.ERROR_CODE_INVALID_DATA;
 
-    http.sendPostRequestError(path, emptyToken, params, errorCode, done);
+    http.sendPostRequestError(path, serviceToken, params, errorCode, done);
   });
 
   apiTestStub('data.app', 'json.merge', { app, data, key, password, user });

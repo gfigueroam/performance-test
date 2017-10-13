@@ -2,6 +2,7 @@ import chai from 'chai';
 import util from 'util';
 
 import logger from '../../../app/monitoring/logger';
+import tokens from './tokens';
 
 const expect = chai.expect;
 
@@ -49,7 +50,6 @@ function sendPostRequest(path, token, params, onComplete) {
     .post(path)
     .set('Content-Type', 'application/json')
     .set('Authorization', token)
-    .set('x-hmh-dmps-bvt', 'dmps')
     .send(params)
     .end(onComplete);
 }
@@ -57,7 +57,7 @@ function sendPostRequest(path, token, params, onComplete) {
 // Helper to make a seed call that expects success response and
 //  will abort on failure, but does not make any test assertions
 function sendSeedRequest(path, params, done) {
-  const token = ''; // TODOBT - Hook up auth and tokens
+  const token = tokens.serviceToken;
   const onComplete = verifyResponseOk(done);
   sendPostRequest(path, token, params, onComplete);
 }
