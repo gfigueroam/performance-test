@@ -20,6 +20,7 @@ def docker_tag
 def jenkins_env
 def sem_version
 def package_version
+def docker_bvt_container_id
 def generated_docker_image_name
 
 node {
@@ -30,6 +31,9 @@ node {
 
       git_commit = find_git_commit()
       echo "Git Commit -> $git_commit"
+
+      docker_bvt_container_id = "$git_commit-${env.JOB_BASE_NAME}"
+      echo "Docker ID -> $docker_bvt_container_id"
 
       package_version = find_package_version()
       echo "Package Version -> $package_version"
@@ -79,18 +83,23 @@ node {
 
     stage("Launch BVT Docker Containers") {
       sh "docker ps"
-      sh "docker stop uds-$git_commit || true"
-      sh "docker rm uds-$git_commit || true"
-      sh "docker run --name uds-$git_commit -e NODE_ENV=docker -d $generated_docker_image_name npm start"
+      sh "docker stop dynamodb-$docker_bvt_container_id || true"
+      sh "docker stop uds-$docker_bvt_container_id || true"
+      sh "docker rm dynamodb-$docker_bvt_container_id || true"
+      sh "docker rm uds-$docker_bvt_container_id || true"
+      sh "docker run --name dynamodb-$docker_bvt_container_id -d docker.br.hmheng.io/com-hmhco-uds/dynamodb:latest"
+      sh "sleep 40" // Give DynamoDB some startup breathing room. If this goes by too quickly UDS will fail to connect
+      sh "docker run --name uds-$docker_bvt_container_id -e NODE_ENV=docker --link dynamodb-$docker_bvt_container_id:dynamodb -d $generated_docker_image_name npm start"
       sh "docker ps"
       sh "sleep 20" // Give UDS a moment to start up before executing
-      sh "docker logs uds-$git_commit"
-      docker.image(generated_docker_image_name).inside("--link uds-$git_commit:uds $dind_cmd_line_params") {
+      sh "docker logs uds-$docker_bvt_container_id"
+      sh "docker logs dynamodb-$docker_bvt_container_id"
+      docker.image(generated_docker_image_name).inside("--link uds-$docker_bvt_container_id:uds $dind_cmd_line_params") {
         stage("Run BVT: docker") {
           sh "npm run bvt:docker"
         }
       }
-      sh "docker logs uds-$git_commit"
+      sh "docker logs uds-$docker_bvt_container_id"
     }
 
     if (jenkins_env.equalsIgnoreCase("prod")) {
@@ -109,7 +118,7 @@ node {
       echo "Skipping deploy and BVT stages in non-production Jenkins environment: $jenkins_env"
     }
 
-    stop_docker_containers(git_commit)
+    stop_docker_containers(docker_bvt_container_id)
 
     def result_message = "Successfully deployed UDS version: $docker_tag"
     publish_status_message(result_message, "good", jenkins_env)
@@ -119,17 +128,19 @@ node {
     def failure_message = "Error deploying UDS version: $docker_tag"
     publish_status_message(failure_message, "danger", jenkins_env)
 
-    stop_docker_containers(git_commit)
+    stop_docker_containers(docker_bvt_container_id)
 
     // After sending Slack message, throw the error to fail the build
     throw error
   }
 }
 
-def stop_docker_containers(String git_commit) {
+def stop_docker_containers(String docker_bvt_container_id) {
   // Stop Docker containers
-  sh "docker stop uds-$git_commit || true"
-  sh "docker rm uds-$git_commit || true"
+  sh "docker stop dynamodb-$docker_bvt_container_id || true"
+  sh "docker stop uds-$docker_bvt_container_id || true"
+  sh "docker rm dynamodb-$docker_bvt_container_id || true"
+  sh "docker rm uds-$docker_bvt_container_id || true"
 }
 
 def find_git_commit() {
