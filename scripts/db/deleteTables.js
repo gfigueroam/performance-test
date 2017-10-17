@@ -25,6 +25,8 @@ db.deleteTable(cbParams, function(err, data) {
     console.log('Error deleting calculated-behavior: Table not found', err);
   } else if (err && err.code === 'ResourceInUseException') {
     console.log('Error deleting calculated-behavior: Table in use', err);
+  } else if (err) {
+    console.log('Error deleting calculated-behavior', err);
   } else {
     console.log('Success deleting calculated-behavior table', data);
   }

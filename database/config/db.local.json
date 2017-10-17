@@ -1,5 +1,3 @@
 {
-  "endpoint": "http://localhost:5201",
-  "accessKeyId": "",
-  "secretAccessKey": ""
+  "endpoint": "http://localhost:5201"
 }

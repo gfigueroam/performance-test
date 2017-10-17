@@ -83,19 +83,20 @@ node {
 
     stage("Launch BVT Docker Containers") {
       sh "docker ps"
-      sh "docker stop dynamodb-$docker_bvt_container_id || true"
-      sh "docker stop uds-$docker_bvt_container_id || true"
-      sh "docker rm dynamodb-$docker_bvt_container_id || true"
-      sh "docker rm uds-$docker_bvt_container_id || true"
+      stop_docker_containers(docker_bvt_container_id)
+
       sh "docker run --name dynamodb-$docker_bvt_container_id -d docker.br.hmheng.io/com-hmhco-uds/dynamodb:latest"
-      sh "sleep 40" // Give DynamoDB some startup breathing room. If this goes by too quickly UDS will fail to connect
+      sh "sleep 10" // Give DynamoDB some startup breathing room. If this goes by too quickly UDS will fail to connect
       sh "docker run --name uds-$docker_bvt_container_id -e NODE_ENV=docker --link dynamodb-$docker_bvt_container_id:dynamodb -d $generated_docker_image_name npm start"
+      sh "sleep 10" // Give UDS a moment to start up before executing
+
       sh "docker ps"
-      sh "sleep 20" // Give UDS a moment to start up before executing
       sh "docker logs uds-$docker_bvt_container_id"
       sh "docker logs dynamodb-$docker_bvt_container_id"
-      docker.image(generated_docker_image_name).inside("--link uds-$docker_bvt_container_id:uds $dind_cmd_line_params") {
+
+      docker.image(generated_docker_image_name).inside("--link uds-$docker_bvt_container_id:uds --link dynamodb-$docker_bvt_container_id:dynamodb $dind_cmd_line_params") {
         stage("Run BVT: docker") {
+          // sh "npm run db:create:docker"
           sh "npm run bvt:docker"
         }
       }

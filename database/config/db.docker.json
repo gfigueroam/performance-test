@@ -1,5 +1,3 @@
 {
-  "endpoint": "dynamodb",
-  "accessKeyId": "",
-  "secretAccessKey": ""
+  "endpoint": "dynamodb:5201"
 }

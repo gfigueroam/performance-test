@@ -20,6 +20,9 @@ echo Building and copying API Docs
 npm run build:apidocs
 cp -Rf out app_deploy/out
 
+echo Copying database config
+cp -Rf database app_deploy/database
+
 echo Copying static folder
 cp -Rf static app_deploy/static
 
