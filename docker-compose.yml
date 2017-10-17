@@ -2,7 +2,7 @@ version: '2'
 services:
   uds:
     depends_on:
-      - mysql
+      - dynamodb
     image: docker.br.hmheng.io/com-hmhco-uds/uds
     volumes:
       - .:/code
@@ -11,3 +11,15 @@ services:
       - "5200:5200"
     environment:
       - NODE_ENV=docker
+
+  dynamodb:
+    image: docker.br.hmheng.io/com-hmhco-uds/dynamodb
+    ports:
+      - "5201:5201"
+    volumes:
+      - 'dynamodb_data:/opt/dynamodb/data'
+      - 'dynamodb_workdir:/opt/dynamodb/workdir'
+
+volumes:
+  dynamodb_data:
+  dynamodb_workdir:
