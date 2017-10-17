@@ -5,10 +5,7 @@ import metricsRoutes from './metrics/routes';
 
 import onException from './utils/swatch';
 
-const routeConfigs = [
-  apiRoutes,
-  metricsRoutes,
-];
+const routeConfigs = apiRoutes.concat([metricsRoutes]);
 
 const swatchRoutes = routeConfigs.map(config => ({
   options: {

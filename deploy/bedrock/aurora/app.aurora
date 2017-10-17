@@ -89,8 +89,7 @@ for profile in [DEV, INT, CERT, CERTRV, PRODRV, PRODUCTION]:
                 name="uds",
                 cmdline="""cd /opt/uds/ && NODE_ENV={{profile.stage}}"""
                         """ npm run start-transpiled --max-old-space-size=768 --"""
-                        """ port={{thermos.ports[http]}}"""
-                        """ admin_port={{thermos.ports[admin]}}""",
+                        """ port={{thermos.ports[http]}}""",
                 logger=Logger(
                     mode=LoggerMode('rotate'),
                     rotate=RotatePolicy(log_size=100*MB, backups=5)

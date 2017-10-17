@@ -1,5 +1,4 @@
 import auth from '../../auth';
-import config from '../../config';
 import logger from '../../monitoring/logger';
 
 import appsRoutes from './apps/api';
@@ -8,16 +7,6 @@ import dataAdminRoutes from './data.admin/api';
 import dataAppRoutes from './data.app/api';
 import dataCBRoutes from './data.cb/api';
 import dataUserRoutes from './data.user/api';
-
-
-// Dynamically look up the API prefix and auth adapter class
-//  since some instances have LinkerD with alternate URL paths
-const prefix = config.get('uds:api:prefix');
-
-const adapterKey = config.get('uds:api:adapter');
-const authAdapter = auth.adapter[adapterKey];
-
-logger.info(`routes: Adding ${prefix} routes with ${adapterKey} auth`);
 
 const routes = Object.assign(
   {},
@@ -29,8 +18,27 @@ const routes = Object.assign(
   dataUserRoutes,
 );
 
-export default {
-  authAdapter,
-  prefix,
+const internalPrefix = 'api/v1';
+const internalAuthAdapter = auth.adapter.internal;
+const internalConfig = {
+  authAdapter: internalAuthAdapter,
+  prefix: internalPrefix,
   routes,
 };
+
+logger.info(`routes: Adding ${internalPrefix} routes with internal auth`);
+
+const externalPrefix = 'uds/api/v1';
+const externalAuthAdapter = auth.adapter.external;
+const externalConfig = {
+  authAdapter: externalAuthAdapter,
+  prefix: externalPrefix,
+  routes,
+};
+
+logger.info(`routes: Adding ${externalPrefix} routes with external auth`);
+
+export default [
+  internalConfig,
+  externalConfig,
+];

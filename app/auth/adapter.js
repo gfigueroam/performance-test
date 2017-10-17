@@ -15,9 +15,22 @@ function getAuthHeader(ctx) {
   return header;
 }
 
-function getTokenInfo(ctx) {
-  const header = getAuthHeader(ctx);
+function logValidUserToken(ctx, metadata) {
+  // Add some logic to safely parse claims string and get unique user ID
+  const subClaim = metadata.sub || '';
+  const subClaims = subClaim.split(',');
+  const userIdClaims = subClaims.filter(claim => (
+    claim.includes('uniqueIdentifier=')),
+  ).map(claim => (claim.split('=')[1] || 'Unknown'));
+  const userId = userIdClaims[0] || 'Unknown';
+
+  ctx.swatchCtx.logger.info(`Successfully validated user token: ${userId}`);
+}
+
+function deserializeHeader(ctx, header) {
   const tokenData = header.split(' ');
+
+  ctx.swatchCtx.logger.info(`Found SIF token header: ${header}`);
 
   if (tokenData.length !== 2) {
     ctx.swatchCtx.logger.warn('Invalid format for Authorization header');
@@ -28,8 +41,12 @@ function getTokenInfo(ctx) {
     throw errors.codes.ERROR_CODE_AUTH_INVALID;
   }
 
-  const tokenBuffer = new Buffer(tokenData[1], 'base64');
-  const decodedToken = tokenBuffer.toString();
+  return Buffer.from(tokenData[1], 'base64').toString();
+}
+
+function getInternalTokenInfo(ctx) {
+  const header = getAuthHeader(ctx);
+  const decodedToken = deserializeHeader(ctx, header);
   const splitDecodedToken = decodedToken.split(':');
   if (splitDecodedToken.length !== 2) {
     ctx.swatchCtx.logger.warn(`Invalid format for decoded SIF token: ${decodedToken}`);
@@ -43,27 +60,21 @@ function getTokenInfo(ctx) {
   };
 }
 
-// Simple authAdapter for environments where DMPS needs to manually validate token
+// Internal authAdapter for environments where DMPS needs to manually validate token
 //  Assumes the token is unvalidated, checks for user token followed by service token
 //  This adapter should be used for local environments and Jenkins/docker scenarios
 //   where we don't have a LinkerD mesh layer handling requests and validating tokens
-function simpleAuthAdapter(ctx) {
-  const tokenInfo = getTokenInfo(ctx);
+function internalAuthAdapter(ctx) {
+  const tokenInfo = getInternalTokenInfo(ctx);
   const token = tokenInfo.token;
 
   try {
     // Verify token, which will throw if invalid or expired
     const metadata = jwt.verify(tokenInfo.body, jwtSecret.jwt_secret);
 
-    // Add some logic to safely parse claims string and get unique user ID
-    const subClaim = metadata.sub || '';
-    const subClaims = subClaim.split(',');
-    const userIdClaims = subClaims.filter(claim => (
-      claim.includes('uniqueIdentifier=')),
-    ).map(claim => (claim.split('=')[1] || 'Unknown'));
-    const userId = userIdClaims[0] || 'Unknown';
+    // Getting here means token was verified and did not throw
+    logValidUserToken(ctx, metadata);
 
-    ctx.swatchCtx.logger.info(`Successfully validated user token: ${userId}`);
     return new tokens.UserToken(token);
   } catch (error) {
     // Token that failed JWT decoding must be a service token
@@ -90,14 +101,22 @@ function simpleAuthAdapter(ctx) {
 //   tokens and pass along service tokens and we can just extract it from Auth header
 function linkerdAuthAdapter(ctx) {
   const header = getAuthHeader(ctx);
-  ctx.swatchCtx.logger.warn('LinkerD auth adapter configured!');
-  ctx.swatchCtx.logger.warn(`LinkerD auth adapter header: ${header}`);
+  ctx.swatchCtx.logger.warn(`LinkerD auth adapter configured: ${header}`);
 
-  // For now just throw an error and block validation through LinkerD endpoints
-  throw errors.codes.ERROR_CODE_AUTH_INVALID;
+  const decodedToken = deserializeHeader(ctx, header);
+  const tokenInfo = jwt.decode(decodedToken, { complete: true });
+  if (!tokenInfo) {
+    ctx.swatchCtx.logger.warn('Failed to decode Authorization token');
+    throw errors.codes.ERROR_CODE_AUTH_INVALID;
+  }
+
+  // Log the user ID from the valid user token payload
+  logValidUserToken(ctx, tokenInfo.payload);
+
+  return new tokens.UserToken(header);
 }
 
 export default {
-  linkerd: linkerdAuthAdapter,
-  simple: simpleAuthAdapter,
+  external: linkerdAuthAdapter,
+  internal: internalAuthAdapter,
 };
