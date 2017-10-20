@@ -29,6 +29,7 @@ export default {
   ERROR_CODE_INVALID_USER_REALM: 'invalid_user_realm',
 
   ERROR_CODE_KEY_NOT_FOUND: 'key_not_found',
+  ERROR_CODE_MISSING_ARG: 'missing_arg',
   ERROR_CODE_NAME_IN_USE: 'name_in_use',
   ERROR_CODE_NO_USER_DATA: 'no_user_data',
   ERROR_CODE_PASSWORD_NOT_FOUND: 'password_not_found',
