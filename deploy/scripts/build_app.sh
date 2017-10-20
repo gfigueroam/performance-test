@@ -16,6 +16,12 @@ cp -Rf config app_deploy/config
 echo Copying libraries
 cp -Rf node_modules app_deploy/node_modules
 
+echo Copying database folder
+cp -Rf database app_deploy/database
+
+echo Copying scripts
+cp -Rf scripts app_deploy/scripts
+
 echo Building and copying API Docs
 npm run build:apidocs
 cp -Rf out app_deploy/out
