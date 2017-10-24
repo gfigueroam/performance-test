@@ -1,3 +1,6 @@
 {
-  "endpoint": "none"
+  "database": {
+    "endpoint": "none",
+    "calculatedBehaviorTableName": "uds-test-calculated-behavior"
+  }
 }

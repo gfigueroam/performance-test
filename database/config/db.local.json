@@ -1,3 +1,6 @@
 {
-  "endpoint": "http://localhost:5201"
+  "database": {
+    "endpoint": "http://localhost:5201",
+    "calculatedBehaviorTableName": "uds-local-calculated-behavior"
+  }
 }

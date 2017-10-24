@@ -1,33 +1,32 @@
-var AWS = require('aws-sdk');
+import AWS from 'aws-sdk';
+import nconf from '../../app/config';
 
-var env = process.env.NODE_ENV || 'local';
+async function execute() {
+  const db = new AWS.DynamoDB({
+    apiVersion: nconf.get('database').apiVersion,
+    endpoint: new AWS.Endpoint(nconf.get('database').endpoint),
+    region: nconf.get('database').region,
+  });
 
-// Load config based on the current environment
-var configFilename = '../../database/config/db.' + env + '.json';
-var config = require(configFilename);
-
-// Configure the AWS package and initialize DB handle
-var awsConfigFilename = './database/config/db.' + env + '.json';
-AWS.config.loadFromPath(awsConfigFilename);
-
-var db = new AWS.DynamoDB({
-  region: 'us-east-1',
-  apiVersion: '2012-10-08',
-  endpoint: new AWS.Endpoint(config.endpoint)
-});
-
-// Call DynamoDB to delete the table for calculated behavior service
-var cbParams = {
-  TableName: 'uds-' + env + '-calculated-behavior'
-};
-db.deleteTable(cbParams, function(err, data) {
-  if (err && err.code === 'ResourceNotFoundException') {
-    console.log('Error deleting calculated-behavior: Table not found', err);
-  } else if (err && err.code === 'ResourceInUseException') {
-    console.log('Error deleting calculated-behavior: Table in use', err);
-  } else if (err) {
-    console.log('Error deleting calculated-behavior', err);
-  } else {
+  // Call DynamoDB to delete the table for calculated behavior service
+  try {
+    const data = await db.deleteTable({
+      TableName: nconf.get('database').calculatedBehaviorTableName,
+    }).promise();
+    // eslint-disable-next-line no-console
     console.log('Success deleting calculated-behavior table', data);
+  } catch (err) {
+    if (err.code === 'ResourceNotFoundException') {
+      // eslint-disable-next-line no-console
+      console.error('Error deleting calculated-behavior: Table not found', err);
+    } else if (err.code === 'ResourceInUseException') {
+      // eslint-disable-next-line no-console
+      console.error('Error deleting calculated-behavior: Table in use', err);
+    } else {
+      // eslint-disable-next-line no-console
+      console.error('Error deleting calculated-behavior', err);
+    }
   }
-});
+}
+
+execute();

@@ -1,26 +1,23 @@
-var AWS = require('aws-sdk');
+import AWS from 'aws-sdk';
 
-var env = process.env.NODE_ENV || 'local';
+import nconf from '../../app/config';
 
-// Load config based on the current environment
-var configFilename = '../../database/config/db.' + env + '.json';
-var config = require(configFilename);
+async function execute() {
+  const db = new AWS.DynamoDB({
+    apiVersion: nconf.get('database').apiVersion,
+    endpoint: new AWS.Endpoint(nconf.get('database').endpoint),
+    region: nconf.get('database').region,
+  });
 
-// Configure the AWS package and initialize DB handle
-var awsConfigFilename = './database/config/db.' + env + '.json';
-AWS.config.loadFromPath(awsConfigFilename);
-
-var db = new AWS.DynamoDB({
-  region: 'us-east-1',
-  apiVersion: '2012-10-08',
-  endpoint: new AWS.Endpoint(config.endpoint)
-});
-
-// Call DynamoDB to list all tables in local instance
-db.listTables({}, function(err, data) {
-  if (err) {
-    console.log("Error", err.code);
-  } else {
-    console.log("Table names are ", data.TableNames);
+  // Call DynamoDB to list all tables in local instance
+  try {
+    const data = await db.listTables({}).promise();
+    // eslint-disable-next-line no-console
+    console.log('Table names are ', data.TableNames);
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('Error', err.code);
   }
-});
+}
+
+execute();

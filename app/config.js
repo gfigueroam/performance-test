@@ -11,6 +11,14 @@ nconf.env({ separator: '__' }).argv();
 nconf.file('envFile', { file: envConfig });
 nconf.file('commonFile', { file: commonConfig });
 
+// Database configuration
+nconf.file('databaseBaseFile', {
+  file: `${process.cwd()}/database/config/db.json`,
+});
+nconf.file('databaseEnvFile', {
+  file: `${process.cwd()}/database/config/db.${env}.json`,
+});
+
 nconf.set('env', env);
 
 const args = process.argv;

@@ -1,1 +1,5 @@
-{}
+{
+  "database": {
+    "calculatedBehaviorTableName": "uds-cert-calculated-behavior"
+  }
+}

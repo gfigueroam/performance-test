@@ -1,3 +1,6 @@
 {
-  "endpoint": "dynamodb:5201"
+  "database": {
+    "calculatedBehaviorTableName": "uds-docker-calculated-behavior",
+    "endpoint": "dynamodb:5201"
+  }
 }

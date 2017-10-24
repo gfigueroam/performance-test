@@ -1,1 +1,5 @@
-{}
+{
+  "database": {
+    "calculatedBehaviorTableName": "uds-prod-calculated-behavior"
+  }
+}

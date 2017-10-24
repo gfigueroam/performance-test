@@ -1,11 +1,13 @@
-User-Centric Data Service
+User-Centric Data Service (UDS)
 
 ## Coding Style
 
 This project follows the [AirBnB Javascript Coding Guidelines](https://github.com/airbnb/javascript) using [ESLint](http://eslint.org/) settings.
 
 ## Local DynamoDB
+1. Install the awsclient command line tool.
+2. Run Local DynamoDB in Docker: `$ docker run -p 5201:5201 -d -v dynamodb_data:/opt/dynamodb/data -v dynamodb_workdir:/opt/dynamodb/workdir docker.br.hmheng.io/com-hmhco-uds/dynamodb` (If for some reason a DynamoDB image has not been built, you can build one yourself by running `$ ./deploy/dynamo/docker.sh`. You'll need to be on the Bedrock VPN.)
+3. Create necessary tables by running `$ npm run db:create:local`. (In dev, int, cert, and prod environments this is already done by TerraForm.)
+4. Verify the tables were created:  `$ aws dynamodb list-tables --region us-east-1 --endpoint-url http://localhost:5201`. (Note that the `region` specified in the command must match the region in the database configuration.)
 
-After installing local awscli command line tool, access DynamoDB docker instance:
-
-`aws dynamodb list-tables --endpoint-url http://localhost:5201`
+To scan the items stored in the DynamoDB table: `$ aws dynamodb scan --table-name uds-local-calculated-behavior --region us-east-1 --endpoint-url http://localhost:5201`
