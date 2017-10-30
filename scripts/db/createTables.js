@@ -3,11 +3,18 @@ import AWS from 'aws-sdk';
 import nconf from '../../app/config';
 
 async function execute() {
-  const db = new AWS.DynamoDB({
+  const dynamoDbParams = {
     apiVersion: nconf.get('database').apiVersion,
     endpoint: new AWS.Endpoint(nconf.get('database').endpoint),
     region: nconf.get('database').region,
-  });
+  };
+
+  if (nconf.get('database').credentials) {
+    dynamoDbParams.accessKeyId = nconf.get('database').credentials.accessKeyId;
+    dynamoDbParams.secretAccessKey = nconf.get('database').credentials.secretAccessKey;
+  }
+
+  const db = new AWS.DynamoDB(dynamoDbParams);
 
   // Load the standard schema for the calculate behavior table
   // eslint-disable-next-line global-require

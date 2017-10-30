@@ -1,6 +1,10 @@
 {
   "database": {
     "calculatedBehaviorTableName": "uds-docker-calculated-behavior",
-    "endpoint": "dynamodb:5201"
+    "endpoint": "http://dynamodb:5201",
+    "credentials": {
+      "accessKeyId": "fakeAccessKey",
+      "secretAccessKey": "fakeSecretAccessKey"
+    }
   }
 }

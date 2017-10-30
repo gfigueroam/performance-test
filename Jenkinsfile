@@ -92,8 +92,9 @@ node {
       sh "docker ps"
       sh "docker logs uds-$docker_bvt_container_id"
       sh "docker logs dynamodb-$docker_bvt_container_id"
-      sh "docker run --name db-create-$docker_bvt_container_id -d $generated_docker_image_name npm run db:create:docker"
+      sh "docker run --name db-create-$docker_bvt_container_id --link dynamodb-$docker_bvt_container_id:dynamodb -d $generated_docker_image_name npm run db:create:docker"
       sh "sleep 20" // Give the database creation script a moment to complete
+      sh "docker logs db-create-$docker_bvt_container_id"
 
       docker.image(generated_docker_image_name).inside("--link uds-$docker_bvt_container_id:uds --link dynamodb-$docker_bvt_container_id:dynamodb $dind_cmd_line_params") {
         stage("Run BVT: docker") {
@@ -129,6 +130,10 @@ node {
 
     def failure_message = "Error deploying UDS version: $docker_tag"
     publish_status_message(failure_message, "danger", jenkins_env)
+
+    sh "docker logs uds-$docker_bvt_container_id"
+
+    sh "docker logs db-create-$docker_bvt_container_id"
 
     stop_docker_containers(docker_bvt_container_id)
 

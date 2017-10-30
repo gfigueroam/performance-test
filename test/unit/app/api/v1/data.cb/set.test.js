@@ -12,6 +12,10 @@ const data = 'Sample data value';
 const user = 'hmh-test-user.123';
 
 describe('data.cb.set', () => {
+  after(() => {
+    calculatedBehavior.set.restore();
+  });
+
   it('returns no value', done => {
     sinon.stub(calculatedBehavior, 'set').callsFake((params) => {
       expect(params).to.deep.equal({
