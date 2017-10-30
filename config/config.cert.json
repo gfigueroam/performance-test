@@ -1,5 +1,6 @@
 {
   "logger": {
     "level": "debug"
-  }
+  },
+  "iamRole": "arn:aws:iam::711638685743:role/uds/uds-iam-ddb-role-cert"
 }
