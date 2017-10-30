@@ -33,9 +33,14 @@ function ensureDynamoDbDocumentClient() {
   if (!dynamodb) {
     const dynamoDbParams = {
       apiVersion: nconf.get('database').apiVersion,
-      endpoint: new AWS.Endpoint(nconf.get('database').endpoint),
       region: nconf.get('database').region,
     };
+
+    // Apply the endpoint if one is specified. (Otherwise it is built from the
+    // region automatically).
+    if (nconf.get('database').endpoint) {
+      dynamoDbParams.endpoint = new AWS.Endpoint(nconf.get('database').endpoint);
+    }
 
     // Usually credentials are implicitly granted by running on EC2. However
     // in some cases, like running locally on Docker, the AWS SDK requires
