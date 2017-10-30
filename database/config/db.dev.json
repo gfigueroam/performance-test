@@ -1,6 +1,5 @@
 {
   "database": {
-    "endpoint": "http://localhost:5201",
     "calculatedBehaviorTableName": "uds-dev-calculated-behavior"
   }
 }
