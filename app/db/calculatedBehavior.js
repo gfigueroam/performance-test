@@ -4,6 +4,60 @@ import logger from '../monitoring/logger';
 
 let dynamodb;
 
+async function createDynamoDBClient() {
+  const dynamoDbParams = {
+    apiVersion: nconf.get('database').apiVersion,
+    region: nconf.get('database').region,
+  };
+
+  // If iamRole is specified in the config, it needs to be assumed prior to
+  // DynamoDB access.
+  if (nconf.get('iamRole')) {
+    const stsParams = {
+      DurationSeconds: 3600,
+      RoleArn: nconf.get('iamRole'),
+      RoleSessionName: 'uds-dynamodb',
+    };
+
+    // STS Temporary security credentials are valid for at most an hour.
+    // Per http://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRole.html
+    //
+    // The temporary security credentials are valid for the duration that you
+    // specified when calling AssumeRole, which can be from 900 seconds (15 minutes)
+    // to a maximum of 3600 seconds (1 hour). The default is 1 hour.
+    const sts = new AWS.STS({ apiVersion: '2011-06-15' });
+    try {
+      const assumedData = await sts.assumeRole(stsParams).promise();
+      dynamoDbParams.accessKeyId = assumedData.Credentials.AccessKeyId;
+      dynamoDbParams.secretAccessKey = assumedData.Credentials.SecretAccessKey;
+      dynamoDbParams.sessionToken = assumedData.Credentials.SessionToken;
+
+      // Re-create the DynamoDB client 100 seconds before the credentials expire.
+      setTimeout(3500, createDynamoDBClient);
+    } catch (err) {
+      logger.error(`Unable to assume IAM role with STS Params ${stsParams}`, err);
+      throw err;
+    }
+  }
+
+  // Apply the endpoint if one is specified. (Otherwise it is built from the
+  // region automatically).
+  if (nconf.get('database').endpoint) {
+    dynamoDbParams.endpoint = new AWS.Endpoint(nconf.get('database').endpoint);
+  }
+
+  // Usually credentials are implicitly granted by running on EC2. However
+  // in some cases, like running locally on Docker, the AWS SDK requires
+  // credentials (and if it can't find any, it complains with a "Could not
+  // load credentials from any providers" error).
+  if (nconf.get('database').credentials) {
+    dynamoDbParams.accessKeyId = nconf.get('database').credentials.accessKeyId;
+    dynamoDbParams.secretAccessKey = nconf.get('database').credentials.secretAccessKey;
+  }
+
+  dynamodb = new AWS.DynamoDB.DocumentClient(dynamoDbParams);
+}
+
 async function ensureDynamoDbDocumentClient() {
   // This forces lazy initialization of the dynamodb DocumentClient.
   // We need to do this to support unit testing, since in a unit test we
@@ -31,60 +85,9 @@ async function ensureDynamoDbDocumentClient() {
   // across 100,000 calls on a ~2011 Macbook Air). However, there's no reason
   // to pay the tax if we do not need to.
   //
-  // Another reason to do this! STS Temporary security credentials are valid
-  // for at most an hour.
-  // Per http://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRole.html
-  //
-  // The temporary security credentials are valid for the duration that you
-  // specified when calling AssumeRole, which can be from 900 seconds (15 minutes)
-  // to a maximum of 3600 seconds (1 hour). The default is 1 hour.
 
   if (!dynamodb) {
-    const dynamoDbParams = {
-      apiVersion: nconf.get('database').apiVersion,
-      region: nconf.get('database').region,
-    };
-
-    // If iamRole is specified in the config, it needs to be assumed prior to
-    // DynamoDB access.
-    if (nconf.get('iamRole')) {
-      const stsParams = {
-        DurationSeconds: 3600,
-        RoleArn: nconf.get('iamRole'),
-        RoleSessionName: 'uds-dynamodb',
-      };
-
-      const sts = new AWS.STS({ apiVersion: '2011-06-15' });
-      try {
-        const assumedData = await sts.assumeRole(stsParams).promise();
-        dynamoDbParams.accessKeyId = assumedData.Credentials.AccessKeyId;
-        dynamoDbParams.secretAccessKey = assumedData.Credentials.SecretAccessKey;
-        dynamoDbParams.sessionToken = assumedData.Credentials.SessionToken;
-
-        // TODO: Set up some sort of credential refresh mechanism. It could be a setTimeout,
-        // but need to ensure the service shuts down cleanly.
-      } catch (err) {
-        logger.error(`Unable to assume IAM role with STS Params ${stsParams}`, err);
-        throw err;
-      }
-    }
-
-    // Apply the endpoint if one is specified. (Otherwise it is built from the
-    // region automatically).
-    if (nconf.get('database').endpoint) {
-      dynamoDbParams.endpoint = new AWS.Endpoint(nconf.get('database').endpoint);
-    }
-
-    // Usually credentials are implicitly granted by running on EC2. However
-    // in some cases, like running locally on Docker, the AWS SDK requires
-    // credentials (and if it can't find any, it complains with a "Could not
-    // load credentials from any providers" error).
-    if (nconf.get('database').credentials) {
-      dynamoDbParams.accessKeyId = nconf.get('database').credentials.accessKeyId;
-      dynamoDbParams.secretAccessKey = nconf.get('database').credentials.secretAccessKey;
-    }
-
-    dynamodb = new AWS.DynamoDB.DocumentClient(dynamoDbParams);
+    await createDynamoDBClient();
   }
 }
 
