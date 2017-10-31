@@ -87,8 +87,8 @@ async function ensureDynamoDbDocumentClient() {
   }
 }
 
-function set(params) {
-  ensureDynamoDbDocumentClient();
+async function set(params) {
+  await ensureDynamoDbDocumentClient();
 
   if (!params.user) {
     throw new Error('Parameter "user" is required.');
@@ -112,8 +112,8 @@ function set(params) {
   }).promise();
 }
 
-function get(params) {
-  ensureDynamoDbDocumentClient();
+async function get(params) {
+  await ensureDynamoDbDocumentClient();
 
   if (!params.user) {
     throw new Error('Parameter "user" is required.');

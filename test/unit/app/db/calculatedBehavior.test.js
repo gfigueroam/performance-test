@@ -15,6 +15,25 @@ sinon.stub(AWS.DynamoDB, 'DocumentClient').callsFake((params) => {
   expect(params).to.have.all.keys('apiVersion', 'region', 'endpoint');
   return documentClientStub;
 });
+//
+// sinon.stub(AWS.STS, 'DocumentClient').callsFake((params) => {
+//   expect(params).to.have.all.keys('apiVersion');
+//   return {
+//     assumeRole: () => {
+//       return {
+//         promise: () => {
+//           Promise.resolve({
+//             Credentials: {
+//               AccessKeyId: 'dummyAccessKeyId',
+//               SecretAccessKey: 'dummySecretAccessKey',
+//               SessionToken: 'dummySessionToken',
+//             },
+//           });
+//         }
+//       };
+//     }
+//   };
+// });
 
 const user = 'unittest.calculatedBehavior.user';
 const key = 'unittest.calculatedBehavior.key';
@@ -22,34 +41,44 @@ const key = 'unittest.calculatedBehavior.key';
 describe('calculatedBehavior', () => {
   after(() => {
     AWS.DynamoDB.DocumentClient.restore();
+    // AWS.STS.restore();
   });
 
   describe('set', () => {
-    it('throws an error if "user" is not passed in the params', () => {
-      expect(() => {
-        calculatedBehavior.set({
+    it('throws an error if "user" is not passed in the params', async () => {
+      try {
+        await calculatedBehavior.set({
           data: true,
           key,
         });
-      }).to.throw();
+        return Promise.reject();
+      } catch (err) {
+        return Promise.resolve();
+      }
     });
 
-    it('throws an error if "key" is not passed in the params', () => {
-      expect(() => {
-        calculatedBehavior.set({
+    it('throws an error if "key" is not passed in the params', async () => {
+      try {
+        await calculatedBehavior.set({
           data: true,
           user,
         });
-      }).to.throw();
+        return Promise.reject();
+      } catch (err) {
+        return Promise.resolve();
+      }
     });
 
-    it('throws an error if "data" is not passed in the params', () => {
-      expect(() => {
-        calculatedBehavior.set({
+    it('throws an error if "data" is not passed in the params', async () => {
+      try {
+        await calculatedBehavior.set({
           key,
           user,
         });
-      }).to.throw();
+        return Promise.reject();
+      } catch (err) {
+        return Promise.resolve();
+      }
     });
 
     it('calls dynamoDB.set and returns a promisified version', (done) => {
@@ -61,31 +90,41 @@ describe('calculatedBehavior', () => {
           user,
         });
         expect(params).to.have.all.keys('Item', 'TableName');
-        done();
+        return {
+          promise: () => (Promise.resolve()),
+        };
       });
       calculatedBehavior.set({
         data,
         key,
         user,
-      });
+      })
+      .then(done)
+      .catch(done);
     });
   });
 
   describe('get', () => {
-    it('throws an error if "user" is not passed in the params', () => {
-      expect(() => {
-        calculatedBehavior.get({
+    it('throws an error if "user" is not passed in the params', async () => {
+      try {
+        await calculatedBehavior.get({
           key,
         });
-      }).to.throw();
+        return Promise.reject();
+      } catch (err) {
+        return Promise.resolve();
+      }
     });
 
-    it('throws an error if "key" is not passed in the params', () => {
-      expect(() => {
-        calculatedBehavior.get({
+    it('throws an error if "key" is not passed in the params', async () => {
+      try {
+        await calculatedBehavior.get({
           user,
         });
-      }).to.throw();
+        return Promise.reject();
+      } catch (err) {
+        return Promise.resolve();
+      }
     });
 
     it('calls dynamoDB.get and returns a promisified version', (done) => {
@@ -95,12 +134,16 @@ describe('calculatedBehavior', () => {
           user,
         });
         expect(params).to.have.all.keys('Key', 'TableName');
-        done();
+        return {
+          promise: () => (Promise.resolve()),
+        };
       });
       calculatedBehavior.get({
         key,
         user,
-      });
+      })
+      .then(done)
+      .catch(done);
     });
   });
 });
