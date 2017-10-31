@@ -51,6 +51,7 @@ async function ensureDynamoDbDocumentClient() {
       const stsParams = {
         DurationSeconds: 3600,
         RoleArn: nconf.get('iamRole'),
+        RoleSessionName: 'uds-dynamodb',
       };
 
       const sts = new AWS.STS({ apiVersion: '2011-06-15' });
