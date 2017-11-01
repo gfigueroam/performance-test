@@ -33,7 +33,7 @@ async function createDynamoDBClient() {
       dynamoDbParams.sessionToken = assumedData.Credentials.SessionToken;
 
       // Re-create the DynamoDB client 100 seconds before the credentials expire.
-      setTimeout(3500, createDynamoDBClient);
+      setTimeout(createDynamoDBClient, 3500);
     } catch (err) {
       logger.error(`Unable to assume IAM role with STS Params ${stsParams}`, err);
       throw err;
