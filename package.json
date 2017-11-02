@@ -70,7 +70,7 @@
       }
     },
     "bvt:local": {
-      "command": "mocha --opts test/bvt/mocha.opts 'test/bvt/**/*.test.js'",
+      "command": "mocha --opts test/bvt/mocha.opts 'test/bvt/**/*merge.test.js'",
       "env": {
         "NODE_ENV": "local",
         "REPLICATION_DELAY_TOLERANCE": 50,

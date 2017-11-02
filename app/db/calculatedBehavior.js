@@ -208,8 +208,83 @@ async function atomicUpdate(params) {
   }
 }
 
+async function merge(params) {
+  await ensureDynamoDbDocumentClient();
+
+  if (!params.user) {
+    throw new Error('Parameter "user" is required.');
+  }
+  if (!params.key) {
+    throw new Error('Parameter "key" is required.');
+  }
+  if (!params.data) {
+    throw new Error('Parameter "data" is required.');
+  }
+
+  // Look up the current value that already exists.
+  const currentValue = await dynamodb.get({
+    Key: {
+      key: params.key,
+      user: params.user,
+    },
+    TableName: nconf.get('database').calculatedBehaviorTableName,
+  }).promise();
+
+  let newValue;
+  let conditionExpression;
+  // Is there an existing item?
+  if (currentValue.Item) {
+    // merge only works on objects
+    // This logic is based in part on underscore.js' implementation of isObject.
+    // (underscore.js is MIT licensed.)
+    if (typeof currentValue.Item.data === 'object' && !!currentValue.Item.data) {
+      // Clone currentValue.Item.data
+      newValue = Object.assign({}, currentValue.Item.data);
+      // Merge - updates newValue with properties from params.data
+      Object.assign(newValue, params.data);
+
+      return dynamodb.update({
+        ConditionExpression: 'attribute_exists(#data) AND #data = :oldval',
+        ExpressionAttributeNames: {
+          '#data': 'data',
+        },
+        ExpressionAttributeValues: {
+          ':oldval': currentValue.Item.data,
+          ':value': newValue,
+        },
+        Key: {
+          key: params.key,
+          user: params.user,
+        },
+        TableName: nconf.get('database').calculatedBehaviorTableName,
+        UpdateExpression: 'SET #data = :value',
+      }).promise();
+    }
+
+    // Not an object value
+    throw new Error(errors.codes.ERROR_CODE_INVALID_DATA_TYPE);
+  } else {
+    // There is not an existing value, so store the new value as though the previous value was {}.
+    newValue = params.value;
+    conditionExpression = 'attribute_not_exists(#data)';
+    return dynamodb.put({
+      ConditionExpression: conditionExpression,
+      ExpressionAttributeNames: {
+        '#data': 'data',
+      },
+      Item: {
+        data: params.data,
+        key: params.key,
+        user: params.user,
+      },
+      TableName: nconf.get('database').calculatedBehaviorTableName,
+    }).promise();
+  }
+}
+
 module.exports = {
   atomicUpdate,
   get,
+  merge,
   set,
 };

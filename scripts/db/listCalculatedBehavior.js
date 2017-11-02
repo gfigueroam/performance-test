@@ -22,7 +22,7 @@ async function execute() {
       TableName: nconf.get('database').calculatedBehaviorTableName,
     }).promise();
     // eslint-disable-next-line no-console
-    console.log('Items: ', data);
+    console.log('Items: ', JSON.stringify(data));
   } catch (err) {
     // eslint-disable-next-line no-console
     console.error('Error', err.code);

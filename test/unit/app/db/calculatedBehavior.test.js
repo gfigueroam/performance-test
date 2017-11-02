@@ -46,6 +46,182 @@ describe('calculatedBehavior', () => {
     // AWS.STS.restore();
   });
 
+  describe('merge', () => {
+    it('throws an error if "user" is not passed in the params', async () => {
+      try {
+        await calculatedBehavior.merge({
+          data: {},
+          key,
+        });
+        return Promise.reject();
+      } catch (err) {
+        return Promise.resolve();
+      }
+    });
+
+    it('throws an error if "key" is not passed in the params', async () => {
+      try {
+        await calculatedBehavior.merge({
+          data: {},
+          user,
+        });
+        return Promise.reject();
+      } catch (err) {
+        return Promise.resolve();
+      }
+    });
+
+    it('throws an error if "data" is not passed in the params', async () => {
+      try {
+        await calculatedBehavior.merge({
+          key,
+          user,
+        });
+        return Promise.reject();
+      } catch (err) {
+        return Promise.resolve();
+      }
+    });
+
+    it('calls throws an error if there is an existing non-object value', async () => {
+      // dynamodb.get is called to check the existing value
+      documentClientStub.get.callsFake(params => {
+        expect(params.Key).to.deep.equal({
+          key,
+          user,
+        });
+        expect(params).to.have.all.keys('Key', 'TableName');
+        return {
+          promise: () => (Promise.resolve({
+            Item: {
+              data: true,
+            },
+          })),
+        };
+      });
+
+      try {
+        await calculatedBehavior.merge({
+          data: {},
+          key,
+          user,
+        });
+      } catch (err) {
+        expect(err.message).to.equal(errors.codes.ERROR_CODE_INVALID_DATA_TYPE);
+        return Promise.resolve();
+      }
+
+      return Promise.reject(new Error('This test failed because we expected the merge call to throw an error.'));
+    });
+
+    it('calls dynamoDB.put if there is no existing value', async () => {
+      const data = {
+        someKey: 'some value',
+      };
+      // dynamodb.get is called to check the existing value
+      documentClientStub.get.callsFake(params => {
+        expect(params.Key).to.deep.equal({
+          key,
+          user,
+        });
+        expect(params).to.have.all.keys('Key', 'TableName');
+        return {
+          promise: () => (Promise.resolve({})),
+        };
+      });
+
+      documentClientStub.put.callsFake(params => {
+        expect(params).to.have.all.keys('ConditionExpression',
+          'ExpressionAttributeNames', 'Item', 'TableName');
+
+        expect(params.Item).to.deep.equal({
+          data,
+          key,
+          user,
+        });
+
+        expect(params.ConditionExpression).to.equal('attribute_not_exists(#data)');
+        expect(params.ExpressionAttributeNames['#data']).to.equal('data');
+
+        return {
+          promise: () => (Promise.resolve()),
+        };
+      });
+
+      try {
+        await calculatedBehavior.merge({
+          data,
+          key,
+          user,
+        });
+
+        return Promise.resolve();
+      } catch (err) {
+        return Promise.reject(err);
+      }
+    });
+
+    it('calls dynamoDB.update if there is an existing object value', async () => {
+      // dynamodb.get is called to check the existing value
+      documentClientStub.get.callsFake(params => {
+        expect(params.Key).to.deep.equal({
+          key,
+          user,
+        });
+        expect(params).to.have.all.keys('Key', 'TableName');
+        return {
+          promise: () => (Promise.resolve({
+            Item: {
+              data: {
+                anotherKey: 'anotherValue',
+                someKey: 'someValue',
+              },
+            },
+          })),
+        };
+      });
+
+      documentClientStub.update.callsFake(params => {
+        expect(params).to.have.all.keys('ConditionExpression',
+          'ExpressionAttributeNames', 'ExpressionAttributeValues',
+          'Key', 'TableName', 'UpdateExpression');
+
+        expect(params.Key).to.deep.equal({
+          key,
+          user,
+        });
+
+        expect(params.ExpressionAttributeValues[':value']).to.deep.equal({
+          anotherKey: 'anotherValue',
+          someKey: 'replacementValue',
+        });
+
+        expect(params.ExpressionAttributeValues[':oldval']).to.deep.equal({
+          anotherKey: 'anotherValue',
+          someKey: 'someValue',
+        });
+
+        return {
+          promise: () => (Promise.resolve()),
+        };
+      });
+
+      try {
+        await calculatedBehavior.merge({
+          data: {
+            someKey: 'replacementValue',
+          },
+          key,
+          user,
+        });
+
+        return Promise.resolve();
+      } catch (err) {
+        return Promise.reject(err);
+      }
+    });
+  });
+
   describe('atomicUpdate', () => {
     it('throws an error if "user" is not passed in the params', async () => {
       try {
