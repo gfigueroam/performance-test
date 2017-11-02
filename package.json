@@ -16,6 +16,7 @@
     "db:create:local": "better-npm-run db:create:local",
     "db:list:docker": "better-npm-run db:list:docker",
     "db:list:local": "better-npm-run db:list:local",
+    "db:scan:local": "better-npm-run db:scan:local",
     "db:delete:local": "better-npm-run db:delete:local",
     "db:create:docker": "better-npm-run db:create:docker",
     "lint": "./node_modules/.bin/eslint --ext .js --ext .json app/* config/* test/* scripts/*",
@@ -38,6 +39,12 @@
         "NODE_ENV": "local"
       }
     },
+    "db:scan:local": {
+      "command": "babel-node --presets es2015,stage-2 scripts/db/listCalculatedBehavior.js",
+      "env": {
+        "NODE_ENV": "local"
+      }
+    },
     "db:list:local": {
       "command": "babel-node --presets es2015,stage-2 scripts/db/listTables.js",
       "env": {
@@ -51,7 +58,7 @@
       }
     },
     "db:delete:local": {
-      "command": "babel-node --presets es2015,stage-2 cripts/db/deleteTables.js",
+      "command": "babel-node --presets es2015,stage-2 scripts/db/deleteTables.js",
       "env": {
         "NODE_ENV": "local"
       }

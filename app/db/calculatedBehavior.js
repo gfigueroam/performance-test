@@ -1,6 +1,8 @@
 import AWS from 'aws-sdk';
 import nconf from '../config';
 import logger from '../monitoring/logger';
+import errors from '../models/errors';
+
 
 let dynamodb;
 
@@ -137,7 +139,77 @@ async function get(params) {
   }).promise();
 }
 
+async function atomicUpdate(params) {
+  await ensureDynamoDbDocumentClient();
+
+  if (!params.user) {
+    throw new Error('Parameter "user" is required.');
+  }
+  if (!params.key) {
+    throw new Error('Parameter "key" is required.');
+  }
+  if (!params.value) {
+    throw new Error('Parameter "value" is required.');
+  }
+
+  // Look up the current value that already exists.
+  const currentValue = await dynamodb.get({
+    Key: {
+      key: params.key,
+      user: params.user,
+    },
+    TableName: nconf.get('database').calculatedBehaviorTableName,
+  }).promise();
+
+  let newValue;
+  let conditionExpression;
+  // Is there an existing item?
+  if (currentValue.Item) {
+    // atomic update only works on numeric values
+    if (Object.prototype.toString.call(currentValue.Item.data) === '[object Number]') {
+      newValue = currentValue.Item.data + params.value;
+      conditionExpression = 'attribute_exists(#data)';
+
+      return dynamodb.update({
+        ConditionExpression: conditionExpression,
+        ExpressionAttributeNames: {
+          '#data': 'data',
+        },
+        ExpressionAttributeValues: {
+          ':value': params.value,
+        },
+        Key: {
+          key: params.key,
+          user: params.user,
+        },
+        TableName: nconf.get('database').calculatedBehaviorTableName,
+        UpdateExpression: 'SET #data = #data + :value',
+      }).promise();
+    }
+
+    // else
+    throw new Error(errors.codes.ERROR_CODE_INVALID_DATA_TYPE);
+  } else {
+    // There is not an existing value, so store the new value as though the previous value was 0.
+    newValue = params.value;
+    conditionExpression = 'attribute_not_exists(#data)';
+    return dynamodb.put({
+      ConditionExpression: conditionExpression,
+      ExpressionAttributeNames: {
+        '#data': 'data',
+      },
+      Item: {
+        data: newValue,
+        key: params.key,
+        user: params.user,
+      },
+      TableName: nconf.get('database').calculatedBehaviorTableName,
+    }).promise();
+  }
+}
+
 module.exports = {
+  atomicUpdate,
   get,
   set,
 };

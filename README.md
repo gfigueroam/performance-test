@@ -11,3 +11,10 @@ This project follows the [AirBnB Javascript Coding Guidelines](https://github.co
 4. Verify the tables were created:  `$ aws dynamodb list-tables --region us-east-1 --endpoint-url http://localhost:5201`. (Note that the `region` specified in the command must match the region in the database configuration.)
 
 To scan the items stored in the DynamoDB table: `$ aws dynamodb scan --table-name uds-local-calculated-behavior --region us-east-1 --endpoint-url http://localhost:5201`
+
+### Convenience Scripts
+
+* List All Tables `$ npm run db:list:local`
+* Delete Tables `$ npm run db:delete:local`
+* Create Tables `$ npm run db:create:local`
+* Scan Tables (List Contents) `$ npm run db:scan:local`
