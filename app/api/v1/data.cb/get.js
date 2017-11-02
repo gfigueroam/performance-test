@@ -6,5 +6,5 @@ export default async function getHandler(key, user) {
     user,
   });
 
-  return item.Item.data;
+  return item.Item ? item.Item.data : undefined;
 }

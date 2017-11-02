@@ -4,6 +4,7 @@ import http from '../../../../../common/helpers/http';
 import seed from '../../../../../common/seed';
 import paths from '../../../../../common/helpers/paths';
 import tokens from '../../../../../common/helpers/tokens';
+import errors from '../../../../../../app/models/errors';
 
 const expect = chai.expect;
 
@@ -116,5 +117,52 @@ describe('data.cb.get', () => {
       expect(retrieved.result).to.deep.equal(obj);
       done();
     }));
+  });
+
+  it('returns an error when the key contains invalid chars', done => {
+    new Promise((resolve, reject) => {
+      http.sendPostRequest(paths.DATA_CB_GET, tokens.serviceToken, {
+        key: 'invalid-key',
+        user,
+      }, (err, res) => {
+        if (err) {
+          return reject(err);
+        }
+        if (!res.ok) {
+          return reject(new Error(res.error));
+        }
+        return resolve(res.body);
+      });
+    }).then((response) => {
+      expect(response).to.deep.equal({
+        error: errors.codes.ERROR_CODE_INVALID_KEY,
+        ok: false,
+      });
+      done();
+    });
+  });
+
+  it('returns undefined when there is no existing value', done => {
+    new Promise((resolve, reject) => {
+      http.sendPostRequest(paths.DATA_CB_GET, tokens.serviceToken, {
+        key: 'non.existent.bvt.key',
+        user,
+      }, (err, res) => {
+        if (err) {
+          return reject(err);
+        }
+        if (!res.ok) {
+          return reject(new Error(res.error));
+        }
+        return resolve(res.body);
+      });
+    })
+    .then((response) => {
+      expect(response).to.deep.equal({
+        ok: true,
+      });
+      done();
+    })
+    .catch(done);
   });
 });

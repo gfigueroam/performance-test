@@ -9,8 +9,12 @@ const expect = chai.expect;
 
 const key = 'test.data.user.set.name';
 const user = 'hmh-test-user.123';
-
+let getStub;
 describe('data.cb.get', () => {
+  before(() => {
+    getStub = sinon.stub(calculatedBehavior, 'get');
+  });
+
   after(() => {
     calculatedBehavior.get.restore();
   });
@@ -25,7 +29,7 @@ describe('data.cb.get', () => {
         anotherKey: 5,
       },
     };
-    sinon.stub(calculatedBehavior, 'get').callsFake((params) => {
+    getStub.callsFake((params) => {
       expect(params).to.deep.equal({
         key,
         user,
@@ -41,6 +45,23 @@ describe('data.cb.get', () => {
     });
     getHandler(key, user).then(result => {
       expect(result).to.deep.equal(val);
+      expect(calculatedBehavior.get.called).to.equal(true);
+
+      done();
+    }).catch(done);
+  });
+
+  it('returns undefined if there is no DynamoDB item', done => {
+    getStub.callsFake((params) => {
+      expect(params).to.deep.equal({
+        key,
+        user,
+      });
+
+      return Promise.resolve({});
+    });
+    getHandler(key, user).then(result => {
+      expect(result).to.equal(undefined);
       expect(calculatedBehavior.get.called).to.equal(true);
 
       done();
