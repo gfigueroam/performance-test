@@ -17,7 +17,7 @@ describe('data.cb.set', () => {
         data: value,
         key,
         user,
-      }, { ok: true, result: {} }, (err) => {
+      }, { ok: true }, (err) => {
         if (err) {
           return reject(err);
         }

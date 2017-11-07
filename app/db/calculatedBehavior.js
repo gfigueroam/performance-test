@@ -107,7 +107,7 @@ async function set(params) {
   }
 
   /* eslint-disable sort-keys */
-  return dynamodb.put({
+  await dynamodb.put({
     Item: {
       user: params.user,
       key: params.key,
@@ -116,6 +116,8 @@ async function set(params) {
     TableName: nconf.get('database').calculatedBehaviorTableName,
     /* eslint-enable sort-keys */
   }).promise();
+
+  return undefined;
 }
 
 async function get(params) {
@@ -170,7 +172,7 @@ async function atomicUpdate(params) {
       newValue = currentValue.Item.data + params.value;
       conditionExpression = 'attribute_exists(#data)';
 
-      return dynamodb.update({
+      await dynamodb.update({
         ConditionExpression: conditionExpression,
         ExpressionAttributeNames: {
           '#data': 'data',
@@ -185,6 +187,8 @@ async function atomicUpdate(params) {
         TableName: nconf.get('database').calculatedBehaviorTableName,
         UpdateExpression: 'SET #data = #data + :value',
       }).promise();
+
+      return undefined;
     }
 
     // else
@@ -193,7 +197,7 @@ async function atomicUpdate(params) {
     // There is not an existing value, so store the new value as though the previous value was 0.
     newValue = params.value;
     conditionExpression = 'attribute_not_exists(#data)';
-    return dynamodb.put({
+    await dynamodb.put({
       ConditionExpression: conditionExpression,
       ExpressionAttributeNames: {
         '#data': 'data',
@@ -205,6 +209,8 @@ async function atomicUpdate(params) {
       },
       TableName: nconf.get('database').calculatedBehaviorTableName,
     }).promise();
+
+    return undefined;
   }
 }
 
@@ -243,7 +249,7 @@ async function merge(params) {
       // Merge - updates newValue with properties from params.data
       Object.assign(newValue, params.data);
 
-      return dynamodb.update({
+      await dynamodb.update({
         ConditionExpression: 'attribute_exists(#data) AND #data = :oldval',
         ExpressionAttributeNames: {
           '#data': 'data',
@@ -259,6 +265,8 @@ async function merge(params) {
         TableName: nconf.get('database').calculatedBehaviorTableName,
         UpdateExpression: 'SET #data = :value',
       }).promise();
+
+      return undefined;
     }
 
     // Not an object value
@@ -267,7 +275,7 @@ async function merge(params) {
     // There is not an existing value, so store the new value as though the previous value was {}.
     newValue = params.value;
     conditionExpression = 'attribute_not_exists(#data)';
-    return dynamodb.put({
+    await dynamodb.put({
       ConditionExpression: conditionExpression,
       ExpressionAttributeNames: {
         '#data': 'data',
@@ -279,6 +287,8 @@ async function merge(params) {
       },
       TableName: nconf.get('database').calculatedBehaviorTableName,
     }).promise();
+
+    return undefined;
   }
 }
 

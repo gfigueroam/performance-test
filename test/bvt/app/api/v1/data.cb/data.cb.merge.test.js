@@ -18,7 +18,7 @@ describe('data.cb.merge', () => {
         data: value,
         key,
         user,
-      }, { ok: true, result: {} }, (err) => {
+      }, { ok: true }, (err) => {
         if (err) {
           return reject(err);
         }
@@ -33,7 +33,7 @@ describe('data.cb.merge', () => {
         data,
         key,
         user,
-      }, { ok: true, result: {} }, (err) => {
+      }, { ok: true }, (err) => {
         if (err) {
           return reject(err);
         }

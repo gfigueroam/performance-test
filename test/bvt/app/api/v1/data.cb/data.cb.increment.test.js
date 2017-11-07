@@ -18,7 +18,7 @@ describe('data.cb.increment', () => {
         data: value,
         key,
         user,
-      }, { ok: true, result: {} }, (err) => {
+      }, { ok: true }, (err) => {
         if (err) {
           return reject(err);
         }
@@ -32,7 +32,7 @@ describe('data.cb.increment', () => {
       http.sendPostRequestSuccess(paths.DATA_CB_INCREMENT, tokens.serviceToken, {
         key,
         user,
-      }, { ok: true, result: {} }, (err) => {
+      }, { ok: true }, (err) => {
         if (err) {
           return reject(err);
         }

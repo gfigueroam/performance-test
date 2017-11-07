@@ -18,7 +18,7 @@ describe('data.cb.decrement', () => {
         data: value,
         key,
         user,
-      }, { ok: true, result: {} }, (err) => {
+      }, { ok: true }, (err) => {
         if (err) {
           return reject(err);
         }
@@ -32,7 +32,7 @@ describe('data.cb.decrement', () => {
       http.sendPostRequestSuccess(paths.DATA_CB_DECREMENT, tokens.serviceToken, {
         key,
         user,
-      }, { ok: true, result: {} }, (err) => {
+      }, { ok: true }, (err) => {
         if (err) {
           return reject(err);
         }
