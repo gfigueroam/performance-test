@@ -82,13 +82,23 @@ describe('authAdapter', () => {
 
   describe('external', () => {
     it('should reject a token that fails to decode', () => {
-      const mockCtx = createMockCtx(tokens.userTokens.internal);
+      const token = config.get('uds:test_service_token');
+      const mockCtx = createMockCtx(token);
 
       expect(() => auth.adapter.external(mockCtx)).to.throw(errors.codes.ERROR_CODE_AUTH_INVALID);
     });
 
     it('should decode and initialize a valid user token', () => {
       const token = tokens.userTokens.external;
+      const mockCtx = createMockCtx(token);
+
+      const result = auth.adapter.external(mockCtx);
+      expect(result.tokenType).to.equal('user');
+      expect(result.token).to.equal(token);
+    });
+
+    it('should decode and initialize a valid user token with a hash attached', () => {
+      const token = tokens.userTokens.externalHash;
       const mockCtx = createMockCtx(token);
 
       const result = auth.adapter.external(mockCtx);

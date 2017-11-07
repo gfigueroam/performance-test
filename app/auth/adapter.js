@@ -104,7 +104,9 @@ function linkerdAuthAdapter(ctx) {
   ctx.swatchCtx.logger.warn(`LinkerD auth adapter configured: ${header}`);
 
   const decodedToken = deserializeHeader(ctx, header);
-  const tokenInfo = jwt.decode(decodedToken, { complete: true });
+
+  const tokenBody = decodedToken.split(':')[0];
+  const tokenInfo = jwt.decode(tokenBody, { complete: true });
   if (!tokenInfo) {
     ctx.swatchCtx.logger.warn('Failed to decode Authorization token');
     throw errors.codes.ERROR_CODE_AUTH_INVALID;
