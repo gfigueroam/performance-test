@@ -256,4 +256,48 @@ describe('data.cb.merge', () => {
       }, errors.codes.ERROR_CODE_INVALID_DATA_TYPE, done);
     });
   });
+
+  it('fails when the new data is a number', done => {
+    store({})
+    .then(() => {
+      http.sendPostRequestError(paths.DATA_CB_MERGE, tokens.serviceToken, {
+        data: 4,
+        key,
+        user,
+      }, errors.codes.ERROR_CODE_INVALID_DATA, done);
+    });
+  });
+
+  it('fails when the new data is a boolean', done => {
+    store({})
+    .then(() => {
+      http.sendPostRequestError(paths.DATA_CB_MERGE, tokens.serviceToken, {
+        data: true,
+        key,
+        user,
+      }, errors.codes.ERROR_CODE_INVALID_DATA, done);
+    });
+  });
+
+  it('fails when the new data is a float', done => {
+    store({})
+    .then(() => {
+      http.sendPostRequestError(paths.DATA_CB_MERGE, tokens.serviceToken, {
+        data: 12.45,
+        key,
+        user,
+      }, errors.codes.ERROR_CODE_INVALID_DATA, done);
+    });
+  });
+
+  it('fails when the new data is a string', done => {
+    store({})
+    .then(() => {
+      http.sendPostRequestError(paths.DATA_CB_MERGE, tokens.serviceToken, {
+        data: 'some string that we are trying to merge',
+        key,
+        user,
+      }, errors.codes.ERROR_CODE_INVALID_DATA, done);
+    });
+  });
 });
