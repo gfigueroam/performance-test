@@ -120,6 +120,27 @@ async function set(params) {
   return undefined;
 }
 
+async function unset(params) {
+  await ensureDynamoDbDocumentClient();
+
+  if (!params.user) {
+    throw new Error('Parameter "user" is required.');
+  }
+  if (!params.key) {
+    throw new Error('Parameter "key" is required.');
+  }
+
+  await dynamodb.delete({
+    Key: {
+      key: params.key,
+      user: params.user,
+    },
+    TableName: nconf.get('database').calculatedBehaviorTableName,
+  }).promise();
+
+  return undefined;
+}
+
 async function get(params) {
   await ensureDynamoDbDocumentClient();
 
@@ -297,4 +318,5 @@ module.exports = {
   get,
   merge,
   set,
+  unset,
 };

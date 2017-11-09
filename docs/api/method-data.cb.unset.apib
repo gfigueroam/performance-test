@@ -1,0 +1,35 @@
+FORMAT: 1A
+
+# data.cb.unset
+
+Unsets the value stored at the specified `key`, removing any previously existing value.
+
+See [Naming rules](common-names.html) for more information on names.
+
+:[](common-args.md url:"data.cb.set" token:"Can be used with either a service token or a user token.")
+
+| Argument          | Example           | Required  | Description
+|:---               |:---               |:---       |:---
+| `key`             | `loginCount`      | Required  | The key whose stored value is to be updated.
+| `user`            | `<userID>`        | Optional  | The user whose stored value is to be updated. Required when a service token is used, otherwise is derived from the user auth token.
+
+## Result
+
+```javascript
+{
+    "ok": true
+}
+```
+
+## Errors
+
+:[](common-errors.md)
+
+| Error                     | Description
+|:---                       |:---
+| `invalid_key`             | `key` does not conform to the naming rules.
+| `key_not_found`           | `key` does not describe an existing key for user.
+| `invalid_data`            | `data` is missing or not a supported type.
+| `invalid_user`            | `user` is not a valid user identifier.
+| `user_not_found`          | User specified in `user` or user token was not found.
+| `forbidden`               | Token is a user token, and user was specified and did not match.

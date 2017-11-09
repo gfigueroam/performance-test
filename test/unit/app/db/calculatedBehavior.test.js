@@ -432,6 +432,49 @@ describe('calculatedBehavior', () => {
     });
   });
 
+  describe('unset', () => {
+    it('throws an error if "user" is not passed in the params', async () => {
+      try {
+        await calculatedBehavior.set({
+          key,
+        });
+        return Promise.reject();
+      } catch (err) {
+        return Promise.resolve();
+      }
+    });
+
+    it('throws an error if "key" is not passed in the params', async () => {
+      try {
+        await calculatedBehavior.set({
+          user,
+        });
+        return Promise.reject();
+      } catch (err) {
+        return Promise.resolve();
+      }
+    });
+
+    it('calls dynamoDB.delete and returns a promisified version', (done) => {
+      documentClientStub.delete.callsFake(params => {
+        expect(params.Key).to.deep.equal({
+          key,
+          user,
+        });
+        expect(params).to.have.all.keys('Key', 'TableName');
+        return {
+          promise: () => (Promise.resolve()),
+        };
+      });
+      calculatedBehavior.unset({
+        key,
+        user,
+      })
+      .then(done)
+      .catch(done);
+    });
+  });
+
   describe('get', () => {
     it('throws an error if "user" is not passed in the params', async () => {
       try {

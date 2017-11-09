@@ -8,6 +8,7 @@ import getHandler from './get';
 import incrementHandler from './increment';
 import mergeHandler from './merge';
 import setHandler from './set';
+import unsetHandler from './unset';
 
 export default {
   'data.cb.decrement': {
@@ -112,6 +113,27 @@ export default {
         name: 'data',
         optional: false,
         parse: parsers.objects.parseData,
+      },
+      {
+        name: 'user',
+        parse: parsers.strings.parseOptionalString,
+        validate: validators.strings.validateOptionalUser,
+      },
+    ],
+    metadata: {
+      middleware: [
+        middleware.auth.requireUserTokenOrUserId,
+      ],
+    },
+  },
+  'data.cb.unset': {
+    handler: unsetHandler,
+    args: [
+      {
+        name: 'key',
+        optional: false,
+        parse: parsers.strings.parseString,
+        validate: validators.strings.validateKey,
       },
       {
         name: 'user',

@@ -29,6 +29,7 @@ export default {
   DATA_CB_INCREMENT: 'api/v1/data.cb.increment',
   DATA_CB_MERGE: 'api/v1/data.cb.merge',
   DATA_CB_SET: 'api/v1/data.cb.set',
+  DATA_CB_UNSET: 'api/v1/data.cb.unset',
 
   DATA_USER_APPEND: 'api/v1/data.user.append',
   DATA_USER_DELETE: 'api/v1/data.user.delete',
