@@ -11,6 +11,13 @@ const key = `uds.bvt.data.cb.set.test.${seed.buildNumber}`;
 const user = 'data.admin.test.user.1';
 
 describe('data.cb.set', () => {
+  after((done) => {
+    seed.calculatedBehavior.unset({
+      key,
+      user,
+    }, done);
+  });
+
   function store(value) {
     return new Promise((resolve, reject) => {
       http.sendPostRequestSuccess(paths.DATA_CB_SET, tokens.serviceToken, {

@@ -12,6 +12,13 @@ const key = `uds.bvt.data.cb.merge.test.${seed.buildNumber}`;
 const user = `data.admin.test.user.${seed.buildNumber}`;
 
 describe('data.cb.merge', () => {
+  after((done) => {
+    seed.calculatedBehavior.unset({
+      key,
+      user,
+    }, done);
+  });
+
   function store(value) {
     return new Promise((resolve, reject) => {
       http.sendPostRequestSuccess(paths.DATA_CB_SET, tokens.serviceToken, {
