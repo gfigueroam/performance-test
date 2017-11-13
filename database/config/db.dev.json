@@ -1,5 +1,8 @@
 {
   "database": {
-    "calculatedBehaviorTableName": "uds-dev-calculated-behavior"
+    "calculatedBehaviorTableName": "uds-dev-calculated-behavior",
+    "appsTableName": "uds-dev-apps",
+    "appDataJsonTableName": "uds-dev-app-data-json",
+    "appDataBlobTableName": "uds-dev-app-data-blob"
   }
 }

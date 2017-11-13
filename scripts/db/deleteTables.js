@@ -15,25 +15,32 @@ async function execute() {
 
   const db = new AWS.DynamoDB(dynamoDbParams);
 
-  // Call DynamoDB to delete the table for calculated behavior service
-  try {
-    const data = await db.deleteTable({
-      TableName: nconf.get('database').calculatedBehaviorTableName,
-    }).promise();
-    // eslint-disable-next-line no-console
-    console.log('Success deleting calculated-behavior table', data);
-  } catch (err) {
-    if (err.code === 'ResourceNotFoundException') {
+  // Call DynamoDB to delete all the tables
+  await Promise.all([
+    nconf.get('database').calculatedBehaviorTableName,
+    nconf.get('database').appsTableName,
+    nconf.get('database').appDataJsonTableName,
+    nconf.get('database').appDataBlobTableName,
+  ].map(async (dynamoDBTableName) => {
+    try {
+      const data = await db.deleteTable({
+        TableName: dynamoDBTableName,
+      }).promise();
       // eslint-disable-next-line no-console
-      console.error('Error deleting calculated-behavior: Table not found', err);
-    } else if (err.code === 'ResourceInUseException') {
-      // eslint-disable-next-line no-console
-      console.error('Error deleting calculated-behavior: Table in use', err);
-    } else {
-      // eslint-disable-next-line no-console
-      console.error('Error deleting calculated-behavior', err);
+      console.log(`Success deleting ${dynamoDBTableName} table`, data);
+    } catch (err) {
+      if (err.code === 'ResourceNotFoundException') {
+        // eslint-disable-next-line no-console
+        console.error(`Error deleting ${dynamoDBTableName}: Table not found`, err);
+      } else if (err.code === 'ResourceInUseException') {
+        // eslint-disable-next-line no-console
+        console.error(`Error deleting ${dynamoDBTableName}: Table in use`, err);
+      } else {
+        // eslint-disable-next-line no-console
+        console.error(`Error deleting ${dynamoDBTableName}`, err);
+      }
     }
-  }
+  }));
 }
 
 execute();

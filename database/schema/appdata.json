@@ -1,0 +1,59 @@
+{
+  "AttributeDefinitions": [
+    {
+      "AttributeName": "appUser",
+      "AttributeType": "S"
+    },
+    {
+      "AttributeName": "appKey",
+      "AttributeType": "S"
+    },
+    {
+      "AttributeName": "user",
+      "AttributeType": "S"
+    },
+    {
+      "AttributeName": "key",
+      "AttributeType": "S"
+    }
+  ],
+  "KeySchema": [
+    {
+      "AttributeName": "appUser",
+      "KeyType": "HASH"
+    },
+    {
+      "AttributeName": "key",
+      "KeyType": "RANGE"
+    }
+  ],
+  "ProvisionedThroughput": {
+    "ReadCapacityUnits": 1,
+    "WriteCapacityUnits": 1
+  },
+  "StreamSpecification": {
+    "StreamEnabled": false
+  },
+  "GlobalSecondaryIndexes": [
+    {
+      "IndexName": "UserIndex",
+      "KeySchema": [
+        {
+          "AttributeName": "user",
+          "KeyType": "HASH"
+        },
+        {
+          "AttributeName": "appKey",
+          "KeyType": "RANGE"
+        }
+      ],
+      "Projection": {
+        "ProjectionType": "KEYS_ONLY"
+      },
+      "ProvisionedThroughput": {
+        "ReadCapacityUnits": 1,
+        "WriteCapacityUnits": 1
+      }
+    }
+  ]
+}

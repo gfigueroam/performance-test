@@ -1,6 +1,9 @@
 {
   "database": {
     "endpoint": "none",
-    "calculatedBehaviorTableName": "uds-test-calculated-behavior"
+    "calculatedBehaviorTableName": "uds-test-calculated-behavior",
+    "appsTableName": "uds-test-apps",
+    "appDataJsonTableName": "uds-test-app-data-json",
+    "appDataBlobTableName": "uds-test-app-data-blob"
   }
 }

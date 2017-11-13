@@ -16,17 +16,25 @@ async function execute() {
 
   const db = new AWS.DynamoDB.DocumentClient(dynamoDbParams);
 
-  // Call DynamoDB to list all tables in local instance
-  try {
-    const data = await db.scan({
-      TableName: nconf.get('database').calculatedBehaviorTableName,
-    }).promise();
-    // eslint-disable-next-line no-console
-    console.log('Items: ', JSON.stringify(data));
-  } catch (err) {
-    // eslint-disable-next-line no-console
-    console.error('Error', err.code);
-  }
+  // Call DynamoDB to scan all items in each table
+  await Promise.all([
+    nconf.get('database').calculatedBehaviorTableName,
+    nconf.get('database').appsTableName,
+    nconf.get('database').appDataJsonTableName,
+    nconf.get('database').appDataBlobTableName,
+  ].map(async (dynamoDBTableName) => {
+    try {
+      const data = await db.scan({
+        TableName: dynamoDBTableName,
+      }).promise();
+      // eslint-disable-next-line no-console
+      console.log(`${dynamoDBTableName} Items: `, JSON.stringify(data));
+      // TODO: Detect if pagination is present and warn user of incomplete results
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error(`Error scanning ${dynamoDBTableName}`, err.code);
+    }
+  }));
 }
 
 execute();

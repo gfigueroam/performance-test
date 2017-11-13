@@ -1,5 +1,8 @@
 User-Centric Data Service (UDS)
 
+## Database
+UDS uses DynamoDB as its data store. See [the DB design documentation](./docs/design/db.md) for more details.
+
 ## Coding Style
 
 This project follows the [AirBnB Javascript Coding Guidelines](https://github.com/airbnb/javascript) using [ESLint](http://eslint.org/) settings.

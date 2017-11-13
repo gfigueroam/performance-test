@@ -1,6 +1,9 @@
 {
   "database": {
     "calculatedBehaviorTableName": "uds-docker-calculated-behavior",
+    "appsTableName": "uds-docker-apps",
+    "appDataJsonTableName": "uds-docker-app-data-json",
+    "appDataBlobTableName": "uds-docker-app-data-blob",
     "endpoint": "http://dynamodb:5201",
     "credentials": {
       "accessKeyId": "fakeAccessKey",
