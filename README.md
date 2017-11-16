@@ -21,3 +21,7 @@ To scan the items stored in the DynamoDB table: `$ aws dynamodb scan --table-nam
 * Delete Tables `$ npm run db:delete:local`
 * Create Tables `$ npm run db:create:local`
 * Scan Tables (List Contents) `$ npm run db:scan:local`
+
+### Commandline Access
+Query for a single app:
+* `$ aws dynamodb get-item --endpoint http://localhost:5201 --region us-east-1 --table-name uds-local-apps --key '{"name": {"S": "APP2"}}'`

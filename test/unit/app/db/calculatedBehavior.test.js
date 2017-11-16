@@ -6,6 +6,7 @@ import sinon from 'sinon';
 // because calculatedBehavior uses lazy initialization. See details within
 // calculatedBehavior.js
 import calculatedBehavior from '../../../../app/db/calculatedBehavior';
+import dynamoDBClient from '../../../../app/db/dynamoDBClient';
 
 import errors from '../../../../app/models/errors';
 
@@ -13,37 +14,16 @@ const expect = chai.expect;
 
 const documentClientStub = sinon.createStubInstance(AWS.DynamoDB.DocumentClient);
 
-sinon.stub(AWS.DynamoDB, 'DocumentClient').callsFake((params) => {
-  expect(params).to.have.all.keys('apiVersion', 'region', 'endpoint');
-  return documentClientStub;
-});
-//
-// sinon.stub(AWS.STS, 'DocumentClient').callsFake((params) => {
-//   expect(params).to.have.all.keys('apiVersion');
-//   return {
-//     assumeRole: () => {
-//       return {
-//         promise: () => {
-//           Promise.resolve({
-//             Credentials: {
-//               AccessKeyId: 'dummyAccessKeyId',
-//               SecretAccessKey: 'dummySecretAccessKey',
-//               SessionToken: 'dummySessionToken',
-//             },
-//           });
-//         }
-//       };
-//     }
-//   };
-// });
-
 const user = 'unittest.calculatedBehavior.user';
 const key = 'unittest.calculatedBehavior.key';
 
 describe('calculatedBehavior', () => {
+  before(() => {
+    sinon.stub(dynamoDBClient, 'getClient').callsFake(() => (documentClientStub));
+  });
+
   after(() => {
-    AWS.DynamoDB.DocumentClient.restore();
-    // AWS.STS.restore();
+    dynamoDBClient.getClient.restore();
   });
 
   describe('merge', () => {

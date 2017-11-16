@@ -1,5 +1,7 @@
-/* eslint-disable */
+import db from '../../../db/apps';
+
 export default async function listHandler() {
-  return [];
+  const apps = await db.list();
+
+  return apps;
 }
-/* eslint-enable */

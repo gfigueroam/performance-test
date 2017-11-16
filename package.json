@@ -165,6 +165,7 @@
   "dependencies": {
     "aguid": "2.0.0",
     "aws-sdk": "^2.134.0",
+    "bcrypt": "^1.0.3",
     "bunyan": "^1.8.10",
     "grid-framework": "github:hmhco/hmh.grid.framework#v1.0.2",
     "idm-nodejs-common": "hmhco/idm-nodejs-common#v1.0.14",

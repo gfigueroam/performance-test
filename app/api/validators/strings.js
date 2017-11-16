@@ -78,7 +78,7 @@ function validatePasswordId(param) {
   );
   validRegex(
     param,
-    `^${regex.UDS_ID_REGEX}$`,
+    `^${regex.UDS_PASSWORD_ID_REGEX}$`,
     errors.codes.ERROR_CODE_INVALID_PASSWORD_ID,
   );
 }

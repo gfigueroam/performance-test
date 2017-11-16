@@ -22,6 +22,7 @@ export default {
       },
       {
         name: 'password',
+        optional: true,
         parse: parsers.strings.parseOptionalString,
         validate: validators.strings.validateOptionalPassword,
       },

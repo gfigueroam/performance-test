@@ -1,13 +1,13 @@
 {
   "AttributeDefinitions": [
     {
-      "AttributeName": "app",
+      "AttributeName": "name",
       "AttributeType": "S"
     }
   ],
   "KeySchema": [
     {
-      "AttributeName": "app",
+      "AttributeName": "name",
       "KeyType": "HASH"
     }
   ],

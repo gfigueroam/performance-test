@@ -1,5 +1,9 @@
-/* eslint-disable */
+import db from '../../../db/apps';
+
 export default async function infoHandler(name) {
-  return {};
+  const app = await db.info({
+    name,
+  });
+
+  return app;
 }
-/* eslint-enable */

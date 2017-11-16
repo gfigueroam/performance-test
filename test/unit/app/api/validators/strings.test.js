@@ -30,6 +30,14 @@ describe('String Validators', () => {
     invalidLongName,
   ];
 
+  const invalidPasswordIds = [
+    '_hmh.eng.*',
+    'test name',
+    'hmh.eng.*',
+    'test-name-123',
+    'hmh\\/.test',
+    '$[hmh.co.eng]',
+  ];
 
   describe('validateName', () => {
     it('should allow valid names', () => {
@@ -102,8 +110,8 @@ describe('String Validators', () => {
         );
       }
 
-      // Reject strings that don't conform to a possible UDS-generated IDs
-      invalidNames.forEach(s => { checkInvalidPasswordId(s); });
+      // Reject strings that don't conform to a possible UDS-generated password IDs
+      invalidPasswordIds.forEach(s => { checkInvalidPasswordId(s); });
     });
   });
 
