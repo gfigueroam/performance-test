@@ -3,6 +3,7 @@ import sinon from 'sinon';
 
 import apps from '../../../../../../app/db/apps';
 import listHandler from '../../../../../../app/api/v1/apps/list';
+import logger from '../../../../../../app/monitoring/logger';
 
 const expect = chai.expect;
 const EXISTING_APPS = [{
@@ -12,6 +13,7 @@ const EXISTING_APPS = [{
   name: 'testApp2',
   quota: 2048,
 }];
+const swatchCtx = { logger };
 
 let listStub;
 
@@ -26,7 +28,7 @@ describe('apps.list', () => {
 
   it('returns empty set when there are no apps in the database', done => {
     listStub.callsFake(() => (Promise.resolve([])));
-    listHandler().then(result => {
+    listHandler.apply(swatchCtx).then(result => {
       expect(result).to.deep.equal([]);
       expect(apps.list.called).to.equal(true);
       done();
@@ -35,7 +37,7 @@ describe('apps.list', () => {
 
   it('returns app information when there are apps in the database', done => {
     listStub.callsFake(() => (Promise.resolve(EXISTING_APPS)));
-    listHandler().then(result => {
+    listHandler.apply(swatchCtx).then(result => {
       expect(result).to.deep.equal(EXISTING_APPS);
       expect(apps.list.called).to.equal(true);
       done();

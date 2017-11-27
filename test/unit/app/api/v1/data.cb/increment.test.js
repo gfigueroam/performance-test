@@ -2,13 +2,14 @@ import chai from 'chai';
 import sinon from 'sinon';
 
 import calculatedBehavior from '../../../../../../app/db/calculatedBehavior';
-
+import logger from '../../../../../../app/monitoring/logger';
 import incrementHandler from '../../../../../../app/api/v1/data.cb/increment';
 
 const expect = chai.expect;
 
 const key = 'test.data.user.increment.name';
 const user = 'hmh-test-user.123';
+const swatchCtx = { logger };
 
 describe('data.cb.increment', () => {
   after(() => {
@@ -31,7 +32,7 @@ describe('data.cb.increment', () => {
       });
     });
 
-    incrementHandler(key, user).then(() => {
+    incrementHandler.apply(swatchCtx, [key, user]).then(() => {
       expect(calculatedBehavior.atomicUpdate.called).to.equal(true);
 
       done();

@@ -2,7 +2,7 @@ import chai from 'chai';
 import sinon from 'sinon';
 
 import calculatedBehavior from '../../../../../../app/db/calculatedBehavior';
-
+import logger from '../../../../../../app/monitoring/logger';
 import setHandler from '../../../../../../app/api/v1/data.cb/set';
 
 const expect = chai.expect;
@@ -10,6 +10,7 @@ const expect = chai.expect;
 const key = 'test.data.user.set.name';
 const data = 'Sample data value';
 const user = 'hmh-test-user.123';
+const swatchCtx = { logger };
 
 describe('data.cb.set', () => {
   after(() => {
@@ -24,7 +25,7 @@ describe('data.cb.set', () => {
         user,
       });
     });
-    setHandler(key, data, user).then(result => {
+    setHandler.apply(swatchCtx, [key, data, user]).then(result => {
       expect(result).to.equal(undefined);
       expect(calculatedBehavior.set.called).to.equal(true);
       done();

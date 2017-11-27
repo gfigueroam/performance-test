@@ -3,6 +3,7 @@ import sinon from 'sinon';
 
 import apps from '../../../../../../app/db/apps';
 import infoHandler from '../../../../../../app/api/v1/apps/info';
+import logger from '../../../../../../app/monitoring/logger';
 
 const expect = chai.expect;
 const APP = {
@@ -10,6 +11,7 @@ const APP = {
   quota: 324234,
 };
 
+const swatchCtx = { logger };
 const name = 'test.apps.info.name';
 let infoStub;
 
@@ -30,7 +32,7 @@ describe('apps.info', () => {
 
       return Promise.resolve(undefined);
     });
-    infoHandler(name).then(result => {
+    infoHandler.apply(swatchCtx, [name]).then(result => {
       expect(result).to.equal(undefined);
       expect(apps.info.called).to.equal(true);
       done();
@@ -45,7 +47,7 @@ describe('apps.info', () => {
 
       return Promise.resolve(APP);
     });
-    infoHandler(name).then(result => {
+    infoHandler.apply(swatchCtx, [name]).then(result => {
       expect(result).to.equal(APP);
       expect(apps.info.called).to.equal(true);
       done();

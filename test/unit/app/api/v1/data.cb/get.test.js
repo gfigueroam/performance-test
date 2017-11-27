@@ -2,14 +2,17 @@ import chai from 'chai';
 import sinon from 'sinon';
 
 import calculatedBehavior from '../../../../../../app/db/calculatedBehavior';
-
+import logger from '../../../../../../app/monitoring/logger';
 import getHandler from '../../../../../../app/api/v1/data.cb/get';
 
 const expect = chai.expect;
 
 const key = 'test.data.user.set.name';
 const user = 'hmh-test-user.123';
+const swatchCtx = { logger };
+
 let getStub;
+
 describe('data.cb.get', () => {
   before(() => {
     getStub = sinon.stub(calculatedBehavior, 'get');
@@ -43,7 +46,7 @@ describe('data.cb.get', () => {
         },
       });
     });
-    getHandler(key, user).then(result => {
+    getHandler.apply(swatchCtx, [key, user]).then(result => {
       expect(result).to.deep.equal(val);
       expect(calculatedBehavior.get.called).to.equal(true);
 
@@ -60,7 +63,7 @@ describe('data.cb.get', () => {
 
       return Promise.resolve({});
     });
-    getHandler(key, user).then(result => {
+    getHandler.apply(swatchCtx, [key, user]).then(result => {
       expect(result).to.equal(undefined);
       expect(calculatedBehavior.get.called).to.equal(true);
 
