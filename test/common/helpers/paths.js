@@ -1,8 +1,6 @@
 export default {
   APPS_INFO: 'api/v1/apps.info',
   APPS_LIST: 'api/v1/apps.list',
-  APPS_PASSWORDS_ADD: 'api/v1/apps.passwords.add',
-  APPS_PASSWORDS_REMOVE: 'api/v1/apps.passwords.remove',
   APPS_REGISTER: 'api/v1/apps.register',
   APPS_REMOVE: 'api/v1/apps.remove',
   APPS_SET_PER_USER_QUOTA: 'api/v1/apps.setPerUserQuota',

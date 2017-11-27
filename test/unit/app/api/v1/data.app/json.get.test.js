@@ -6,12 +6,11 @@ const expect = chai.expect;
 
 const key = 'test.data.app.json.get.key';
 const app = 'test.data.app.json.get.app';
-const password = 'testpassword1234';
 const user = 'hmh-test-user.123';
 
 describe('data.app.json.get', () => {
   it('returns an empty stub value', done => {
-    getHandler(key, app, password, user).then(result => {
+    getHandler(key, app, user).then(result => {
       expect(result).to.deep.equal({});
       done();
     }).catch(done);

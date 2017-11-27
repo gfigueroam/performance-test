@@ -22,11 +22,6 @@ export default {
         validate: validators.strings.validateApp,
       },
       {
-        name: 'password',
-        parse: parsers.strings.parseOptionalString,
-        validate: validators.strings.validateOptionalPassword,
-      },
-      {
         name: 'user',
         parse: parsers.strings.parseOptionalString,
         validate: validators.strings.validateOptionalUser,
@@ -49,11 +44,6 @@ export default {
         validate: validators.strings.validateApp,
       },
       {
-        name: 'password',
-        parse: parsers.strings.parseOptionalString,
-        validate: validators.strings.validateOptionalPassword,
-      },
-      {
         name: 'user',
         parse: parsers.strings.parseOptionalString,
         validate: validators.strings.validateOptionalUser,
@@ -68,11 +58,6 @@ export default {
         optional: false,
         parse: parsers.strings.parseString,
         validate: validators.strings.validateApp,
-      },
-      {
-        name: 'password',
-        parse: parsers.strings.parseOptionalString,
-        validate: validators.strings.validateOptionalPassword,
       },
       {
         name: 'user',
@@ -95,11 +80,6 @@ export default {
         optional: false,
         parse: parsers.strings.parseString,
         validate: validators.strings.validateApp,
-      },
-      {
-        name: 'password',
-        parse: parsers.strings.parseOptionalString,
-        validate: validators.strings.validateOptionalPassword,
       },
       {
         name: 'user',
@@ -129,11 +109,6 @@ export default {
         validate: validators.strings.validateApp,
       },
       {
-        name: 'password',
-        parse: parsers.strings.parseOptionalString,
-        validate: validators.strings.validateOptionalPassword,
-      },
-      {
         name: 'user',
         parse: parsers.strings.parseOptionalString,
         validate: validators.strings.validateOptionalUser,
@@ -148,11 +123,6 @@ export default {
         optional: false,
         parse: parsers.strings.parseString,
         validate: validators.strings.validateApp,
-      },
-      {
-        name: 'password',
-        parse: parsers.strings.parseOptionalString,
-        validate: validators.strings.validateOptionalPassword,
       },
       {
         name: 'user',
@@ -175,11 +145,6 @@ export default {
         optional: false,
         parse: parsers.strings.parseString,
         validate: validators.strings.validateApp,
-      },
-      {
-        name: 'password',
-        parse: parsers.strings.parseOptionalString,
-        validate: validators.strings.validateOptionalPassword,
       },
       {
         name: 'user',
@@ -207,11 +172,6 @@ export default {
         optional: false,
         parse: parsers.strings.parseString,
         validate: validators.strings.validateApp,
-      },
-      {
-        name: 'password',
-        parse: parsers.strings.parseOptionalString,
-        validate: validators.strings.validateOptionalPassword,
       },
       {
         name: 'user',

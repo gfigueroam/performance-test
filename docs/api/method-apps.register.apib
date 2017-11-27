@@ -4,10 +4,7 @@ FORMAT: 1A
 
 Registers a new app.
 
-Apps will use their name and password when storing data. In scenarios where the
-app data must not be accessed by other apps, it is recommended that accessing
-the data be done through an intermediary web service (to avoid making the
-password obtainable).
+Apps will use their name when storing data.
 
 See [Naming rules](common-names.html) for more information on names.
 
@@ -16,7 +13,6 @@ See [Naming rules](common-names.html) for more information on names.
 | Argument          | Example           | Required  | Description
 |:---               |:---               |:---       |:---
 | `name`            | `browser_client`  | Required  | The name of the app.
-| `password`        | `2*HF9H[eQsWSc#k` | Optional  | The password for the app. Leave blank for no password.
 | `quota`           | `1024`            | Required  | The storage available to the app per user, in bytes.
 
 ## Result
@@ -36,5 +32,4 @@ See [Naming rules](common-names.html) for more information on names.
 | `wrong_token_type`        | This endpoint requires a service token.
 | `invalid_name`            | `name` does not conform to the naming rules.
 | `name_in_use`             | `name` is already used for an existing app.
-| `invalid_password`        | `password` is missing.
 | `invalid_quota`           | `quota` is not a valid positive integer within max system quota limit.

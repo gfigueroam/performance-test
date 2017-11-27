@@ -12,7 +12,6 @@ const path = paths.DATA_APP_JSON_MERGE;
 const app = `uds.bvt.data.app.json.merge.app.${seed.buildNumber}`;
 const data = { merge_data: 'true', merge_sample_data: 'false' };
 const key = `uds.bvt.data.app.json.merge.test.${seed.buildNumber}`;
-const password = 'password1234abcd';
 const user = 'data.admin.test.user.1';
 
 describe('data.app.json.merge', () => {
@@ -22,7 +21,6 @@ describe('data.app.json.merge', () => {
       app,
       data: invalidData,
       key,
-      password,
       user,
     };
     const serviceToken = tokens.serviceToken;
@@ -31,5 +29,5 @@ describe('data.app.json.merge', () => {
     http.sendPostRequestError(path, serviceToken, params, errorCode, done);
   });
 
-  apiTestStub('data.app', 'json.merge', { app, data, key, password, user });
+  apiTestStub('data.app', 'json.merge', { app, data, key, user });
 });

@@ -1,4 +1,4 @@
 /* eslint-disable */
-export default async function deleteHandler(key, app, password, user) {
+export default async function deleteHandler(key, app, user) {
 }
 /* eslint-enable */

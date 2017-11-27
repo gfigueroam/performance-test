@@ -30,15 +30,6 @@ describe('String Validators', () => {
     invalidLongName,
   ];
 
-  const invalidPasswordIds = [
-    '_hmh.eng.*',
-    'test name',
-    'hmh.eng.*',
-    'test-name-123',
-    'hmh\\/.test',
-    '$[hmh.co.eng]',
-  ];
-
   describe('validateName', () => {
     it('should allow valid names', () => {
       validNames.forEach(name => {
@@ -55,63 +46,6 @@ describe('String Validators', () => {
           errors.codes.ERROR_CODE_INVALID_NAME,
         );
       });
-    });
-  });
-
-  describe('validatePassword', () => {
-    it('should allow valid passwords', () => {
-      validNames.forEach(name => {
-        expect(() => stringValidators.validatePassword(name)).not.to.throw();
-      });
-    });
-
-    it('should reject invalid passwords', () => {
-      expect(() => stringValidators.validatePassword('')).to.throw(
-        errors.codes.ERROR_CODE_INVALID_SCOPE,
-      );
-      expect(() => stringValidators.validatePassword(invalidLongName)).to.throw(
-        errors.codes.ERROR_CODE_INVALID_SCOPE,
-      );
-    });
-  });
-
-  describe('validateOptionalPassword', () => {
-    it('should allow valid or empty passwords', () => {
-      expect(() => stringValidators.validateOptionalPassword()).not.to.throw();
-      validNames.forEach(name => {
-        expect(() => stringValidators.validateOptionalPassword(name)).not.to.throw();
-      });
-    });
-
-    it('should reject invalid passwords', () => {
-      expect(() => stringValidators.validateOptionalPassword('')).to.throw(
-        errors.codes.ERROR_CODE_INVALID_SCOPE,
-      );
-      expect(() => stringValidators.validateOptionalPassword(invalidLongName)).to.throw(
-        errors.codes.ERROR_CODE_INVALID_SCOPE,
-      );
-    });
-  });
-
-  describe('validatePasswordId', () => {
-    it('should allow valid password IDs', () => {
-      [
-        'abcd1234',
-        'ABCD1234abcd',
-      ].forEach(type => {
-        expect(() => stringValidators.validatePasswordId(type)).not.to.throw();
-      });
-    });
-
-    it('should reject invalid passwordIds', () => {
-      function checkInvalidPasswordId(value) {
-        expect(() => stringValidators.validatePasswordId(value)).to.throw(
-          errors.codes.ERROR_CODE_INVALID_PASSWORD_ID,
-        );
-      }
-
-      // Reject strings that don't conform to a possible UDS-generated password IDs
-      invalidPasswordIds.forEach(s => { checkInvalidPasswordId(s); });
     });
   });
 

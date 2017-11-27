@@ -1,9 +1,8 @@
 import db from '../../../db/apps';
 
-export default async function registerHandler(name, password, quota) {
+export default async function registerHandler(name, quota) {
   await db.register({
     name,
-    password,
     quota,
   });
 

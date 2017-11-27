@@ -9,7 +9,6 @@ Retrieve a binary blob for a given user.
 | Argument      | Example                   | Required  | Description
 |:---           |:---                       |:---       |:---
 | `app`         | `browser_client`          | Required  | The app storing data.
-| `password`    | `2*HF9H[eQsWSc#k`         | Optional  | The app password. Pass it if token type is user token and the app expects a password.
 | `user`        | `user_345`                | Optional  | The user as which to get the data. Required if token type is service token.
 
 ## Result
@@ -31,8 +30,6 @@ Returns the base64-encoded binary data, as if encoded by [btoa](https://html.spe
 |:---                   |:---
 | `invalid_app`         | `app` does not conform to the naming rules.
 | `app_not_found`       | `app` does not name an existing app.
-| `invalid_password`    | `password` is required but missing.
-| `invalid_credentials` | Combination of `app` and `password` is not valid.
 | `invalid_user`        | `user` is not a valid user identifier.
 | `user_not_found`      | User specified in `user` or user token was not found.
 | `no_user_data`        | User does not have a binary blob saved.

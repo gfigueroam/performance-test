@@ -7,7 +7,6 @@ import listHandler from '../../../../../../app/api/v1/apps/list';
 const expect = chai.expect;
 const EXISTING_APPS = [{
   name: 'testApp1',
-  password: '1234abc',
   quota: 1024,
 }, {
   name: 'testApp2',

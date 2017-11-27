@@ -12,7 +12,6 @@ const path = paths.DATA_APP_JSON_SET;
 const app = `uds.bvt.data.app.json.set.app.${seed.buildNumber}`;
 const data = { data: 'true', other_data: 'false' };
 const key = `uds.bvt.data.app.json.set.test.${seed.buildNumber}`;
-const password = 'password1234abcd';
 const user = 'data.admin.test.user.1';
 
 describe('data.app.json.set', () => {
@@ -22,7 +21,6 @@ describe('data.app.json.set', () => {
       app,
       data: invalidData,
       key,
-      password,
       user,
     };
     const serviceToken = tokens.serviceToken;
@@ -31,5 +29,5 @@ describe('data.app.json.set', () => {
     http.sendPostRequestError(path, serviceToken, params, errorCode, done);
   });
 
-  apiTestStub('data.app', 'json.set', { app, data, key, password, user });
+  apiTestStub('data.app', 'json.set', { app, data, key, user });
 });

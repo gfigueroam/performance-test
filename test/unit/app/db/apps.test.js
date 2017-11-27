@@ -54,7 +54,6 @@ describe('apps', () => {
       documentClientStub.put.callsFake(params => {
         expect(params.Item).to.deep.equal({
           name,
-          password: undefined,
           quota,
         });
         expect(params).to.have.all.keys('Item', 'TableName', 'ExpressionAttributeNames', 'ConditionExpression');
@@ -81,7 +80,6 @@ describe('apps', () => {
       documentClientStub.put.callsFake(params => {
         expect(params.Item).to.deep.equal({
           name,
-          password: undefined,
           quota,
         });
         expect(params).to.have.all.keys('Item', 'TableName', 'ExpressionAttributeNames', 'ConditionExpression');
