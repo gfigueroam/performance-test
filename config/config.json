@@ -2,7 +2,10 @@
   "logger": {
     "level": "error"
   },
+  "kafka": {
+    "host": "kafka.brcore01.internal:9092"
+  },
   "uds": {
-    "test_service_token": "SIF_HMACSHA256 SE1IX0RNUFM6emFsZXVvbXdaNHp2OG1EaEY1M0JEMUNrMWFDQ0tCLzdCQlJoNENjMzVYZz0K"
+    "service_token": "SIF_HMACSHA256 SE1IX0RNUFM6emFsZXVvbXdaNHp2OG1EaEY1M0JEMUNrMWFDQ0tCLzdCQlJoNENjMzVYZz0K"
   }
 }

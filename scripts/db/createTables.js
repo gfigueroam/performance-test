@@ -20,31 +20,38 @@ async function execute() {
 
   await Promise.all([
     {
+      schema: '../../database/schema/appdata.json',
       tableName: nconf.get('database').appDataJsonTableName,
-      schema: '../../database/schema/appdata.json',
     },
     {
+      schema: '../../database/schema/appdata.json',
       tableName: nconf.get('database').appDataBlobTableName,
-      schema: '../../database/schema/appdata.json',
     },
     {
-      tableName: nconf.get('database').calculatedBehaviorTableName,
       schema: '../../database/schema/cb.json',
+      tableName: nconf.get('database').calculatedBehaviorTableName,
     },
     {
-      tableName: nconf.get('database').appsTableName,
       schema: '../../database/schema/apps.json',
+      tableName: nconf.get('database').appsTableName,
     },
   ].map(async (nameAndSchema) => {
+    // eslint-disable-next-line no-console
     console.log(`now working on ${nameAndSchema.tableName}`);
 
     // Call DynamoDB to create the table for calculated behavior service
     try {
-      // eslint-disable-next-line global-require
+      /* eslint-disable global-require */
+      /* eslint-disable import/no-dynamic-require */
       const cbSchema = require(nameAndSchema.schema);
+      /* eslint-enable import/no-dynamic-require */
+      /* eslint-enable global-require */
+
+      // eslint-disable-next-line no-console
       console.log(`Loaded schema for ${nameAndSchema.tableName}`);
 
       cbSchema.TableName = nameAndSchema.tableName;
+      // eslint-disable-next-line no-console
       console.log(`calling db.createTable for ${nameAndSchema.tableName}`);
       const data = await db.createTable(cbSchema).promise();
       // eslint-disable-next-line no-console

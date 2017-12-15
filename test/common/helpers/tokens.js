@@ -55,7 +55,7 @@ const expiredMetadata = {
 const expiredUserToken = createToken(expiredMetadata, secret, clientSecret);
 const expiredToken = `SIF_HMACSHA256 ${expiredUserToken}`;
 
-const serviceToken = config.get('uds:test_service_token');
+const serviceToken = config.get('uds:service_token');
 
 // Sample valid user token that will authenticate via LinkerD that our auth adapter
 //  should be able to decode. Token format is: [AAAA].[AAAAAAA].[AAAAA] with no hash

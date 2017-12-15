@@ -56,7 +56,7 @@ describe('authAdapter', () => {
     });
 
     it('should successfully validate a service token', () => {
-      const testServiceToken = config.get('uds:test_service_token');
+      const testServiceToken = config.get('uds:service_token');
       const mockCtx = createMockCtx(testServiceToken);
 
       const result = auth.adapter.internal(mockCtx);
@@ -82,7 +82,7 @@ describe('authAdapter', () => {
 
   describe('external', () => {
     it('should reject a token that fails to decode', () => {
-      const token = config.get('uds:test_service_token');
+      const token = config.get('uds:service_token');
       const mockCtx = createMockCtx(token);
 
       expect(() => auth.adapter.external(mockCtx)).to.throw(errors.codes.ERROR_CODE_AUTH_INVALID);

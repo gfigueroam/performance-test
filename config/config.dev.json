@@ -2,5 +2,9 @@
   "logger": {
     "level": "debug"
   },
+  "kafka": {
+    "topic": "hmheng-uds.dev.calculated-behavior-events.schema.calculated.behavior",
+    "group_id": "uds-calculated-behavior-group-dev"
+  },
   "iamRole": "arn:aws:iam::711638685743:role/uds/uds-iam-ddb-role-dev"
 }
