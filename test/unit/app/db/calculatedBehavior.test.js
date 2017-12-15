@@ -415,7 +415,7 @@ describe('calculatedBehavior', () => {
   describe('unset', () => {
     it('throws an error if "user" is not passed in the params', async () => {
       try {
-        await calculatedBehavior.set({
+        await calculatedBehavior.unset({
           key,
         });
         return Promise.reject();
@@ -426,7 +426,7 @@ describe('calculatedBehavior', () => {
 
     it('throws an error if "key" is not passed in the params', async () => {
       try {
-        await calculatedBehavior.set({
+        await calculatedBehavior.unset({
           user,
         });
         return Promise.reject();

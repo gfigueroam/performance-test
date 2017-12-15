@@ -1,7 +1,83 @@
-import apiTestStub from '../stub';
+import chai from 'chai';
 
-const user = 'data.admin.test.user.1';
+import http from '../../../../../common/helpers/http';
+import seed from '../../../../../common/seed';
+import paths from '../../../../../common/helpers/paths';
+import tokens from '../../../../../common/helpers/tokens';
+
+const expect = chai.expect;
+
+const key1 = `uds.bvt.data.user.set.test.1.${seed.buildNumber}`;
+const key2 = `uds.bvt.data.user.set.test.2.${seed.buildNumber}`;
+const user = `data.user.test.user.${seed.buildNumber}`;
+const data = 'this is some data';
 
 describe('data.user.list', () => {
-  apiTestStub('data.user', 'list', { user });
+  after((done) => {
+    seed.user.unset({
+      key: key1,
+      user,
+    }, () => {
+      seed.user.unset({
+        key: key2,
+        user,
+      }, done);
+    });
+  });
+
+  it('returns an empty list when no keys are set', (done) => {
+    http.sendPostRequest(paths.DATA_USER_LIST, tokens.serviceToken,
+      { user }, (err, response) => {
+        expect(err).to.equal(null);
+        expect(response.body).to.deep.equal({
+          ok: true,
+          result: {
+            keys: [],
+          },
+        });
+        done();
+      });
+  });
+
+  it('returns a list of one key', (done) => {
+    http.sendPostRequest(paths.DATA_USER_SET, tokens.serviceToken,
+      { data, key: key1, type: 'text', user }, (err2, response2) => {
+        expect(err2).to.equal(null);
+        expect(response2.body).to.deep.equal({
+          ok: true,
+        });
+        http.sendPostRequest(paths.DATA_USER_LIST, tokens.serviceToken,
+          { user }, (err, response) => {
+            expect(err).to.equal(null);
+            expect(response.body).to.deep.equal({
+              ok: true,
+              result: {
+                keys: [key1],
+              },
+            });
+            done();
+          });
+      });
+  });
+
+  it('returns a list of two keys', (done) => {
+    http.sendPostRequest(paths.DATA_USER_SET, tokens.serviceToken,
+      { data, key: key2, type: 'text', user }, (err2, response2) => {
+        expect(err2).to.equal(null);
+        expect(response2.body).to.deep.equal({
+          ok: true,
+        });
+        http.sendPostRequest(paths.DATA_USER_LIST, tokens.serviceToken,
+          { user }, (err, response) => {
+            expect(err).to.equal(null);
+            expect(response.body).to.deep.equal({
+              ok: true,
+              result: {
+                keys: [key1, key2],
+              },
+            });
+            done();
+          });
+      });
+  });
 });
