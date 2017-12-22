@@ -21,7 +21,6 @@ async function execute() {
     nconf.get('database').calculatedBehaviorTableName,
     nconf.get('database').appsTableName,
     nconf.get('database').appDataJsonTableName,
-    nconf.get('database').appDataBlobTableName,
   ].map(async (dynamoDBTableName) => {
     try {
       const data = await db.scan({

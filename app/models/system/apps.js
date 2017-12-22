@@ -1,4 +1,3 @@
 export default [
-  'blob',
   'json',
 ];

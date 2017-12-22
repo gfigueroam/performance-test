@@ -52,7 +52,6 @@ describe('String Validators', () => {
   describe('validateAppRealm', () => {
     it('should allow valid app realms', () => {
       [
-        'blob',
         'json',
       ].forEach(realm => {
         expect(() => stringValidators.validateAppRealm(realm)).not.to.throw();

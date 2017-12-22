@@ -13,9 +13,6 @@ export default {
   DATA_ADMIN_APPS: 'api/v1/data.admin.apps',
   DATA_ADMIN_USERS: 'api/v1/data.admin.users',
 
-  DATA_APP_BLOB_DELETE: 'api/v1/data.app.blob.delete',
-  DATA_APP_BLOB_GET: 'api/v1/data.app.blob.get',
-  DATA_APP_BLOB_SET: 'api/v1/data.app.blob.set',
   DATA_APP_JSON_DELETE: 'api/v1/data.app.json.delete',
   DATA_APP_JSON_GET: 'api/v1/data.app.json.get',
   DATA_APP_JSON_LIST: 'api/v1/data.app.json.list',

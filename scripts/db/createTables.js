@@ -24,10 +24,6 @@ async function execute() {
       tableName: nconf.get('database').appDataJsonTableName,
     },
     {
-      schema: '../../database/schema/appdata.json',
-      tableName: nconf.get('database').appDataBlobTableName,
-    },
-    {
       schema: '../../database/schema/cb.json',
       tableName: nconf.get('database').calculatedBehaviorTableName,
     },

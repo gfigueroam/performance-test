@@ -2,7 +2,6 @@
   "database": {
     "calculatedBehaviorTableName": "uds-cert-calculated-behavior",
     "appsTableName": "uds-cert-apps",
-    "appDataJsonTableName": "uds-cert-app-data-json",
-    "appDataBlobTableName": "uds-cert-app-data-blob"
+    "appDataJsonTableName": "uds-cert-app-data-json"
   }
 }

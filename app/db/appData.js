@@ -1,5 +1,9 @@
 import nconf from '../config';
 import dynamodbClient from './dynamoDBClient';
+import apps from './apps';
+import errors from '../models/errors';
+
+const HMH_APP = 'hmh';
 
 async function getJson(params) {
   if (!params.key) {
@@ -12,7 +16,11 @@ async function getJson(params) {
     throw new Error('Parameter "app" is required.');
   }
 
-  // TODO: Verify app is properly registered in the system.
+  if (params.app !== HMH_APP) {
+    await apps.info({
+      name: params.app,
+    });
+  }
 
   const dynamodb = await dynamodbClient.getClient();
   const getResult = await dynamodb.get({
@@ -40,8 +48,12 @@ async function setJson(params) {
     throw new Error('Parameter "data" is required.');
   }
 
-  // TODO: Verify app is properly registered in the system.
-  // TODO: Verify the user has sufficient quota remaining (except for built-in HMH app)
+  if (params.app !== HMH_APP) {
+    await apps.info({
+      name: params.app,
+    });
+    // TODO: Verify the user has sufficient quota remaining (except for built-in HMH app)
+  }
 
   const dynamodb = await dynamodbClient.getClient();
 
@@ -71,9 +83,27 @@ async function unsetJson(params) {
     throw new Error('Parameter "user" is required.');
   }
 
-  // TODO: Verify app is properly registered in the system.
+  if (params.app !== HMH_APP) {
+    await apps.info({
+      name: params.app,
+    });
+  }
 
   const dynamodb = await dynamodbClient.getClient();
+
+  // This API needs to throw an error if we delete a key which does not exist.
+  // So we need to query first for the item.
+  const getResult = await dynamodb.get({
+    Key: {
+      appUser: params.app + params.user,
+      key: params.key,
+    },
+    TableName: nconf.get('database').appDataJsonTableName,
+  }).promise();
+
+  if (!getResult.Item) {
+    throw new Error(errors.codes.ERROR_CODE_KEY_NOT_FOUND);
+  }
 
   await dynamodb.delete({
     Key: {
@@ -94,7 +124,11 @@ async function listJson(params) {
     throw new Error('Parameter "user" is required.');
   }
 
-  // TODO: Verify app is properly registered in the system.
+  if (params.app !== HMH_APP) {
+    await apps.info({
+      name: params.app,
+    });
+  }
 
   const dynamodb = await dynamodbClient.getClient();
 

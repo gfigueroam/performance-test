@@ -6,6 +6,7 @@ import sinon from 'sinon';
 // because appData uses lazy initialization. See details within
 // appData.js
 import appData from '../../../../app/db/appData';
+import apps from '../../../../app/db/apps';
 import dynamoDBClient from '../../../../app/db/dynamoDBClient';
 
 const expect = chai.expect;
@@ -21,10 +22,12 @@ const data = 'unit test data';
 describe('appData', () => {
   before(() => {
     sinon.stub(dynamoDBClient, 'getClient').callsFake(() => (documentClientStub));
+    sinon.stub(apps, 'info');
   });
 
   after(() => {
     dynamoDBClient.getClient.restore();
+    apps.info.restore();
   });
 
   describe('setJson', () => {
@@ -114,6 +117,14 @@ describe('appData', () => {
           promise: () => (Promise.resolve()),
         };
       });
+
+      apps.info.callsFake(params => {
+        expect(params.name).to.equal(app);
+        return {
+          promise: () => (Promise.resolve()),
+        };
+      });
+
       appData.setJson({
         app,
         data,
@@ -172,6 +183,26 @@ describe('appData', () => {
         expect(params).to.have.all.keys('Key', 'TableName');
         return {
           promise: () => (Promise.resolve()),
+        };
+      });
+      apps.info.callsFake(params => {
+        expect(params.name).to.equal(app);
+        return {
+          promise: () => (Promise.resolve()),
+        };
+      });
+      // Provide a fake item when queried, since otherwise the
+      // method should throw a key not found error
+      documentClientStub.get.callsFake(params => {
+        expect(params.Key).to.deep.equal({
+          appUser: app + user,
+          key,
+        });
+        expect(params).to.have.all.keys('Key', 'TableName');
+        return {
+          promise: () => (Promise.resolve({
+            Item: {},
+          })),
         };
       });
       appData.unsetJson({

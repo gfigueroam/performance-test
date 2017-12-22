@@ -7,8 +7,8 @@ import tokens from '../../../../../common/helpers/tokens';
 
 const expect = chai.expect;
 
-const key1 = `uds.bvt.data.user.set.test.1.${seed.buildNumber}`;
-const key2 = `uds.bvt.data.user.set.test.2.${seed.buildNumber}`;
+const key1 = `uds.bvt.data.user.list.test.1.${seed.buildNumber}`;
+const key2 = `uds.bvt.data.user.list.test.2.${seed.buildNumber}`;
 const user = `data.user.test.user.${seed.buildNumber}`;
 const data = 'this is some data';
 
