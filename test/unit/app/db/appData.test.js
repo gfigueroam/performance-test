@@ -8,6 +8,7 @@ import sinon from 'sinon';
 import appData from '../../../../app/db/appData';
 import apps from '../../../../app/db/apps';
 import dynamoDBClient from '../../../../app/db/dynamoDBClient';
+import nconf from '../../../../app/config';
 
 const expect = chai.expect;
 
@@ -15,7 +16,6 @@ const documentClientStub = sinon.createStubInstance(AWS.DynamoDB.DocumentClient)
 
 const user = 'unittest.userData.user';
 const key = 'unittest.userData.key';
-const type = 'text';
 const app = 'unittestapp';
 const data = 'unit test data';
 
@@ -37,7 +37,6 @@ describe('appData', () => {
           app,
           data: true,
           key,
-          type,
         });
         return Promise.reject();
       } catch (err) {
@@ -50,7 +49,6 @@ describe('appData', () => {
         await appData.set({
           app,
           data: true,
-          type,
           user,
         });
         return Promise.reject();
@@ -63,21 +61,6 @@ describe('appData', () => {
       try {
         await appData.setJson({
           app,
-          key,
-          type,
-          user,
-        });
-        return Promise.reject();
-      } catch (err) {
-        return Promise.resolve();
-      }
-    });
-
-    it('throws an error if "type" is not passed in the params', async () => {
-      try {
-        await appData.setJson({
-          app,
-          data,
           key,
           user,
         });
@@ -92,7 +75,6 @@ describe('appData', () => {
         await appData.setJson({
           data,
           key,
-          type,
           user,
         });
         return Promise.reject();
@@ -108,7 +90,7 @@ describe('appData', () => {
           appUser: app + user,
           data,
           key,
-          type,
+          type: undefined,
           user,
         });
 
@@ -129,10 +111,201 @@ describe('appData', () => {
         app,
         data,
         key,
-        type,
         user,
       })
       .then(done)
+      .catch(done);
+    });
+  });
+
+  describe('mergeJson', () => {
+    it('throws an error if "user" is not passed in the params', async () => {
+      try {
+        await appData.mergeJson({
+          app,
+          data: {
+            b: true,
+          },
+          key,
+        });
+        return Promise.reject();
+      } catch (err) {
+        return Promise.resolve();
+      }
+    });
+
+    it('throws an error if "key" is not passed in the params', async () => {
+      try {
+        await appData.mergeJson({
+          app,
+          data: {
+            b: true,
+          },
+          user,
+        });
+        return Promise.reject();
+      } catch (err) {
+        return Promise.resolve();
+      }
+    });
+
+    it('throws an error if "data" is not passed in the params', async () => {
+      try {
+        await appData.mergeJson({
+          app,
+          key,
+          user,
+        });
+        return Promise.reject();
+      } catch (err) {
+        return Promise.resolve();
+      }
+    });
+
+    it('throws an error if "app" is not passed in the params', async () => {
+      try {
+        await appData.setJson({
+          data,
+          key,
+          user,
+        });
+        return Promise.reject();
+      } catch (err) {
+        return Promise.resolve();
+      }
+    });
+
+    it('calls dynamoDB.update if there is an existing value already stored', (done) => {
+      documentClientStub.update.callsFake(params => {
+        expect(params).to.deep.equal({
+          ConditionExpression: 'attribute_exists(#data) AND #data = :oldval',
+          ExpressionAttributeNames: {
+            '#data': 'data',
+          },
+          ExpressionAttributeValues: {
+            ':oldval': {
+              existingKey: 'existingValue',
+            },
+            ':value': {
+              existingKey: 'existingValue',
+              newKey: 'newValue',
+            },
+          },
+          Key: {
+            appUser: app + user,
+            key,
+          },
+          TableName: nconf.get('database').appDataJsonTableName,
+          UpdateExpression: 'SET #data = :value',
+        });
+
+        return {
+          promise: () => (Promise.resolve()),
+        };
+      });
+
+      documentClientStub.get.callsFake(params => {
+        expect(params.Key).to.deep.equal({
+          appUser: app + user,
+          key,
+        });
+        expect(params).to.have.all.keys('Key', 'TableName');
+
+        return {
+          promise: () => (Promise.resolve({
+            Item: {
+              data: {
+                existingKey: 'existingValue',
+              },
+            },
+          })),
+        };
+      });
+
+      apps.info.callsFake(params => {
+        expect(params.name).to.equal(app);
+        return {
+          promise: () => (Promise.resolve()),
+        };
+      });
+      appData.mergeJson({
+        app,
+        data: {
+          newKey: 'newValue',
+        },
+        key,
+        user,
+      })
+      .then((result) => {
+        expect(result).to.deep.equal({
+          existingKey: 'existingValue',
+          newKey: 'newValue',
+        });
+        done();
+      })
+      .catch(done);
+    });
+
+    it('calls dynamoDB.put if there is not an existing value', (done) => {
+      documentClientStub.put.callsFake(params => {
+        expect(params).to.deep.equal({
+          ConditionExpression: 'attribute_not_exists(#data)',
+          ExpressionAttributeNames: {
+            '#data': 'data',
+          },
+          Item: {
+            appKey: app + key,
+            appUser: app + user,
+            data: {
+              newKey: 'newValue',
+            },
+            key,
+            type: undefined,
+            user,
+          },
+          TableName: nconf.get('database').appDataJsonTableName,
+        });
+
+        return {
+          promise: () => (Promise.resolve()),
+        };
+      });
+
+      documentClientStub.get.callsFake(params => {
+        expect(params.Key).to.deep.equal({
+          appUser: app + user,
+          key,
+        });
+        expect(params).to.have.all.keys('Key', 'TableName');
+
+        return {
+          promise: () => (Promise.resolve({
+            Item: undefined,
+          })),
+        };
+      });
+
+      apps.info.callsFake(params => {
+        expect(params.name).to.equal(app);
+        return {
+          promise: () => (Promise.resolve()),
+        };
+      });
+
+      appData.mergeJson({
+        app,
+        data: {
+          newKey: 'newValue',
+        },
+        key,
+        user,
+      })
+      .then((result) => {
+        expect(result).to.deep.equal({
+          newKey: 'newValue',
+        });
+        done();
+      })
       .catch(done);
     });
   });
