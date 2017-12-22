@@ -203,7 +203,7 @@ async function merge(params) {
     throw new Error(errors.codes.ERROR_CODE_INVALID_DATA_TYPE);
   } else {
     // There is not an existing value, so store the new value as though the previous value was {}.
-    newValue = params.value;
+    newValue = params.data;
     conditionExpression = 'attribute_not_exists(#data)';
     await dynamodb.put({
       ConditionExpression: conditionExpression,
