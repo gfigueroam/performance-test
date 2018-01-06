@@ -22,12 +22,15 @@ describe('data.app.json.list', () => {
         user,
       });
       return Promise.resolve({
-        Items: [],
+        Items: [
+          { key: 'data_1' },
+          { key: 'data_2' },
+        ],
       });
     });
     listHandler.apply(swatchCtx, [app, user]).then(result => {
       expect(result).to.deep.equal({
-        keys: [],
+        keys: ['data_1', 'data_2'],
       });
       done();
     }).catch(done);

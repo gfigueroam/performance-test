@@ -3,6 +3,7 @@
     "endpoint": "none",
     "calculatedBehaviorTableName": "uds-test-calculated-behavior",
     "appsTableName": "uds-test-apps",
-    "appDataJsonTableName": "uds-test-app-data-json"
+    "appDataJsonTableName": "uds-test-app-data-json",
+    "authzTableName": "uds-test-authz"
   }
 }

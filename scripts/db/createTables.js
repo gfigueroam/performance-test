@@ -31,6 +31,10 @@ async function execute() {
       schema: '../../database/schema/apps.json',
       tableName: nconf.get('database').appsTableName,
     },
+    {
+      schema: '../../database/schema/authz.json',
+      tableName: nconf.get('database').authzTableName,
+    },
   ].map(async (nameAndSchema) => {
     // eslint-disable-next-line no-console
     console.log(`now working on ${nameAndSchema.tableName}`);

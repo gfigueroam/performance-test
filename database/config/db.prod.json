@@ -2,6 +2,7 @@
   "database": {
     "calculatedBehaviorTableName": "uds-prod-calculated-behavior",
     "appsTableName": "uds-prod-apps",
-    "appDataJsonTableName": "uds-prod-app-data-json"
+    "appDataJsonTableName": "uds-prod-app-data-json",
+    "authzTableName": "uds-prod-authz"
   }
 }

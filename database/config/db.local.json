@@ -3,6 +3,7 @@
     "endpoint": "http://localhost:5201",
     "calculatedBehaviorTableName": "uds-local-calculated-behavior",
     "appsTableName": "uds-local-apps",
-    "appDataJsonTableName": "uds-local-app-data-json"
+    "appDataJsonTableName": "uds-local-app-data-json",
+    "authzTableName": "uds-local-authz"
   }
 }

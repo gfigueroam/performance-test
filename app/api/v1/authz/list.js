@@ -1,5 +1,8 @@
-/* eslint-disable */
+import db from '../../../db/authz';
+
 export default async function listHandler() {
-  return [];
+  this.logger.info('authz.list');
+  const authz = await db.list();
+
+  return authz;
 }
-/* eslint-enable */

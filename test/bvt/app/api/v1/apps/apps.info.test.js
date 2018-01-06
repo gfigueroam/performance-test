@@ -4,8 +4,8 @@ import paths from '../../../../../common/helpers/paths';
 import seed from '../../../../../common/seed';
 import tokens from '../../../../../common/helpers/tokens';
 
-const quota = 1024;
 const name = `uds.bvt.apps.info.test.${seed.buildNumber}`;
+const quota = 1024;
 
 describe('apps.info', () => {
   after((done) => {
