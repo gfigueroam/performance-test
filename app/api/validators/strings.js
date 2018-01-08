@@ -43,13 +43,6 @@ function validateName(param) {
   );
 }
 
-function validateAppRealm(param) {
-  // Check that param matches a known whitelist of realms
-  if (!system.realms.apps.includes(param)) {
-    throw errors.codes.ERROR_CODE_INVALID_APP_REALM;
-  }
-}
-
 function validateUserRealm(param) {
   // Check that param matches a known whitelist of realms
   if (!system.realms.users.includes(param)) {
@@ -169,7 +162,6 @@ function validateType(param) {
 
 export default {
   validateApp,
-  validateAppRealm,
   validateAuthz,
   validateCtx,
   validateKey,

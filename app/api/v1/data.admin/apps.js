@@ -1,5 +1,10 @@
-/* eslint-disable */
-export default async function appsHandler(realm, user) {
-  return [];
+import db from '../../../db/appData';
+
+export default async function appsHandler(user) {
+  this.logger.info(`data.admin.apps: user (${user})`);
+  const apps = await db.getApps({
+    user,
+  });
+
+  return apps;
 }
-/* eslint-enable */

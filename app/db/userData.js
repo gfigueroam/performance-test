@@ -1,6 +1,5 @@
 import appData from './appData';
-
-const HMH_APP = 'hmh';
+import constants from '../utils/constants';
 
 async function get(params) {
   if (!params.key) {
@@ -10,7 +9,7 @@ async function get(params) {
     throw new Error('Parameter "user" is required.');
   }
 
-  params.app = HMH_APP;
+  params.app = constants.HMH_APP;
   return appData.getJson(params);
 }
 
@@ -28,7 +27,7 @@ async function set(params) {
     throw new Error('Parameter "user" is required.');
   }
 
-  params.app = HMH_APP;
+  params.app = constants.HMH_APP;
   return appData.setJson(params);
 }
 
@@ -40,7 +39,7 @@ async function unset(params) {
     throw new Error('Parameter "user" is required.');
   }
 
-  params.app = HMH_APP;
+  params.app = constants.HMH_APP;
   return appData.unsetJson(params);
 }
 
@@ -49,7 +48,7 @@ async function list(params) {
     throw new Error('Parameter "user" is required.');
   }
 
-  params.app = HMH_APP;
+  params.app = constants.HMH_APP;
   return appData.listJson(params);
 }
 

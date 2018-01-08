@@ -10,12 +10,6 @@ export default {
     handler: appsHandler,
     args: [
       {
-        name: 'realm',
-        optional: false,
-        parse: parsers.strings.parseString,
-        validate: validators.strings.validateAppRealm,
-      },
-      {
         name: 'user',
         optional: false,
         parse: parsers.strings.parseString,

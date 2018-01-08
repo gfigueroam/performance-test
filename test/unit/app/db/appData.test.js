@@ -9,6 +9,7 @@ import appData from '../../../../app/db/appData';
 import apps from '../../../../app/db/apps';
 import dynamoDBClient from '../../../../app/db/dynamoDBClient';
 import nconf from '../../../../app/config';
+import constants from '../../../../app/utils/constants';
 
 const expect = chai.expect;
 
@@ -28,6 +29,110 @@ describe('appData', () => {
   after(() => {
     dynamoDBClient.getClient.restore();
     apps.info.restore();
+  });
+
+  describe('getApps', () => {
+    after(() => {
+      documentClientStub.query.reset();
+    });
+
+    it('throws an error if "user" is not passed in the params', async () => {
+      try {
+        await appData.getApps({});
+        return Promise.reject();
+      } catch (err) {
+        return Promise.resolve();
+      }
+    });
+
+    it('queries the global secondary index', async () => {
+      documentClientStub.query.callsFake(params => {
+        expect(params.KeyConditionExpression).to.equal('#user = :user');
+        expect(params.ProjectionExpression).to.equal('appKey');
+        expect(params.IndexName).to.equal('uds-app-data-json-gsi');
+        expect(params).to.have.all.keys('ExpressionAttributeNames',
+          'KeyConditionExpression',
+          'ExpressionAttributeValues',
+          'IndexName',
+          'ProjectionExpression',
+          'TableName',
+        );
+        return {
+          promise: () => (Promise.resolve({
+            Items: [{
+              appKey: `a${constants.DELIMITER}some-key`,
+            }, {
+              appKey: `b${constants.DELIMITER}some.other.key`,
+            }],
+          })),
+        };
+      });
+
+      const userApps = await appData.getApps({
+        user,
+      });
+      expect(userApps).to.deep.equal(['a', 'b']);
+    });
+
+    it('paginates if LastEvaluatedKey is returned', async () => {
+      documentClientStub.query.reset(); // Clear any prior call history.
+      documentClientStub.query.onCall(0).returns({
+        promise: () => (Promise.resolve({
+          Items: [{
+            appKey: `a${constants.DELIMITER}some-key`,
+          }, {
+            appKey: `b${constants.DELIMITER}some.other.key`,
+          }],
+          LastEvaluatedKey: 'someExclusiveStartKey',
+        })),
+      });
+      documentClientStub.query.onCall(1).returns({
+        promise: () => (Promise.resolve({
+          Items: [{
+            appKey: `c${constants.DELIMITER}some-key`,
+          }, {
+            appKey: `d${constants.DELIMITER}some.other.key`,
+          }],
+          LastEvaluatedKey: 'someExclusiveStartKey2',
+        })),
+      });
+      documentClientStub.query.onCall(2).returns({
+        promise: () => (Promise.resolve({
+          Items: [{
+            appKey: `e${constants.DELIMITER}some-key`,
+          }, {
+            appKey: `f${constants.DELIMITER}some.other.key`,
+          }],
+        })),
+      });
+      documentClientStub.query.throws(new Error('Did not expect another call to query.'));
+
+      const userApps = await appData.getApps({
+        user,
+      });
+      expect(userApps).to.deep.equal(['a', 'b', 'c', 'd', 'e', 'f']);
+    });
+
+    it('removes the HMH_APP from the results', async () => {
+      documentClientStub.query.reset(); // Remove the onCall(x) from previous test
+      documentClientStub.query.onCall(0).returns({
+        promise: () => (Promise.resolve({
+          Items: [{
+            appKey: `a${constants.DELIMITER}some-key`,
+          }, {
+            appKey: `b${constants.DELIMITER}some.other.key`,
+          }, {
+            appKey: `${constants.HMH_APP}${constants.DELIMITER}some.other.key`,
+          }, {
+            appKey: `d${constants.DELIMITER}some.other.key`,
+          }],
+        })),
+      });
+      const userApps = await appData.getApps({
+        user,
+      });
+      expect(userApps).to.deep.equal(['a', 'b', 'd']);
+    });
   });
 
   describe('setJson', () => {
@@ -86,8 +191,8 @@ describe('appData', () => {
     it('calls dynamoDB.set and returns a promisified version', (done) => {
       documentClientStub.put.callsFake(params => {
         expect(params.Item).to.deep.equal({
-          appKey: app + key,
-          appUser: app + user,
+          appKey: `${app}${constants.DELIMITER}${key}`,
+          appUser: `${app}${constants.DELIMITER}${user}`,
           data,
           key,
           type: undefined,
@@ -192,7 +297,7 @@ describe('appData', () => {
             },
           },
           Key: {
-            appUser: app + user,
+            appUser: `${app}${constants.DELIMITER}${user}`,
             key,
           },
           TableName: nconf.get('database').appDataJsonTableName,
@@ -206,7 +311,7 @@ describe('appData', () => {
 
       documentClientStub.get.callsFake(params => {
         expect(params.Key).to.deep.equal({
-          appUser: app + user,
+          appUser: `${app}${constants.DELIMITER}${user}`,
           key,
         });
         expect(params).to.have.all.keys('Key', 'TableName');
@@ -254,8 +359,8 @@ describe('appData', () => {
             '#data': 'data',
           },
           Item: {
-            appKey: app + key,
-            appUser: app + user,
+            appKey: `${app}${constants.DELIMITER}${key}`,
+            appUser: `${app}${constants.DELIMITER}${user}`,
             data: {
               newKey: 'newValue',
             },
@@ -273,7 +378,7 @@ describe('appData', () => {
 
       documentClientStub.get.callsFake(params => {
         expect(params.Key).to.deep.equal({
-          appUser: app + user,
+          appUser: `${app}${constants.DELIMITER}${user}`,
           key,
         });
         expect(params).to.have.all.keys('Key', 'TableName');
@@ -350,7 +455,7 @@ describe('appData', () => {
     it('calls dynamoDB.delete and returns a promisified version', (done) => {
       documentClientStub.delete.callsFake(params => {
         expect(params.Key).to.deep.equal({
-          appUser: app + user,
+          appUser: `${app}${constants.DELIMITER}${user}`,
           key,
         });
         expect(params).to.have.all.keys('Key', 'TableName');
@@ -368,7 +473,7 @@ describe('appData', () => {
       // method should throw a key not found error
       documentClientStub.get.callsFake(params => {
         expect(params.Key).to.deep.equal({
-          appUser: app + user,
+          appUser: `${app}${constants.DELIMITER}${user}`,
           key,
         });
         expect(params).to.have.all.keys('Key', 'TableName');
@@ -428,7 +533,7 @@ describe('appData', () => {
     it('calls dynamoDB.get and returns a promisified version', (done) => {
       documentClientStub.get.callsFake(params => {
         expect(params.Key).to.deep.equal({
-          appUser: app + user,
+          appUser: `${app}${constants.DELIMITER}${user}`,
           key,
         });
         expect(params).to.have.all.keys('Key', 'TableName');

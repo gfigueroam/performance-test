@@ -11,7 +11,6 @@ export default {
   ERROR_CODE_INTERNAL_ERROR: 'internal_error',
 
   ERROR_CODE_INVALID_APP: 'invalid_app',
-  ERROR_CODE_INVALID_APP_REALM: 'invalid_app_realm',
   ERROR_CODE_INVALID_ARG_NAME: 'invalid_arg_name',
   ERROR_CODE_INVALID_AUTHZ: 'invalid_authz',
   ERROR_CODE_INVALID_CREDENTIALS: 'invalid_credentials',

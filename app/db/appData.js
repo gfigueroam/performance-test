@@ -2,9 +2,8 @@ import nconf from '../config';
 import dynamodbClient from './dynamoDBClient';
 import apps from './apps';
 import errors from '../models/errors';
+import constants from '../utils/constants';
 import logger from '../monitoring/logger';
-
-const HMH_APP = 'hmh';
 
 async function getJson(params) {
   if (!params.key) {
@@ -17,7 +16,7 @@ async function getJson(params) {
     throw new Error('Parameter "app" is required.');
   }
 
-  if (params.app !== HMH_APP) {
+  if (params.app !== constants.HMH_APP) {
     await apps.info({
       name: params.app,
     });
@@ -26,7 +25,7 @@ async function getJson(params) {
   const dynamodb = await dynamodbClient.getClient();
   const getResult = await dynamodb.get({
     Key: {
-      appUser: params.app + params.user,
+      appUser: `${params.app}${constants.DELIMITER}${params.user}`,
       key: params.key,
     },
     TableName: nconf.get('database').appDataJsonTableName,
@@ -49,7 +48,7 @@ async function setJson(params) {
     throw new Error('Parameter "data" is required.');
   }
 
-  if (params.app !== HMH_APP) {
+  if (params.app !== constants.HMH_APP) {
     await apps.info({
       name: params.app,
     });
@@ -60,8 +59,8 @@ async function setJson(params) {
 
   await dynamodb.put({
     Item: {
-      appKey: params.app + params.key,
-      appUser: params.app + params.user,
+      appKey: `${params.app}${constants.DELIMITER}${params.key}`,
+      appUser: `${params.app}${constants.DELIMITER}${params.user}`,
       data: params.data,
       key: params.key,
       type: params.type,
@@ -86,7 +85,7 @@ async function mergeJson(params) {
     throw new Error('Parameter "data" is required.');
   }
 
-  if (params.app !== HMH_APP) {
+  if (params.app !== constants.HMH_APP) {
     await apps.info({
       name: params.app,
     });
@@ -96,7 +95,7 @@ async function mergeJson(params) {
   // Look up the current value that already exists.
   const currentValue = await dynamodb.get({
     Key: {
-      appUser: params.app + params.user,
+      appUser: `${params.app}${constants.DELIMITER}${params.user}`,
       key: params.key,
     },
     TableName: nconf.get('database').appDataJsonTableName,
@@ -125,7 +124,7 @@ async function mergeJson(params) {
           ':value': newValue,
         },
         Key: {
-          appUser: params.app + params.user,
+          appUser: `${params.app}${constants.DELIMITER}${params.user}`,
           key: params.key,
         },
         TableName: nconf.get('database').appDataJsonTableName,
@@ -148,8 +147,8 @@ async function mergeJson(params) {
         '#data': 'data',
       },
       Item: {
-        appKey: params.app + params.key,
-        appUser: params.app + params.user,
+        appKey: `${params.app}${constants.DELIMITER}${params.key}`,
+        appUser: `${params.app}${constants.DELIMITER}${params.user}`,
         data: params.data,
         key: params.key,
         type: params.type,
@@ -173,7 +172,7 @@ async function unsetJson(params) {
     throw new Error('Parameter "user" is required.');
   }
 
-  if (params.app !== HMH_APP) {
+  if (params.app !== constants.HMH_APP) {
     await apps.info({
       name: params.app,
     });
@@ -185,7 +184,7 @@ async function unsetJson(params) {
   // So we need to query first for the item.
   const getResult = await dynamodb.get({
     Key: {
-      appUser: params.app + params.user,
+      appUser: `${params.app}${constants.DELIMITER}${params.user}`,
       key: params.key,
     },
     TableName: nconf.get('database').appDataJsonTableName,
@@ -197,7 +196,7 @@ async function unsetJson(params) {
 
   await dynamodb.delete({
     Key: {
-      appUser: params.app + params.user,
+      appUser: `${params.app}${constants.DELIMITER}${params.user}`,
       key: params.key,
     },
     TableName: nconf.get('database').appDataJsonTableName,
@@ -214,7 +213,7 @@ async function listJson(params) {
     throw new Error('Parameter "user" is required.');
   }
 
-  if (params.app !== HMH_APP) {
+  if (params.app !== constants.HMH_APP) {
     await apps.info({
       name: params.app,
     });
@@ -229,7 +228,7 @@ async function listJson(params) {
       '#key': 'key',
     },
     ExpressionAttributeValues: {
-      ':appUser': params.app + params.user,
+      ':appUser': `${params.app}${constants.DELIMITER}${params.user}`,
     },
     KeyConditionExpression: 'appUser = :appUser',
     ProjectionExpression: '#key', // Only return the data we are interested in
@@ -239,7 +238,52 @@ async function listJson(params) {
   return list;
 }
 
+async function getApps(params) {
+  if (!params.user) {
+    throw new Error('Parameter "user" is required.');
+  }
+
+  const dynamodb = await dynamodbClient.getClient();
+
+  let lastEvaluatedKey;
+  let list = [];
+  do {
+    const dynamoDBParams = {
+      ExpressionAttributeNames: {
+        '#user': 'user',
+      },
+      ExpressionAttributeValues: {
+        ':user': params.user,
+      },
+      IndexName: 'uds-app-data-json-gsi',
+      KeyConditionExpression: '#user = :user',
+      ProjectionExpression: 'appKey', // Only return the data we are interested in
+      TableName: nconf.get('database').appDataJsonTableName,
+    };
+    if (lastEvaluatedKey) {
+      dynamoDBParams.ExclusiveStartKey = lastEvaluatedKey;
+    }
+
+    // eslint-disable-next-line no-await-in-loop
+    const iterationResult = await dynamodb.query(dynamoDBParams).promise();
+
+    list = list.concat(iterationResult.Items);
+    lastEvaluatedKey = iterationResult.LastEvaluatedKey;
+  } while (lastEvaluatedKey !== undefined);
+
+  const appsInUse = {};
+  list.forEach(item => {
+    appsInUse[item.appKey.substr(0, item.appKey.indexOf(constants.DELIMITER))] = 1;
+  });
+
+  // HMH_APP is a special built-in app; don't return.
+  delete appsInUse[constants.HMH_APP];
+
+  return Object.keys(appsInUse);
+}
+
 module.exports = {
+  getApps,
   getJson,
   listJson,
   mergeJson,
