@@ -1,3 +1,4 @@
+import sizeof from 'object-sizeof';
 import chai from 'chai';
 
 import http from '../../../../../common/helpers/http';
@@ -16,12 +17,13 @@ const data = {
   key2: 'some string',
   key3: [1, 2, 3],
 };
+const quota = 1024;
 
 describe('data.app.json.merge', () => {
   before(async () => {
     await seed.apps.addApp({
       name: app,
-      quota: 1024,
+      quota,
     });
   });
 
@@ -270,6 +272,75 @@ describe('data.app.json.merge', () => {
             },
             key,
           },
+        });
+        done();
+      });
+    });
+  });
+
+  it('will not store data if the new data exceeds the quota by itself', (done) => {
+    const largeData = {
+      string: 'hello',
+    };
+    while (sizeof(largeData) < quota) {
+      largeData.string = `${largeData.string}-${largeData.string}`;
+    }
+
+    http.sendPostRequest(paths.DATA_APP_JSON_MERGE, tokens.serviceToken, {
+      app,
+      data: largeData,
+      key,
+      user,
+    }, (err, response) => {
+      expect(err).to.equal(null);
+      expect(response.body).to.deep.equal({
+        error: errors.codes.ERROR_CODE_QUOTA_EXCEEDED,
+        ok: false,
+      });
+      done();
+    });
+  });
+
+  it('will not store data if the new data plus previously stored data exceeds the quota', (done) => {
+    const halfQuotaData = {
+      string: 'hello',
+    };
+    while (sizeof(halfQuotaData) < quota / 2) {
+      // We want to be really close to half of the quota, so we don't double unlike
+      // the previous test.
+      halfQuotaData.string += 'hello';
+    }
+
+    // Since data is just less than half of the quota, we should be able to store it once.
+    // A second store would theoretically take up less than the quota, except we
+    // consider the other fields to count against quota (eg, appKey, appUser, user, and key).
+    // Those add just enough overhead that a second attempt to store will fail.
+    http.sendPostRequest(paths.DATA_APP_JSON_MERGE, tokens.serviceToken, {
+      app,
+      data: halfQuotaData,
+      key,
+      user: `${user}.2`,
+    }, (err, response) => {
+      expect(err).to.equal(null);
+
+      expect(response.body).to.deep.equal({
+        ok: true,
+        result: {
+          data: halfQuotaData,
+          key,
+        },
+      });
+
+      http.sendPostRequest(paths.DATA_APP_JSON_MERGE, tokens.serviceToken, {
+        app,
+        data: halfQuotaData,
+        key,
+        user: `${user}.2`,
+      }, (err2, response2) => {
+        expect(err2).to.equal(null);
+        expect(response2.body).to.deep.equal({
+          error: errors.codes.ERROR_CODE_QUOTA_EXCEEDED,
+          ok: false,
         });
         done();
       });

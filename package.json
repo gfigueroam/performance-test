@@ -178,6 +178,7 @@
     "koa-helmet": "^3.2.0",
     "koa-static-server": "1.0.0",
     "nconf": "^0.8.4",
+    "object-sizeof": "^1.2.0",
     "pidusage": "^1.1.5",
     "prom-client": "^9.0.0",
     "request": "^2.83.0",

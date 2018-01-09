@@ -1,9 +1,12 @@
+import sizeof from 'object-sizeof';
+
 import nconf from '../config';
 import dynamodbClient from './dynamoDBClient';
 import apps from './apps';
 import errors from '../models/errors';
 import constants from '../utils/constants';
 import logger from '../monitoring/logger';
+import quota from './quota';
 
 async function getJson(params) {
   if (!params.key) {
@@ -48,14 +51,19 @@ async function setJson(params) {
     throw new Error('Parameter "data" is required.');
   }
 
+  const dynamodb = await dynamodbClient.getClient();
+
   if (params.app !== constants.HMH_APP) {
-    await apps.info({
+    const appInfo = await apps.info({
       name: params.app,
     });
-    // TODO: Verify the user has sufficient quota remaining (except for built-in HMH app)
-  }
 
-  const dynamodb = await dynamodbClient.getClient();
+    // Enforce quota limits
+    const consumedQuota = await quota.getConsumedQuota(params);
+    if (consumedQuota + sizeof(params.data) > appInfo.quota) {
+      throw new Error(errors.codes.ERROR_CODE_QUOTA_EXCEEDED);
+    }
+  }
 
   await dynamodb.put({
     Item: {
@@ -86,10 +94,15 @@ async function mergeJson(params) {
   }
 
   if (params.app !== constants.HMH_APP) {
-    await apps.info({
+    const appInfo = await apps.info({
       name: params.app,
     });
-    // TODO: Verify the user has sufficient quota remaining (except for built-in HMH app)
+
+    // Enforce quota limits
+    const consumedQuota = await quota.getConsumedQuota(params);
+    if (consumedQuota + sizeof(params.data) > appInfo.quota) {
+      throw new Error(errors.codes.ERROR_CODE_QUOTA_EXCEEDED);
+    }
   }
 
   // Look up the current value that already exists.

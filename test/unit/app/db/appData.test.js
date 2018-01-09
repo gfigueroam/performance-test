@@ -6,10 +6,12 @@ import sinon from 'sinon';
 // because appData uses lazy initialization. See details within
 // appData.js
 import appData from '../../../../app/db/appData';
+import quota from '../../../../app/db/quota';
 import apps from '../../../../app/db/apps';
 import dynamoDBClient from '../../../../app/db/dynamoDBClient';
 import nconf from '../../../../app/config';
 import constants from '../../../../app/utils/constants';
+import errors from '../../../../app/models/errors';
 
 const expect = chai.expect;
 
@@ -24,11 +26,13 @@ describe('appData', () => {
   before(() => {
     sinon.stub(dynamoDBClient, 'getClient').callsFake(() => (documentClientStub));
     sinon.stub(apps, 'info');
+    sinon.stub(quota, 'getConsumedQuota').returns(10);
   });
 
   after(() => {
     dynamoDBClient.getClient.restore();
     apps.info.restore();
+    quota.getConsumedQuota.restore();
   });
 
   describe('getApps', () => {
@@ -136,6 +140,9 @@ describe('appData', () => {
   });
 
   describe('setJson', () => {
+    after(() => {
+      documentClientStub.query.reset();
+    });
     it('throws an error if "user" is not passed in the params', async () => {
       try {
         await appData.setJson({
@@ -207,9 +214,9 @@ describe('appData', () => {
 
       apps.info.callsFake(params => {
         expect(params.name).to.equal(app);
-        return {
-          promise: () => (Promise.resolve()),
-        };
+        return Promise.resolve({
+          quota: 1024,
+        });
       });
 
       appData.setJson({
@@ -220,6 +227,34 @@ describe('appData', () => {
       })
       .then(done)
       .catch(done);
+    });
+
+    it('throws a quota exceeded error if existing quota is exceeded', (done) => {
+      quota.getConsumedQuota.returns(1025);
+
+      apps.info.callsFake(params => {
+        expect(params.name).to.equal(app);
+        return Promise.resolve({
+          quota: 1024,
+        });
+      });
+
+      appData.setJson({
+        app,
+        data,
+        key,
+        user,
+      })
+      .then(() => {
+        quota.getConsumedQuota.reset();
+        done('Expected an error!');
+      })
+      .catch((err) => {
+        delete err.detail;
+        expect(err.message).to.equal(errors.codes.ERROR_CODE_QUOTA_EXCEEDED);
+        quota.getConsumedQuota.reset();
+        done();
+      });
     });
   });
 
@@ -329,10 +364,11 @@ describe('appData', () => {
 
       apps.info.callsFake(params => {
         expect(params.name).to.equal(app);
-        return {
-          promise: () => (Promise.resolve()),
-        };
+        return Promise.resolve({
+          quota: 1024,
+        });
       });
+
       appData.mergeJson({
         app,
         data: {
@@ -392,9 +428,9 @@ describe('appData', () => {
 
       apps.info.callsFake(params => {
         expect(params.name).to.equal(app);
-        return {
-          promise: () => (Promise.resolve()),
-        };
+        return Promise.resolve({
+          quota: 1024,
+        });
       });
 
       appData.mergeJson({
@@ -412,6 +448,37 @@ describe('appData', () => {
         done();
       })
       .catch(done);
+    });
+
+
+    it('throws an error if quota is exceeded', (done) => {
+      quota.getConsumedQuota.returns(1025);
+
+      apps.info.callsFake(params => {
+        expect(params.name).to.equal(app);
+        return Promise.resolve({
+          quota: 1024,
+        });
+      });
+
+      appData.mergeJson({
+        app,
+        data: {
+          newKey: 'newValue',
+        },
+        key,
+        user,
+      })
+      .then(() => {
+        quota.getConsumedQuota.reset();
+        done('Expected an error!');
+      })
+      .catch((err) => {
+        delete err.detail;
+        expect(err.message).to.equal(errors.codes.ERROR_CODE_QUOTA_EXCEEDED);
+        quota.getConsumedQuota.reset();
+        done();
+      });
     });
   });
 
@@ -465,9 +532,9 @@ describe('appData', () => {
       });
       apps.info.callsFake(params => {
         expect(params.name).to.equal(app);
-        return {
-          promise: () => (Promise.resolve()),
-        };
+        return Promise.resolve({
+          quota: 1024,
+        });
       });
       // Provide a fake item when queried, since otherwise the
       // method should throw a key not found error
