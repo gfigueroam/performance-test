@@ -9,8 +9,8 @@ import errors from '../../../../../../app/models/errors';
 
 const expect = chai.expect;
 
-const app = `uds.bvt.data.app.json.set.app.${seed.buildNumber}`;
-const key = `uds.bvt.data.app.json.set.test.${seed.buildNumber}`;
+const app = `uds.bvt.data.app.set.app.${seed.buildNumber}`;
+const key = `uds.bvt.data.app.set.test.${seed.buildNumber}`;
 const user = 'data.user.test.user.1';
 const data = {
   key1: true,
@@ -19,7 +19,7 @@ const data = {
 };
 const quota = 1024;
 
-describe('data.app.json.set', () => {
+describe('data.app.set', () => {
   before(async () => {
     await seed.apps.addApp({
       name: app,
@@ -30,7 +30,7 @@ describe('data.app.json.set', () => {
   after(async () => {
     await seed.apps.removeApps([app]);
 
-    await seed.app.removeJson({
+    await seed.app.remove({
       app,
       key,
       user,
@@ -38,7 +38,7 @@ describe('data.app.json.set', () => {
   });
 
   it('throws invalid_app when the app contains invalid characters', (done) => {
-    http.sendPostRequest(paths.DATA_APP_JSON_SET, tokens.serviceToken, {
+    http.sendPostRequest(paths.DATA_APP_SET, tokens.serviceToken, {
       app: 'invalid-app-name',
       data,
       key,
@@ -54,7 +54,7 @@ describe('data.app.json.set', () => {
   });
 
   it('throws app_not_found when the app has not been registered in the system', (done) => {
-    http.sendPostRequest(paths.DATA_APP_JSON_SET, tokens.serviceToken, {
+    http.sendPostRequest(paths.DATA_APP_SET, tokens.serviceToken, {
       app: 'non.existent.app',
       data,
       key,
@@ -70,7 +70,7 @@ describe('data.app.json.set', () => {
   });
 
   it('throws an error when data is not JSON', (done) => {
-    http.sendPostRequest(paths.DATA_APP_JSON_SET, tokens.serviceToken, {
+    http.sendPostRequest(paths.DATA_APP_SET, tokens.serviceToken, {
       app,
       data: 'some invalid data',
       key,
@@ -86,7 +86,7 @@ describe('data.app.json.set', () => {
   });
 
   it('successfully stores data', (done) => {
-    http.sendPostRequest(paths.DATA_APP_JSON_SET, tokens.serviceToken, {
+    http.sendPostRequest(paths.DATA_APP_SET, tokens.serviceToken, {
       app,
       data,
       key,
@@ -97,7 +97,7 @@ describe('data.app.json.set', () => {
         ok: true,
       });
 
-      http.sendPostRequest(paths.DATA_APP_JSON_GET, tokens.serviceToken, {
+      http.sendPostRequest(paths.DATA_APP_GET, tokens.serviceToken, {
         app,
         key,
         user,
@@ -123,7 +123,7 @@ describe('data.app.json.set', () => {
       largeData.string = `${largeData.string}-${largeData.string}`;
     }
 
-    http.sendPostRequest(paths.DATA_APP_JSON_SET, tokens.serviceToken, {
+    http.sendPostRequest(paths.DATA_APP_SET, tokens.serviceToken, {
       app,
       data: largeData,
       key,
@@ -152,7 +152,7 @@ describe('data.app.json.set', () => {
     // A second store would theoretically take up less than the quota, except we
     // consider the other fields to count against quota (eg, appKey, appUser, user, and key).
     // Those add just enough overhead that a second attempt to store will fail.
-    http.sendPostRequest(paths.DATA_APP_JSON_SET, tokens.serviceToken, {
+    http.sendPostRequest(paths.DATA_APP_SET, tokens.serviceToken, {
       app,
       data: halfQuotaData,
       key,
@@ -163,7 +163,7 @@ describe('data.app.json.set', () => {
         ok: true,
       });
 
-      http.sendPostRequest(paths.DATA_APP_JSON_SET, tokens.serviceToken, {
+      http.sendPostRequest(paths.DATA_APP_SET, tokens.serviceToken, {
         app,
         data: halfQuotaData,
         key: `${key}.2`,

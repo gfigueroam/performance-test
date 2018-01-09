@@ -9,8 +9,8 @@ import errors from '../../../../../../app/models/errors';
 
 const expect = chai.expect;
 
-const app = `uds.bvt.data.app.json.merge.app.${seed.buildNumber}`;
-const key = `uds.bvt.data.app.json.merge.test.${seed.buildNumber}`;
+const app = `uds.bvt.data.app.merge.app.${seed.buildNumber}`;
+const key = `uds.bvt.data.app.merge.test.${seed.buildNumber}`;
 const user = 'data.user.test.user.1';
 const data = {
   key1: true,
@@ -19,7 +19,7 @@ const data = {
 };
 const quota = 1024;
 
-describe('data.app.json.merge', () => {
+describe('data.app.merge', () => {
   before(async () => {
     await seed.apps.addApp({
       name: app,
@@ -30,7 +30,7 @@ describe('data.app.json.merge', () => {
   after(async () => {
     await seed.apps.removeApps([app]);
 
-    await seed.app.removeJson({
+    await seed.app.remove({
       app,
       key,
       user,
@@ -38,7 +38,7 @@ describe('data.app.json.merge', () => {
   });
 
   it('throws invalid_app when the app contains invalid characters', (done) => {
-    http.sendPostRequest(paths.DATA_APP_JSON_MERGE, tokens.serviceToken, {
+    http.sendPostRequest(paths.DATA_APP_MERGE, tokens.serviceToken, {
       app: 'invalid-app-name',
       data,
       key,
@@ -54,7 +54,7 @@ describe('data.app.json.merge', () => {
   });
 
   it('throws app_not_found when the app has not been registered in the system', (done) => {
-    http.sendPostRequest(paths.DATA_APP_JSON_MERGE, tokens.serviceToken, {
+    http.sendPostRequest(paths.DATA_APP_MERGE, tokens.serviceToken, {
       app: 'non.existent.app',
       data,
       key,
@@ -70,7 +70,7 @@ describe('data.app.json.merge', () => {
   });
 
   it('throws an error when data is not JSON', (done) => {
-    http.sendPostRequest(paths.DATA_APP_JSON_MERGE, tokens.serviceToken, {
+    http.sendPostRequest(paths.DATA_APP_MERGE, tokens.serviceToken, {
       app,
       data: 'some invalid data',
       key,
@@ -86,7 +86,7 @@ describe('data.app.json.merge', () => {
   });
 
   it('successfully stores when there is nothing previously stored', (done) => {
-    http.sendPostRequest(paths.DATA_APP_JSON_MERGE, tokens.serviceToken, {
+    http.sendPostRequest(paths.DATA_APP_MERGE, tokens.serviceToken, {
       app,
       data,
       key,
@@ -101,7 +101,7 @@ describe('data.app.json.merge', () => {
         },
       });
 
-      http.sendPostRequest(paths.DATA_APP_JSON_GET, tokens.serviceToken, {
+      http.sendPostRequest(paths.DATA_APP_GET, tokens.serviceToken, {
         app,
         key,
         user,
@@ -120,7 +120,7 @@ describe('data.app.json.merge', () => {
   });
 
   it('successfully merges a new key into the existing data', (done) => {
-    http.sendPostRequest(paths.DATA_APP_JSON_MERGE, tokens.serviceToken, {
+    http.sendPostRequest(paths.DATA_APP_MERGE, tokens.serviceToken, {
       app,
       data: {
         key4: {
@@ -146,7 +146,7 @@ describe('data.app.json.merge', () => {
         },
       });
 
-      http.sendPostRequest(paths.DATA_APP_JSON_GET, tokens.serviceToken, {
+      http.sendPostRequest(paths.DATA_APP_GET, tokens.serviceToken, {
         app,
         key,
         user,
@@ -172,7 +172,7 @@ describe('data.app.json.merge', () => {
   });
 
   it('successfully overwrites an existing key within existing data', (done) => {
-    http.sendPostRequest(paths.DATA_APP_JSON_MERGE, tokens.serviceToken, {
+    http.sendPostRequest(paths.DATA_APP_MERGE, tokens.serviceToken, {
       app,
       data: {
         key4: {
@@ -198,7 +198,7 @@ describe('data.app.json.merge', () => {
         },
       });
 
-      http.sendPostRequest(paths.DATA_APP_JSON_GET, tokens.serviceToken, {
+      http.sendPostRequest(paths.DATA_APP_GET, tokens.serviceToken, {
         app,
         key,
         user,
@@ -224,7 +224,7 @@ describe('data.app.json.merge', () => {
   });
 
   it('successfully overwrites an existing key and adds a new one within existing data', (done) => {
-    http.sendPostRequest(paths.DATA_APP_JSON_MERGE, tokens.serviceToken, {
+    http.sendPostRequest(paths.DATA_APP_MERGE, tokens.serviceToken, {
       app,
       data: {
         key4: {
@@ -252,7 +252,7 @@ describe('data.app.json.merge', () => {
         },
       });
 
-      http.sendPostRequest(paths.DATA_APP_JSON_GET, tokens.serviceToken, {
+      http.sendPostRequest(paths.DATA_APP_GET, tokens.serviceToken, {
         app,
         key,
         user,
@@ -286,7 +286,7 @@ describe('data.app.json.merge', () => {
       largeData.string = `${largeData.string}-${largeData.string}`;
     }
 
-    http.sendPostRequest(paths.DATA_APP_JSON_MERGE, tokens.serviceToken, {
+    http.sendPostRequest(paths.DATA_APP_MERGE, tokens.serviceToken, {
       app,
       data: largeData,
       key,
@@ -315,7 +315,7 @@ describe('data.app.json.merge', () => {
     // A second store would theoretically take up less than the quota, except we
     // consider the other fields to count against quota (eg, appKey, appUser, user, and key).
     // Those add just enough overhead that a second attempt to store will fail.
-    http.sendPostRequest(paths.DATA_APP_JSON_MERGE, tokens.serviceToken, {
+    http.sendPostRequest(paths.DATA_APP_MERGE, tokens.serviceToken, {
       app,
       data: halfQuotaData,
       key,
@@ -331,7 +331,7 @@ describe('data.app.json.merge', () => {
         },
       });
 
-      http.sendPostRequest(paths.DATA_APP_JSON_MERGE, tokens.serviceToken, {
+      http.sendPostRequest(paths.DATA_APP_MERGE, tokens.serviceToken, {
         app,
         data: halfQuotaData,
         key,

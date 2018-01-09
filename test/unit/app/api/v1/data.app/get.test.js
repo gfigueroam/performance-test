@@ -3,21 +3,21 @@ import sinon from 'sinon';
 
 import appData from '../../../../../../app/db/appData';
 import logger from '../../../../../../app/monitoring/logger';
-import getHandler from '../../../../../../app/api/v1/data.app/json.get';
+import getHandler from '../../../../../../app/api/v1/data.app/get';
 
 const expect = chai.expect;
 
-const key = 'test.data.app.json.get.key';
-const app = 'test.data.app.json.get.app';
+const key = 'test.data.app.get.key';
+const app = 'test.data.app.get.app';
 const user = 'hmh-test-user.123';
 const swatchCtx = { logger };
 
-describe('data.app.json.get', () => {
+describe('data.app.get', () => {
   after(() => {
-    appData.getJson.restore();
+    appData.get.restore();
   });
   it('returns an empty stub value', done => {
-    sinon.stub(appData, 'getJson').callsFake((params) => {
+    sinon.stub(appData, 'get').callsFake((params) => {
       expect(params).to.deep.equal({
         app,
         key,

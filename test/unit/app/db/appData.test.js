@@ -139,13 +139,13 @@ describe('appData', () => {
     });
   });
 
-  describe('setJson', () => {
+  describe('set', () => {
     after(() => {
       documentClientStub.query.reset();
     });
     it('throws an error if "user" is not passed in the params', async () => {
       try {
-        await appData.setJson({
+        await appData.set({
           app,
           data: true,
           key,
@@ -171,7 +171,7 @@ describe('appData', () => {
 
     it('throws an error if "data" is not passed in the params', async () => {
       try {
-        await appData.setJson({
+        await appData.set({
           app,
           key,
           user,
@@ -184,7 +184,7 @@ describe('appData', () => {
 
     it('throws an error if "app" is not passed in the params', async () => {
       try {
-        await appData.setJson({
+        await appData.set({
           data,
           key,
           user,
@@ -219,7 +219,7 @@ describe('appData', () => {
         });
       });
 
-      appData.setJson({
+      appData.set({
         app,
         data,
         key,
@@ -239,7 +239,7 @@ describe('appData', () => {
         });
       });
 
-      appData.setJson({
+      appData.set({
         app,
         data,
         key,
@@ -258,10 +258,10 @@ describe('appData', () => {
     });
   });
 
-  describe('mergeJson', () => {
+  describe('merge', () => {
     it('throws an error if "user" is not passed in the params', async () => {
       try {
-        await appData.mergeJson({
+        await appData.merge({
           app,
           data: {
             b: true,
@@ -276,7 +276,7 @@ describe('appData', () => {
 
     it('throws an error if "key" is not passed in the params', async () => {
       try {
-        await appData.mergeJson({
+        await appData.merge({
           app,
           data: {
             b: true,
@@ -291,7 +291,7 @@ describe('appData', () => {
 
     it('throws an error if "data" is not passed in the params', async () => {
       try {
-        await appData.mergeJson({
+        await appData.merge({
           app,
           key,
           user,
@@ -304,7 +304,7 @@ describe('appData', () => {
 
     it('throws an error if "app" is not passed in the params', async () => {
       try {
-        await appData.setJson({
+        await appData.set({
           data,
           key,
           user,
@@ -369,7 +369,7 @@ describe('appData', () => {
         });
       });
 
-      appData.mergeJson({
+      appData.merge({
         app,
         data: {
           newKey: 'newValue',
@@ -433,7 +433,7 @@ describe('appData', () => {
         });
       });
 
-      appData.mergeJson({
+      appData.merge({
         app,
         data: {
           newKey: 'newValue',
@@ -461,7 +461,7 @@ describe('appData', () => {
         });
       });
 
-      appData.mergeJson({
+      appData.merge({
         app,
         data: {
           newKey: 'newValue',
@@ -482,10 +482,10 @@ describe('appData', () => {
     });
   });
 
-  describe('unsetJson', () => {
+  describe('unset', () => {
     it('throws an error if "user" is not passed in the params', async () => {
       try {
-        await appData.unsetJson({
+        await appData.unset({
           app,
           key,
         });
@@ -497,7 +497,7 @@ describe('appData', () => {
 
     it('throws an error if "key" is not passed in the params', async () => {
       try {
-        await appData.unsetJson({
+        await appData.unset({
           app,
           user,
         });
@@ -509,7 +509,7 @@ describe('appData', () => {
 
     it('throws an error if "app" is not passed in the params', async () => {
       try {
-        await appData.unsetJson({
+        await appData.unset({
           key,
           user,
         });
@@ -550,7 +550,7 @@ describe('appData', () => {
           })),
         };
       });
-      appData.unsetJson({
+      appData.unset({
         app,
         key,
         user,
@@ -560,10 +560,10 @@ describe('appData', () => {
     });
   });
 
-  describe('getJson', () => {
+  describe('get', () => {
     it('throws an error if "user" is not passed in the params', async () => {
       try {
-        await appData.getJson({
+        await appData.get({
           app,
           key,
         });
@@ -575,7 +575,7 @@ describe('appData', () => {
 
     it('throws an error if "key" is not passed in the params', async () => {
       try {
-        await appData.getJson({
+        await appData.get({
           app,
           user,
         });
@@ -587,7 +587,7 @@ describe('appData', () => {
 
     it('throws an error if "app" is not passed in the params', async () => {
       try {
-        await appData.getJson({
+        await appData.get({
           key,
           user,
         });
@@ -608,7 +608,7 @@ describe('appData', () => {
           promise: () => (Promise.resolve()),
         };
       });
-      appData.getJson({
+      appData.get({
         app,
         key,
         user,
@@ -618,10 +618,10 @@ describe('appData', () => {
     });
   });
 
-  describe('listJson', () => {
+  describe('list', () => {
     it('throws an error if "user" is not passed in the params', async () => {
       try {
-        await appData.listJson({
+        await appData.list({
           app,
         });
         return Promise.reject();
@@ -632,7 +632,7 @@ describe('appData', () => {
 
     it('throws an error if "app" is not passed in the params', async () => {
       try {
-        await appData.listJson({
+        await appData.list({
           user,
         });
         return Promise.reject();
@@ -654,7 +654,7 @@ describe('appData', () => {
           promise: () => (Promise.resolve()),
         };
       });
-      appData.listJson({
+      appData.list({
         app,
         user,
       })

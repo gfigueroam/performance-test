@@ -13,11 +13,11 @@ export default {
   DATA_ADMIN_APPS: 'api/v1/data.admin.apps',
   DATA_ADMIN_USERS: 'api/v1/data.admin.users',
 
-  DATA_APP_JSON_DELETE: 'api/v1/data.app.json.delete',
-  DATA_APP_JSON_GET: 'api/v1/data.app.json.get',
-  DATA_APP_JSON_LIST: 'api/v1/data.app.json.list',
-  DATA_APP_JSON_MERGE: 'api/v1/data.app.json.merge',
-  DATA_APP_JSON_SET: 'api/v1/data.app.json.set',
+  DATA_APP_DELETE: 'api/v1/data.app.delete',
+  DATA_APP_GET: 'api/v1/data.app.get',
+  DATA_APP_LIST: 'api/v1/data.app.list',
+  DATA_APP_MERGE: 'api/v1/data.app.merge',
+  DATA_APP_SET: 'api/v1/data.app.set',
 
   DATA_CB_DECREMENT: 'api/v1/data.cb.decrement',
   DATA_CB_GET: 'api/v1/data.cb.get',

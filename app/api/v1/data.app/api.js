@@ -2,15 +2,15 @@
 import parsers from '../../parsers';
 import validators from '../../validators';
 
-import jsonDeleteHandler from './json.delete';
-import jsonGetHandler from './json.get';
-import jsonListHandler from './json.list';
-import jsonMergeHandler from './json.merge';
-import jsonSetHandler from './json.set';
+import deleteHandler from './delete';
+import getHandler from './get';
+import listHandler from './list';
+import mergeHandler from './merge';
+import setHandler from './set';
 
 export default {
-  'data.app.json.get': {
-    handler: jsonGetHandler,
+  'data.app.get': {
+    handler: getHandler,
     args: [
       {
         name: 'key',
@@ -31,8 +31,8 @@ export default {
       },
     ],
   },
-  'data.app.json.set': {
-    handler: jsonSetHandler,
+  'data.app.set': {
+    handler: setHandler,
     args: [
       {
         name: 'key',
@@ -58,8 +58,8 @@ export default {
       },
     ],
   },
-  'data.app.json.list': {
-    handler: jsonListHandler,
+  'data.app.list': {
+    handler: listHandler,
     args: [
       {
         name: 'app',
@@ -74,8 +74,8 @@ export default {
       },
     ],
   },
-  'data.app.json.delete': {
-    handler: jsonDeleteHandler,
+  'data.app.delete': {
+    handler: deleteHandler,
     args: [
       {
         name: 'key',
@@ -96,8 +96,8 @@ export default {
       },
     ],
   },
-  'data.app.json.merge': {
-    handler: jsonMergeHandler,
+  'data.app.merge': {
+    handler: mergeHandler,
     args: [
       {
         name: 'key',

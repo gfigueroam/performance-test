@@ -74,7 +74,7 @@ describe('data.admin.apps', () => {
 
   it('returns a single app when the user has only one app with data', (done) => {
     // Store some app data.
-    seed.app.addJson({
+    seed.app.add({
       app: `${app}0`,
       data,
       key,
@@ -95,7 +95,7 @@ describe('data.admin.apps', () => {
 
   it('returns a single app even if the user has multiple keys stored under the app', (done) => {
     // Store some app data.
-    seed.app.addJson({
+    seed.app.add({
       app: `${app}0`,
       data,
       key: `${key}2`,
@@ -119,7 +119,7 @@ describe('data.admin.apps', () => {
     for (let i = 1; i < numApps; i += 1) {
       expectedApps.push(`${app}${i}`);
       // eslint-disable-next-line no-await-in-loop
-      await seed.app.addJson({
+      await seed.app.add({
         app: `${app}${i}`,
         data,
         key: `${key}`,

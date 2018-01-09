@@ -3,23 +3,23 @@ import sinon from 'sinon';
 
 import appData from '../../../../../../app/db/appData';
 import logger from '../../../../../../app/monitoring/logger';
-import mergeHandler from '../../../../../../app/api/v1/data.app/json.merge';
+import mergeHandler from '../../../../../../app/api/v1/data.app/merge';
 
 const expect = chai.expect;
 
-const key = 'test.data.app.json.merge.key';
+const key = 'test.data.app.merge.key';
 const data = { additionalKey: true };
-const app = 'test.data.app.json.merge.app';
+const app = 'test.data.app.merge.app';
 const user = 'hmh-test-user.123';
 const swatchCtx = { logger };
 
-describe('data.app.json.merge', () => {
+describe('data.app.merge', () => {
   after(() => {
-    appData.mergeJson.restore();
+    appData.merge.restore();
   });
 
   it('returns the new data value and the key', done => {
-    sinon.stub(appData, 'mergeJson').callsFake((params) => {
+    sinon.stub(appData, 'merge').callsFake((params) => {
       expect(params).to.deep.equal({
         app,
         data,

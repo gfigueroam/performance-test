@@ -8,8 +8,8 @@ import errors from '../../../../../../app/models/errors';
 
 const expect = chai.expect;
 
-const app = `uds.bvt.data.app.json.get.app.${seed.buildNumber}`;
-const key = `uds.bvt.data.app.json.get.test.${seed.buildNumber}`;
+const app = `uds.bvt.data.app.delete.app.${seed.buildNumber}`;
+const key = `uds.bvt.data.app.delete.test.${seed.buildNumber}`;
 const user = 'data.user.test.user.1';
 const data = {
   key1: true,
@@ -17,14 +17,14 @@ const data = {
   key3: [1, 2, 3],
 };
 
-describe('data.app.json.get', () => {
+describe('data.app.delete', () => {
   before(async () => {
     await seed.apps.addApp({
       name: app,
       quota: 1024,
     });
 
-    await seed.app.addJson({
+    await seed.app.add({
       app,
       data,
       key,
@@ -34,16 +34,10 @@ describe('data.app.json.get', () => {
 
   after(async () => {
     await seed.apps.removeApps([app]);
-
-    await seed.app.removeJson({
-      app,
-      key,
-      user,
-    });
   });
 
   it('throws invalid_app when the app contains invalid characters', (done) => {
-    http.sendPostRequest(paths.DATA_APP_JSON_GET, tokens.serviceToken, {
+    http.sendPostRequest(paths.DATA_APP_DELETE, tokens.serviceToken, {
       app: 'invalid-app-name',
       key,
       user,
@@ -58,7 +52,7 @@ describe('data.app.json.get', () => {
   });
 
   it('throws app_not_found when the app has not been registered in the system', (done) => {
-    http.sendPostRequest(paths.DATA_APP_JSON_GET, tokens.serviceToken, {
+    http.sendPostRequest(paths.DATA_APP_DELETE, tokens.serviceToken, {
       app: 'non.existent.app',
       key,
       user,
@@ -72,22 +66,23 @@ describe('data.app.json.get', () => {
     });
   });
 
-  it('returns null when retrieving a non-existent key', (done) => {
-    http.sendPostRequest(paths.DATA_APP_JSON_GET, tokens.serviceToken, {
+  it('throws key_not_found when no data was previously stored at the key', (done) => {
+    http.sendPostRequest(paths.DATA_APP_DELETE, tokens.serviceToken, {
       app,
       key: 'non.existent.key',
       user,
     }, (err, response) => {
       expect(err).to.equal(null);
       expect(response.body).to.deep.equal({
-        ok: true,
+        error: errors.codes.ERROR_CODE_KEY_NOT_FOUND,
+        ok: false,
       });
       done();
     });
   });
 
-  it('returns stored data when retrieving a previously set key', (done) => {
-    http.sendPostRequest(paths.DATA_APP_JSON_GET, tokens.serviceToken, {
+  it('successfully deletes stored data', (done) => {
+    http.sendPostRequest(paths.DATA_APP_DELETE, tokens.serviceToken, {
       app,
       key,
       user,
@@ -95,12 +90,19 @@ describe('data.app.json.get', () => {
       expect(err).to.equal(null);
       expect(response.body).to.deep.equal({
         ok: true,
-        result: {
-          data,
-          key,
-        },
       });
-      done();
+
+      http.sendPostRequest(paths.DATA_APP_GET, tokens.serviceToken, {
+        app,
+        key,
+        user,
+      }, (err2, response2) => {
+        expect(err2).to.equal(null);
+        expect(response2.body).to.deep.equal({
+          ok: true,
+        });
+        done();
+      });
     });
   });
 });

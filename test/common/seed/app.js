@@ -6,7 +6,7 @@ const OK = {
   ok: true,
 };
 
-function addJson(params) {
+function add(params) {
   if (!params.key) {
     throw new Error('Parameter "key" is required.');
   }
@@ -21,7 +21,7 @@ function addJson(params) {
   }
 
   return new Promise((resolve, reject) => {
-    http.sendPostRequestSuccess(paths.DATA_APP_JSON_SET, tokens.serviceToken, params, OK, (err) => {
+    http.sendPostRequestSuccess(paths.DATA_APP_SET, tokens.serviceToken, params, OK, (err) => {
       if (err) {
         return reject(err);
       }
@@ -30,7 +30,7 @@ function addJson(params) {
   });
 }
 
-function removeJson(params) {
+function remove(params) {
   if (!params.key) {
     throw new Error('Parameter "key" is required.');
   }
@@ -42,7 +42,7 @@ function removeJson(params) {
   }
 
   return new Promise((resolve, reject) => {
-    http.sendPostRequestSuccess(paths.DATA_APP_JSON_DELETE,
+    http.sendPostRequestSuccess(paths.DATA_APP_DELETE,
       tokens.serviceToken, params, OK, (err) => {
         if (err) {
           return reject(err);
@@ -53,6 +53,6 @@ function removeJson(params) {
 }
 
 export default {
-  addJson,
-  removeJson,
+  add,
+  remove,
 };

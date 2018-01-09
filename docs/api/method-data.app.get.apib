@@ -1,22 +1,26 @@
 FORMAT: 1A
 
-# data.app.json.delete
+# data.app.get
 
-Delete a JSON document for a given user.
+Retrieve a document for a given user.
 
-:[](common-args.md url:"data.app.json.delete" token:"Can be used with either a service token or a user token.")
+:[](common-args.md url:"data.app.get" token:"Can be used with either a service token or a user token.")
 
-| Argument      | Example               | Required  | Description
-|:---           |:---                   |:---       |:---
-| `key`         | `settings`            | Required  | A unique key to identify the data being stored.
-| `app`         | `browser_client`      | Required  | The app storing data.
-| `user`        | `user_345`            | Optional  | The user as which to get the data. Required if token type is service token.
+| Argument      | Example                   | Required  | Description
+|:---           |:---                       |:---       |:---
+| `key`         | `settings`                | Required  | A unique key to identify the data being stored.
+| `app`         | `browser_client`          | Required  | The app storing data.
+| `user`        | `user_345`                | Optional  | The user as which to get the data. Required if token type is service token.
 
 ## Result
 
 ```javascript
 {
-    "ok": true
+    "ok": true,
+    "result": {
+        "key":  "settings",
+        "data": {"font-size": "12pt"}
+    }
 }
 ```
 

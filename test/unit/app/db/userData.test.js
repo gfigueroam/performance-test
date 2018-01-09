@@ -12,7 +12,7 @@ const type = 'text';
 
 describe('userData', () => {
   before(() => {
-    sinon.stub(appData, 'setJson').callsFake(params => {
+    sinon.stub(appData, 'set').callsFake(params => {
       expect(params).to.deep.equal({
         app: 'hmh',
         data,
@@ -22,7 +22,7 @@ describe('userData', () => {
       });
       return undefined;
     });
-    sinon.stub(appData, 'getJson').callsFake(params => {
+    sinon.stub(appData, 'get').callsFake(params => {
       expect(params).to.deep.equal({
         app: 'hmh',
         key,
@@ -30,7 +30,7 @@ describe('userData', () => {
       });
       return {};
     });
-    sinon.stub(appData, 'unsetJson').callsFake(params => {
+    sinon.stub(appData, 'unset').callsFake(params => {
       expect(params).to.deep.equal({
         app: 'hmh',
         key,
@@ -38,7 +38,7 @@ describe('userData', () => {
       });
       return undefined;
     });
-    sinon.stub(appData, 'listJson').callsFake(params => {
+    sinon.stub(appData, 'list').callsFake(params => {
       expect(params).to.deep.equal({
         app: 'hmh',
         user,
@@ -49,10 +49,10 @@ describe('userData', () => {
     });
   });
   after(() => {
-    appData.getJson.restore();
-    appData.setJson.restore();
-    appData.unsetJson.restore();
-    appData.listJson.restore();
+    appData.get.restore();
+    appData.set.restore();
+    appData.unset.restore();
+    appData.list.restore();
   });
 
   describe('set', () => {
@@ -197,7 +197,7 @@ describe('userData', () => {
       }
     });
 
-    it('calls appData.listJson with "hmh" as the app name', (done) => {
+    it('calls appData.list with "hmh" as the app name', (done) => {
       userData.list({
         user,
       })

@@ -8,7 +8,7 @@ import constants from '../utils/constants';
 import logger from '../monitoring/logger';
 import quota from './quota';
 
-async function getJson(params) {
+async function get(params) {
   if (!params.key) {
     throw new Error('Parameter "key" is required.');
   }
@@ -37,7 +37,7 @@ async function getJson(params) {
   return getResult;
 }
 
-async function setJson(params) {
+async function set(params) {
   if (!params.app) {
     throw new Error('Parameter "app" is required.');
   }
@@ -80,7 +80,7 @@ async function setJson(params) {
   return undefined;
 }
 
-async function mergeJson(params) {
+async function merge(params) {
   const dynamodb = await dynamodbClient.getClient();
 
   if (!params.user) {
@@ -174,7 +174,7 @@ async function mergeJson(params) {
   }
 }
 
-async function unsetJson(params) {
+async function unset(params) {
   if (!params.app) {
     throw new Error('Parameter "app" is required.');
   }
@@ -218,7 +218,7 @@ async function unsetJson(params) {
   return undefined;
 }
 
-async function listJson(params) {
+async function list(params) {
   if (!params.app) {
     throw new Error('Parameter "app" is required.');
   }
@@ -236,7 +236,7 @@ async function listJson(params) {
 
   // TODO: Paginate
 
-  const list = await dynamodb.query({
+  const items = await dynamodb.query({
     ExpressionAttributeNames: {
       '#key': 'key',
     },
@@ -248,7 +248,7 @@ async function listJson(params) {
     TableName: nconf.get('database').appDataJsonTableName,
   }).promise();
 
-  return list;
+  return items;
 }
 
 async function getApps(params) {
@@ -259,7 +259,7 @@ async function getApps(params) {
   const dynamodb = await dynamodbClient.getClient();
 
   let lastEvaluatedKey;
-  let list = [];
+  let items = [];
   do {
     const dynamoDBParams = {
       ExpressionAttributeNames: {
@@ -280,12 +280,12 @@ async function getApps(params) {
     // eslint-disable-next-line no-await-in-loop
     const iterationResult = await dynamodb.query(dynamoDBParams).promise();
 
-    list = list.concat(iterationResult.Items);
+    items = items.concat(iterationResult.Items);
     lastEvaluatedKey = iterationResult.LastEvaluatedKey;
   } while (lastEvaluatedKey !== undefined);
 
   const appsInUse = {};
-  list.forEach(item => {
+  items.forEach(item => {
     appsInUse[item.appKey.substr(0, item.appKey.indexOf(constants.DELIMITER))] = 1;
   });
 
@@ -296,10 +296,10 @@ async function getApps(params) {
 }
 
 module.exports = {
+  get,
   getApps,
-  getJson,
-  listJson,
-  mergeJson,
-  setJson,
-  unsetJson,
+  list,
+  merge,
+  set,
+  unset,
 };
