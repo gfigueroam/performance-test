@@ -11,7 +11,6 @@ export default {
   AUTHZ_REMOVE: 'api/v1/authz.remove',
 
   DATA_ADMIN_APPS: 'api/v1/data.admin.apps',
-  DATA_ADMIN_USERS: 'api/v1/data.admin.users',
 
   DATA_APP_DELETE: 'api/v1/data.app.delete',
   DATA_APP_GET: 'api/v1/data.app.get',

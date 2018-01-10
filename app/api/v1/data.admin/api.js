@@ -3,7 +3,6 @@ import parsers from '../../parsers';
 import validators from '../../validators';
 
 import appsHandler from './apps';
-import usersHandler from './users';
 
 export default {
   'data.admin.apps': {
@@ -14,17 +13,6 @@ export default {
         optional: false,
         parse: parsers.strings.parseString,
         validate: validators.strings.validateUser,
-      },
-    ],
-  },
-  'data.admin.users': {
-    handler: usersHandler,
-    args: [
-      {
-        name: 'realm',
-        optional: false,
-        parse: parsers.strings.parseString,
-        validate: validators.strings.validateUserRealm,
       },
     ],
   },
