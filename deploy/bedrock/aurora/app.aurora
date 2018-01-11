@@ -89,7 +89,21 @@ for profile in [DEV, INT, CERT, CERTRV, PRODRV, PRODUCTION]:
                 name="uds",
                 cmdline="""
                   export NODE_ENV={{profile.stage}}
+                  export hostname={{mesos.hostname}}
+                  export telegraf_application=uds
+                  export telegraf_env={{profile.environment}}
+                  export telegraf_job=hmheng-uds/{{profile.environment}}/uds
+                  export telegraf_monitor={{profile.role}}
+                  export telegraf_role={{profile.role}}
+                  export telegraf_serverset=hmheng-uds/{{profile.environment}}/uds
+                  export telegraf_shard={{mesos.instance}}
+                  export telegraf_urls=http://influxdb.brcore01.internal:8086
+                  export telegraf_influxdb_database=hmheng_uds
+                  export telegraf_influxdb_username=hmheng_uds
+                  export telegraf_influxdb_password=bedrock
+                  export local_uds_url=http://localhost:{{thermos.ports[http]}}
                   cd /opt/uds/
+                  nohup telegraf --config telegraf/telegraf.conf &
                   npm run start-kafka-consumer -- port={{thermos.ports[http]}} &
                   npm run start-transpiled --max-old-space-size=768 -- port={{thermos.ports[http]}}
                 """,

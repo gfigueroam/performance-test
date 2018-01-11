@@ -32,6 +32,9 @@ cp -Rf database app_deploy/database
 echo Copying static folder
 cp -Rf static app_deploy/static
 
+echo Copying telegraf folder
+cp -Rf telegraf app_deploy/telegraf
+
 echo Transpiling source folders
 ./node_modules/.bin/babel app --out-dir app_deploy/app
 

@@ -29,6 +29,9 @@ const app = gridFramework({
   validate_token: false, // Skip SIF token validation on all endpoints
 });
 
+// Initialize Prometheus gauges for CPU and system usage
+metrics.gauges.initialize();
+
 // Add Prometheus metrics middleware to all inbound requests
 app.use(metrics.middleware);
 

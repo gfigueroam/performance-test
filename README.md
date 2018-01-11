@@ -25,3 +25,11 @@ To scan the items stored in the DynamoDB table: `$ aws dynamodb scan --table-nam
 ### Commandline Access
 Query for a single app:
 * `$ aws dynamodb get-item --endpoint http://localhost:5201 --region us-east-1 --table-name uds-local-apps --key '{"name": {"S": "APP2"}}'`
+
+### Telegraf
+
+UDS instances running in Bedrock include [Telegraf](https://www.influxdata.com/time-series-platform/telegraf/)
+to scrape Prometheus metrics and push them to HMH shared InfluxDB. Telegraf service does not need to run locally,
+but is spun up in the Aurora configuration and run embedded in each UDS instance, tagging metrics in InfluxDB
+with links to each separate Mesos instance/shard. The latest UDS metrics dashboard is available on
+[Grafana](http://grafana.prod.hmheng-infra.brnp.internal/dashboard/db/uds).

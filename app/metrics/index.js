@@ -1,9 +1,8 @@
+import gauges from './gauges';
 import requests from './requests';
 
-// Require file to initialize gauges refresh interval
-require('./gauges');
-
-// Export the middleware functions to wrap all requests
+// Export the middleware functions to wrap requests and init gauges
 export default {
+  gauges,
   middleware: requests,
 };
