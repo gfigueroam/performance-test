@@ -4,6 +4,7 @@ export default {
   ERROR_CODE_AUTH_INVALID: 'invalid_auth',
   ERROR_CODE_AUTH_NO_TOKEN: 'not_authed',
 
+  ERROR_CODE_AUTHZ_ACCESS_DENIED: 'authz_access_denied',
   ERROR_CODE_AUTHZ_NOT_FOUND: 'authz_not_found',
 
   ERROR_CODE_FORBIDDEN: 'forbidden',
