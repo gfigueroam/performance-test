@@ -28,12 +28,14 @@ const authzTableName = config.get('database').authzTableName;
 describe('authz', () => {
   before(() => {
     restStub = sinon.stub(rest, 'get');
-    sinon.stub(dynamoDBClient, 'getClient').callsFake(() => (documentClientStub));
+    sinon.stub(dynamoDBClient, 'instrumented').callsFake((method, params) => (
+      documentClientStub[method](params).promise()
+    ));
   });
 
   after(() => {
     rest.get.restore();
-    dynamoDBClient.getClient.restore();
+    dynamoDBClient.instrumented.restore();
   });
 
   it('should always allow access when using simple allow verifier', async () => {

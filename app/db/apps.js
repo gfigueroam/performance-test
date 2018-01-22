@@ -10,9 +10,8 @@ async function setQuota(params) {
     throw new Error('Parameter "quota" is required.');
   }
 
-  const dynamodb = await dynamodbClient.getClient();
   try {
-    await dynamodb.put({
+    await dynamodbClient.instrumented('put', {
       ConditionExpression: 'attribute_exists(#name)',
       ExpressionAttributeNames: {
         '#name': 'name',
@@ -22,7 +21,7 @@ async function setQuota(params) {
         quota: params.quota,
       },
       TableName: nconf.get('database').appsTableName,
-    }).promise();
+    });
   } catch (err) {
     // Does the app not exist?
     if (err.message === 'The conditional request failed') {
@@ -37,13 +36,12 @@ async function info(params) {
     throw new Error('Parameter "name" is required.');
   }
 
-  const dynamodb = await dynamodbClient.getClient();
-  const getResult = await dynamodb.get({
+  const getResult = await dynamodbClient.instrumented('get', {
     Key: {
       name: params.name,
     },
     TableName: nconf.get('database').appsTableName,
-  }).promise();
+  });
 
   if (!getResult.Item) {
     throw errors.codes.ERROR_CODE_APP_NOT_FOUND;
@@ -53,8 +51,6 @@ async function info(params) {
 }
 
 async function list() {
-  const dynamodb = await dynamodbClient.getClient();
-
   let result = [];
   let lastEvaluatedKey;
   do {
@@ -67,7 +63,7 @@ async function list() {
       params.ExclusiveStartKey = lastEvaluatedKey;
     }
     // eslint-disable-next-line no-await-in-loop
-    const iterationResult = await dynamodb.scan(params).promise();
+    const iterationResult = await dynamodbClient.instrumented('scan', params);
     result = result.concat(iterationResult.Items);
     lastEvaluatedKey = iterationResult.LastEvaluatedKey;
   } while (lastEvaluatedKey !== undefined);
@@ -83,10 +79,8 @@ async function register(params) {
     throw new Error('Parameter "quota" is required.');
   }
 
-  const dynamodb = await dynamodbClient.getClient();
-
   try {
-    await dynamodb.put({
+    await dynamodbClient.instrumented('put', {
       ConditionExpression: 'attribute_not_exists(#name)',
       ExpressionAttributeNames: {
         '#name': 'name',
@@ -96,7 +90,7 @@ async function register(params) {
         quota: params.quota,
       },
       TableName: nconf.get('database').appsTableName,
-    }).promise();
+    });
   } catch (err) {
     // Is the name taken?
     if (err.message === 'The conditional request failed') {
@@ -111,13 +105,12 @@ async function remove(params) {
     throw new Error('Parameter "name" is required.');
   }
 
-  const dynamodb = await dynamodbClient.getClient();
-  await dynamodb.delete({
+  await dynamodbClient.instrumented('delete', {
     Key: {
       name: params.name,
     },
     TableName: nconf.get('database').appsTableName,
-  }).promise();
+  });
 }
 
 module.exports = {

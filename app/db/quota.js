@@ -12,12 +12,10 @@ async function getConsumedQuota(params) {
     throw new Error('Parameter "app" is required.');
   }
 
-  const dynamodb = await dynamodbClient.getClient();
-
   let lastEvaluatedKey;
   let consumed = 0;
   do {
-    const dynamoDBParams = {
+    const queryParams = {
       ExpressionAttributeNames: {
         '#appUser': 'appUser',
       },
@@ -29,11 +27,11 @@ async function getConsumedQuota(params) {
       TableName: nconf.get('database').appDataJsonTableName,
     };
     if (lastEvaluatedKey) {
-      dynamoDBParams.ExclusiveStartKey = lastEvaluatedKey;
+      queryParams.ExclusiveStartKey = lastEvaluatedKey;
     }
 
     // eslint-disable-next-line no-await-in-loop
-    const iterationResult = await dynamodb.query(dynamoDBParams).promise();
+    const iterationResult = await dynamodbClient.instrumented('query', queryParams);
 
     consumed += sizeof(iterationResult.Items);
     lastEvaluatedKey = iterationResult.LastEvaluatedKey;

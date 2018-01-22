@@ -24,13 +24,15 @@ const data = 'unit test data';
 
 describe('appData', () => {
   before(() => {
-    sinon.stub(dynamoDBClient, 'getClient').callsFake(() => (documentClientStub));
+    sinon.stub(dynamoDBClient, 'instrumented').callsFake((method, params) => (
+      documentClientStub[method](params).promise()
+    ));
     sinon.stub(apps, 'info');
     sinon.stub(quota, 'getConsumedQuota').returns(10);
   });
 
   after(() => {
-    dynamoDBClient.getClient.restore();
+    dynamoDBClient.instrumented.restore();
     apps.info.restore();
     quota.getConsumedQuota.restore();
   });

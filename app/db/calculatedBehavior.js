@@ -3,8 +3,6 @@ import errors from '../models/errors';
 import dynamodbClient from './dynamoDBClient';
 
 async function set(params) {
-  const dynamodb = await dynamodbClient.getClient();
-
   if (!params.user) {
     throw new Error('Parameter "user" is required.');
   }
@@ -16,7 +14,7 @@ async function set(params) {
   }
 
   /* eslint-disable sort-keys */
-  await dynamodb.put({
+  await dynamodbClient.instrumented('put', {
     Item: {
       user: params.user,
       key: params.key,
@@ -24,14 +22,12 @@ async function set(params) {
     },
     TableName: nconf.get('database').calculatedBehaviorTableName,
     /* eslint-enable sort-keys */
-  }).promise();
+  });
 
   return undefined;
 }
 
 async function unset(params) {
-  const dynamodb = await dynamodbClient.getClient();
-
   if (!params.user) {
     throw new Error('Parameter "user" is required.');
   }
@@ -39,20 +35,18 @@ async function unset(params) {
     throw new Error('Parameter "key" is required.');
   }
 
-  await dynamodb.delete({
+  await dynamodbClient.instrumented('delete', {
     Key: {
       key: params.key,
       user: params.user,
     },
     TableName: nconf.get('database').calculatedBehaviorTableName,
-  }).promise();
+  });
 
   return undefined;
 }
 
 async function get(params) {
-  const dynamodb = await dynamodbClient.getClient();
-
   if (!params.user) {
     throw new Error('Parameter "user" is required.');
   }
@@ -61,19 +55,17 @@ async function get(params) {
   }
 
   /* eslint-disable sort-keys */
-  return dynamodb.get({
+  return dynamodbClient.instrumented('get', {
     Key: {
       user: params.user,
       key: params.key,
     },
     TableName: nconf.get('database').calculatedBehaviorTableName,
     /* eslint-enable sort-keys */
-  }).promise();
+  });
 }
 
 async function atomicUpdate(params) {
-  const dynamodb = await dynamodbClient.getClient();
-
   if (!params.user) {
     throw new Error('Parameter "user" is required.');
   }
@@ -85,13 +77,13 @@ async function atomicUpdate(params) {
   }
 
   // Look up the current value that already exists.
-  const currentValue = await dynamodb.get({
+  const currentValue = await dynamodbClient.instrumented('get', {
     Key: {
       key: params.key,
       user: params.user,
     },
     TableName: nconf.get('database').calculatedBehaviorTableName,
-  }).promise();
+  });
 
   let newValue;
   let conditionExpression;
@@ -102,7 +94,7 @@ async function atomicUpdate(params) {
       newValue = currentValue.Item.data + params.value;
       conditionExpression = 'attribute_exists(#data)';
 
-      await dynamodb.update({
+      await dynamodbClient.instrumented('update', {
         ConditionExpression: conditionExpression,
         ExpressionAttributeNames: {
           '#data': 'data',
@@ -116,7 +108,7 @@ async function atomicUpdate(params) {
         },
         TableName: nconf.get('database').calculatedBehaviorTableName,
         UpdateExpression: 'SET #data = #data + :value',
-      }).promise();
+      });
 
       return undefined;
     }
@@ -127,7 +119,7 @@ async function atomicUpdate(params) {
     // There is not an existing value, so store the new value as though the previous value was 0.
     newValue = params.value;
     conditionExpression = 'attribute_not_exists(#data)';
-    await dynamodb.put({
+    await dynamodbClient.instrumented('put', {
       ConditionExpression: conditionExpression,
       ExpressionAttributeNames: {
         '#data': 'data',
@@ -138,15 +130,13 @@ async function atomicUpdate(params) {
         user: params.user,
       },
       TableName: nconf.get('database').calculatedBehaviorTableName,
-    }).promise();
+    });
 
     return undefined;
   }
 }
 
 async function merge(params) {
-  const dynamodb = await dynamodbClient.getClient();
-
   if (!params.user) {
     throw new Error('Parameter "user" is required.');
   }
@@ -158,13 +148,13 @@ async function merge(params) {
   }
 
   // Look up the current value that already exists.
-  const currentValue = await dynamodb.get({
+  const currentValue = await dynamodbClient.instrumented('get', {
     Key: {
       key: params.key,
       user: params.user,
     },
     TableName: nconf.get('database').calculatedBehaviorTableName,
-  }).promise();
+  });
 
   let newValue;
   let conditionExpression;
@@ -179,7 +169,7 @@ async function merge(params) {
       // Merge - updates newValue with properties from params.data
       Object.assign(newValue, params.data);
 
-      await dynamodb.update({
+      await dynamodbClient.instrumented('update', {
         ConditionExpression: 'attribute_exists(#data) AND #data = :oldval',
         ExpressionAttributeNames: {
           '#data': 'data',
@@ -194,7 +184,7 @@ async function merge(params) {
         },
         TableName: nconf.get('database').calculatedBehaviorTableName,
         UpdateExpression: 'SET #data = :value',
-      }).promise();
+      });
 
       return undefined;
     }
@@ -205,7 +195,7 @@ async function merge(params) {
     // There is not an existing value, so store the new value as though the previous value was {}.
     newValue = params.data;
     conditionExpression = 'attribute_not_exists(#data)';
-    await dynamodb.put({
+    await dynamodbClient.instrumented('put', {
       ConditionExpression: conditionExpression,
       ExpressionAttributeNames: {
         '#data': 'data',
@@ -216,7 +206,7 @@ async function merge(params) {
         user: params.user,
       },
       TableName: nconf.get('database').calculatedBehaviorTableName,
-    }).promise();
+    });
 
     return undefined;
   }

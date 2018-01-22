@@ -20,11 +20,13 @@ const url = 'http://localhost:5100/authz';
 
 describe('authz', () => {
   before(() => {
-    sinon.stub(dynamoDBClient, 'getClient').callsFake(() => (documentClientStub));
+    sinon.stub(dynamoDBClient, 'instrumented').callsFake((method, params) => (
+      documentClientStub[method](params).promise()
+    ));
   });
 
   after(() => {
-    dynamoDBClient.getClient.restore();
+    dynamoDBClient.instrumented.restore();
   });
 
   describe('register', () => {

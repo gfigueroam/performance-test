@@ -1,6 +1,19 @@
 import AWS from 'aws-sdk';
+import Prometheus from 'prom-client';
+
 import nconf from '../config';
+import labels from '../metrics/labels';
 import logger from '../monitoring/logger';
+
+// Track the duration of DB queries to biuld summary
+const labelKeys = Object.keys(labels);
+
+const queryDuration = new Prometheus.Summary(
+  'db_query_duration_seconds',
+  'DB Query Duration',
+  labelKeys.concat(['table', 'action']),
+);
+
 
 let dynamodb;
 
@@ -58,7 +71,7 @@ async function createDynamoDBClient() {
   dynamodb = new AWS.DynamoDB.DocumentClient(dynamoDbParams);
 }
 
-async function getClient() {
+async function instrumented(action, params) {
   // This forces lazy initialization of the dynamodb DocumentClient.
   // We need to do this to support unit testing, since in a unit test we
   // want to mock the DocumentClient constructor in the unit test before
@@ -90,9 +103,25 @@ async function getClient() {
     await createDynamoDBClient();
   }
 
-  return dynamodb;
+  // Use built-in timer to track query duration for DB request
+  const table = params.TableName;
+  const dbLabels = Object.assign(
+    {},
+    labels,
+    { table },
+    { action },
+  );
+  const endQueryDuration = queryDuration.startTimer(dbLabels);
+
+  // Execute query and await response
+  const result = await dynamodb[action](params).promise();
+
+  // Mark the completed query duration and add to summary
+  endQueryDuration();
+
+  return result;
 }
 
 module.exports = {
-  getClient,
+  instrumented,
 };

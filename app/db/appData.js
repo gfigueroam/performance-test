@@ -25,14 +25,13 @@ async function get(params) {
     });
   }
 
-  const dynamodb = await dynamodbClient.getClient();
-  const getResult = await dynamodb.get({
+  const getResult = await dynamodbClient.instrumented('get', {
     Key: {
       appUser: `${params.app}${constants.DELIMITER}${params.user}`,
       key: params.key,
     },
     TableName: nconf.get('database').appDataJsonTableName,
-  }).promise();
+  });
 
   return getResult;
 }
@@ -51,8 +50,6 @@ async function set(params) {
     throw new Error('Parameter "data" is required.');
   }
 
-  const dynamodb = await dynamodbClient.getClient();
-
   if (params.app !== constants.HMH_APP) {
     const appInfo = await apps.info({
       name: params.app,
@@ -65,7 +62,7 @@ async function set(params) {
     }
   }
 
-  await dynamodb.put({
+  await dynamodbClient.instrumented('put', {
     Item: {
       appKey: `${params.app}${constants.DELIMITER}${params.key}`,
       appUser: `${params.app}${constants.DELIMITER}${params.user}`,
@@ -75,14 +72,12 @@ async function set(params) {
       user: params.user,
     },
     TableName: nconf.get('database').appDataJsonTableName,
-  }).promise();
+  });
 
   return undefined;
 }
 
 async function merge(params) {
-  const dynamodb = await dynamodbClient.getClient();
-
   if (!params.user) {
     throw new Error('Parameter "user" is required.');
   }
@@ -106,13 +101,13 @@ async function merge(params) {
   }
 
   // Look up the current value that already exists.
-  const currentValue = await dynamodb.get({
+  const currentValue = await dynamodbClient.instrumented('get', {
     Key: {
       appUser: `${params.app}${constants.DELIMITER}${params.user}`,
       key: params.key,
     },
     TableName: nconf.get('database').appDataJsonTableName,
-  }).promise();
+  });
 
   let newValue;
   let conditionExpression;
@@ -127,7 +122,7 @@ async function merge(params) {
       // Merge - updates newValue with properties from params.data
       Object.assign(newValue, params.data);
 
-      await dynamodb.update({
+      await dynamodbClient.instrumented('update', {
         ConditionExpression: 'attribute_exists(#data) AND #data = :oldval',
         ExpressionAttributeNames: {
           '#data': 'data',
@@ -142,7 +137,7 @@ async function merge(params) {
         },
         TableName: nconf.get('database').appDataJsonTableName,
         UpdateExpression: 'SET #data = :value',
-      }).promise();
+      });
 
       return newValue;
     }
@@ -154,7 +149,7 @@ async function merge(params) {
     // There is not an existing value, so store the new value as though the previous value was {}.
     newValue = params.data;
     conditionExpression = 'attribute_not_exists(#data)';
-    await dynamodb.put({
+    await dynamodbClient.instrumented('put', {
       ConditionExpression: conditionExpression,
       ExpressionAttributeNames: {
         '#data': 'data',
@@ -168,7 +163,7 @@ async function merge(params) {
         user: params.user,
       },
       TableName: nconf.get('database').appDataJsonTableName,
-    }).promise();
+    });
 
     return newValue;
   }
@@ -191,29 +186,27 @@ async function unset(params) {
     });
   }
 
-  const dynamodb = await dynamodbClient.getClient();
-
   // This API needs to throw an error if we delete a key which does not exist.
   // So we need to query first for the item.
-  const getResult = await dynamodb.get({
+  const getResult = await dynamodbClient.instrumented('get', {
     Key: {
       appUser: `${params.app}${constants.DELIMITER}${params.user}`,
       key: params.key,
     },
     TableName: nconf.get('database').appDataJsonTableName,
-  }).promise();
+  });
 
   if (!getResult.Item) {
     throw new Error(errors.codes.ERROR_CODE_KEY_NOT_FOUND);
   }
 
-  await dynamodb.delete({
+  await dynamodbClient.instrumented('delete', {
     Key: {
       appUser: `${params.app}${constants.DELIMITER}${params.user}`,
       key: params.key,
     },
     TableName: nconf.get('database').appDataJsonTableName,
-  }).promise();
+  });
 
   return undefined;
 }
@@ -232,11 +225,9 @@ async function list(params) {
     });
   }
 
-  const dynamodb = await dynamodbClient.getClient();
-
   // TODO: Paginate
 
-  const items = await dynamodb.query({
+  const items = await dynamodbClient.instrumented('query', {
     ExpressionAttributeNames: {
       '#key': 'key',
     },
@@ -246,7 +237,7 @@ async function list(params) {
     KeyConditionExpression: 'appUser = :appUser',
     ProjectionExpression: '#key', // Only return the data we are interested in
     TableName: nconf.get('database').appDataJsonTableName,
-  }).promise();
+  });
 
   return items;
 }
@@ -255,8 +246,6 @@ async function getApps(params) {
   if (!params.user) {
     throw new Error('Parameter "user" is required.');
   }
-
-  const dynamodb = await dynamodbClient.getClient();
 
   let lastEvaluatedKey;
   let items = [];
@@ -273,12 +262,13 @@ async function getApps(params) {
       ProjectionExpression: 'appKey', // Only return the data we are interested in
       TableName: nconf.get('database').appDataJsonTableName,
     };
+
     if (lastEvaluatedKey) {
       dynamoDBParams.ExclusiveStartKey = lastEvaluatedKey;
     }
 
     // eslint-disable-next-line no-await-in-loop
-    const iterationResult = await dynamodb.query(dynamoDBParams).promise();
+    const iterationResult = await dynamodbClient.instrumented('query', dynamoDBParams);
 
     items = items.concat(iterationResult.Items);
     lastEvaluatedKey = iterationResult.LastEvaluatedKey;
