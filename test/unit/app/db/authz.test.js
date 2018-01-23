@@ -17,6 +17,11 @@ const documentClientStub = sinon.createStubInstance(
 
 const name = 'unittest.authz.authzname';
 const url = 'http://localhost:5100/authz';
+const swatchCtx = {
+  database: {
+    consistentRead: true,
+  },
+};
 
 describe('authz', () => {
   before(() => {
@@ -32,7 +37,7 @@ describe('authz', () => {
   describe('register', () => {
     it('throws an error if "name" is not passed in the params', async () => {
       try {
-        await authz.register({ url });
+        await authz.register.apply(swatchCtx, [{ url }]);
         return Promise.reject();
       } catch (err) {
         return Promise.resolve();
@@ -41,7 +46,7 @@ describe('authz', () => {
 
     it('throws an error if "url" is not passed in the params', async () => {
       try {
-        await authz.register({ name });
+        await authz.register.apply(swatchCtx, [{ name }]);
         return Promise.reject();
       } catch (err) {
         return Promise.resolve();
@@ -61,7 +66,7 @@ describe('authz', () => {
       });
 
       try {
-        await authz.register({ name, url });
+        await authz.register.apply(swatchCtx, [{ name, url }]);
       } catch (err) {
         expect(err).to.equal(errors.codes.ERROR_CODE_NAME_IN_USE);
         return Promise.resolve();
@@ -84,7 +89,7 @@ describe('authz', () => {
       });
 
       try {
-        await authz.register({ name, url });
+        await authz.register.apply(swatchCtx, [{ name, url }]);
       } catch (err) {
         return Promise.reject(err);
       }
@@ -96,7 +101,7 @@ describe('authz', () => {
   describe('remove', () => {
     it('throws an error if "name" is not passed in the params', async () => {
       try {
-        await authz.remove({});
+        await authz.remove.apply(swatchCtx, [{}]);
         return Promise.reject();
       } catch (err) {
         return Promise.resolve();
@@ -114,7 +119,7 @@ describe('authz', () => {
       });
 
       try {
-        await authz.remove({ name });
+        await authz.remove.apply(swatchCtx, [{ name }]);
       } catch (err) {
         return Promise.reject(err);
       }
@@ -126,7 +131,7 @@ describe('authz', () => {
   describe('list', () => {
     it('succeeds in the happy case', async () => {
       documentClientStub.scan.callsFake(params => {
-        expect(params).to.have.all.keys('TableName');
+        expect(params).to.have.all.keys('ConsistentRead', 'TableName');
 
         return {
           promise: () => (Promise.resolve({
@@ -136,7 +141,7 @@ describe('authz', () => {
       });
 
       try {
-        const list = await authz.list();
+        const list = await authz.list.apply(swatchCtx);
         expect(list).to.deep.equal(['a', 'b', 'c']);
       } catch (err) {
         return Promise.reject(err);
@@ -166,7 +171,7 @@ describe('authz', () => {
       });
 
       try {
-        const list = await authz.list();
+        const list = await authz.list.apply(swatchCtx);
         expect(list).to.have.members(['a', 'b', 'c', 'd', 'e', 'f']);
       } catch (err) {
         return Promise.reject(err);
@@ -179,7 +184,7 @@ describe('authz', () => {
   describe('info', () => {
     it('throws an error if "name" is not passed in the params', async () => {
       try {
-        await authz.info({});
+        await authz.info.apply(swatchCtx, [{}]);
         return Promise.reject();
       } catch (err) {
         return Promise.resolve();
@@ -188,7 +193,7 @@ describe('authz', () => {
 
     it('returns an app if it exists', async () => {
       documentClientStub.get.callsFake(params => {
-        expect(params).to.have.all.keys('TableName', 'Key');
+        expect(params).to.have.all.keys('ConsistentRead', 'TableName', 'Key');
         expect(params.Key).to.deep.equal({
           name,
         });
@@ -201,7 +206,7 @@ describe('authz', () => {
       });
 
       try {
-        const info = await authz.info({ name });
+        const info = await authz.info.apply(swatchCtx, [{ name }]);
         expect(info).to.deep.equal({ name, url });
       } catch (err) {
         return Promise.reject(err);
@@ -214,7 +219,7 @@ describe('authz', () => {
       documentClientStub.get.callsFake(params => {
         expect(params).to.have.property('TableName');
 
-        expect(params).to.have.all.keys('TableName', 'Key');
+        expect(params).to.have.all.keys('ConsistentRead', 'TableName', 'Key');
         expect(params.Key).to.deep.equal({ name });
 
         return {
@@ -225,7 +230,7 @@ describe('authz', () => {
       });
 
       try {
-        await authz.info({ name });
+        await authz.info.apply(swatchCtx, [{ name }]);
       } catch (err) {
         expect(err).to.deep.equal(errors.codes.ERROR_CODE_AUTHZ_NOT_FOUND);
         return Promise.resolve();

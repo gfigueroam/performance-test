@@ -1,6 +1,7 @@
 /* eslint-disable sort-keys */
 import parsers from '../../parsers';
 import validators from '../../validators';
+import middleware from '../../../middleware';
 
 import appendHandler from './append';
 import deleteHandler from './delete';
@@ -48,6 +49,7 @@ export default {
       middleware: [
         // middleware.data.parseUserData, (Parse `data` based on `type`)
         // middleware.data.validateUserData, (Validate `data` based on `type`)
+        middleware.database.ensureReadConsistency,
       ],
     },
   },
@@ -73,6 +75,13 @@ export default {
         validate: validators.strings.validateOptionalUser,
       },
     ],
+    metadata: {
+      middleware: [
+        // middleware.data.parseUserData, (Parse `data` based on `type`)
+        // middleware.data.validateUserData, (Validate `data` based on `type`)
+        middleware.database.ensureReadConsistency,
+      ],
+    },
   },
   'data.user.getShared': {
     handler: getSharedHandler,
@@ -84,6 +93,12 @@ export default {
         validate: validators.strings.validateShareId,
       },
     ],
+    metadata: {
+      middleware: [
+        // TODO: mbryc - middleware.auth.requireUserTokenOrUserId,
+        middleware.database.ensureReadConsistency,
+      ],
+    },
   },
   'data.user.list': {
     handler: listHandler,
@@ -101,6 +116,12 @@ export default {
         validate: validators.strings.validateOptionalUser,
       },
     ],
+    metadata: {
+      middleware: [
+        // TODO: mbryc - middleware.auth.requireUserTokenOrUserId,
+        middleware.database.ensureReadConsistency,
+      ],
+    },
   },
   'data.user.set': {
     handler: setHandler,
@@ -138,6 +159,7 @@ export default {
       middleware: [
         // middleware.data.parseUserData, (Parse `data` based on `type`)
         // middleware.data.validateUserData, (Validate `data` based on `type`)
+        middleware.database.ensureReadConsistency,
       ],
     },
   },
@@ -163,6 +185,12 @@ export default {
         validate: validators.strings.validateOptionalUser,
       },
     ],
+    metadata: {
+      middleware: [
+        // TODO: mbryc - middleware.auth.requireUserTokenOrUserId,
+        middleware.database.ensureReadConsistency,
+      ],
+    },
   },
   'data.user.share': {
     handler: shareHandler,
@@ -198,6 +226,12 @@ export default {
         validate: validators.strings.validateOptionalUser,
       },
     ],
+    metadata: {
+      middleware: [
+        // TODO: mbryc - middleware.auth.requireUserTokenOrUserId,
+        middleware.database.ensureReadConsistency,
+      ],
+    },
   },
   'data.user.unshare': {
     handler: unshareHandler,
@@ -221,6 +255,12 @@ export default {
         validate: validators.strings.validateOptionalUser,
       },
     ],
+    metadata: {
+      middleware: [
+        // TODO: mbryc - middleware.auth.requireUserTokenOrUserId,
+        middleware.database.ensureReadConsistency,
+      ],
+    },
   },
 };
 /* eslint-enable sort-keys */

@@ -18,6 +18,9 @@ const documentClientStub = sinon.createStubInstance(
 );
 
 const mockCtx = {
+  database: {
+    consistentRead: false,
+  },
   logger,
 };
 
@@ -67,7 +70,8 @@ describe('authz', () => {
     };
 
     documentClientStub.get.callsFake(params => {
-      expect(params).to.have.all.keys('TableName', 'Key');
+      expect(params).to.have.all.keys('ConsistentRead', 'TableName', 'Key');
+      expect(params.ConsistentRead).to.equal(false);
       expect(params.TableName).to.equal(authzTableName);
       expect(params.Key).to.deep.equal({ name: clientAuthzId });
 
@@ -89,6 +93,48 @@ describe('authz', () => {
     });
 
     try {
+      await authz.verify.call(mockCtx, clientAuthzId, shareId);
+    } catch (err) {
+      return Promise.reject(err);
+    }
+
+    return Promise.resolve();
+  });
+
+  it('should look up authz method and allow access when valid using a consistent read', async () => {
+    const clientAuthzId = 'some-client-authz-id;';
+    const clientAuthzUrl = 'https://test-client.hmhco.com/authz';
+
+    const mockAuthzResult = {
+      name: clientAuthzId,
+      url: clientAuthzUrl,
+    };
+
+    documentClientStub.get.callsFake(params => {
+      expect(params).to.have.all.keys('ConsistentRead', 'TableName', 'Key');
+      expect(params.ConsistentRead).to.equal(true);
+      expect(params.TableName).to.equal(authzTableName);
+      expect(params.Key).to.deep.equal({ name: clientAuthzId });
+
+      return {
+        promise: () => (Promise.resolve({
+          Item: mockAuthzResult,
+        })),
+      };
+    });
+
+    restStub.callsFake((url, params) => {
+      expect(url).to.equal(clientAuthzUrl);
+      expect(params).to.deep.equal({
+        ctx: 'mock-ctx',
+        key: 'mock-key',
+        user_id: 'mock-user',
+      });
+      return undefined;
+    });
+
+    try {
+      mockCtx.database.consistentRead = true;
       await authz.verify.call(mockCtx, clientAuthzId, shareId);
     } catch (err) {
       return Promise.reject(err);

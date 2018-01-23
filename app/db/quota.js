@@ -27,6 +27,7 @@ async function getConsumedQuota(params) {
   let consumed = 0;
   do {
     const queryParams = {
+      ConsistentRead: this.database && this.database.consistentRead,
       ExpressionAttributeNames: {
         '#appUser': 'appUser',
       },

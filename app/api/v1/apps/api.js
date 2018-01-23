@@ -1,6 +1,7 @@
 /* eslint-disable sort-keys */
 import parsers from '../../parsers';
 import validators from '../../validators';
+import middleware from '../../../middleware';
 
 import infoHandler from './info';
 import listHandler from './list';
@@ -25,6 +26,12 @@ export default {
         validate: validators.numbers.validateQuota,
       },
     ],
+    metadata: {
+      middleware: [
+        // TODO: mbryc - middleware.auth.requireUserTokenOrUserId,
+        middleware.database.ensureReadConsistency,
+      ],
+    },
   },
   'apps.info': {
     handler: infoHandler,
@@ -36,9 +43,21 @@ export default {
         validate: validators.strings.validateName,
       },
     ],
+    metadata: {
+      middleware: [
+        // TODO: mbryc - middleware.auth.requireUserTokenOrUserId,
+        middleware.database.ensureReadConsistency,
+      ],
+    },
   },
   'apps.list': {
     handler: listHandler,
+    metadata: {
+      middleware: [
+        // TODO: mbryc - middleware.auth.requireUserTokenOrUserId,
+        middleware.database.ensureReadConsistency,
+      ],
+    },
   },
   'apps.remove': {
     handler: removeHandler,
@@ -50,6 +69,12 @@ export default {
         validate: validators.strings.validateName,
       },
     ],
+    metadata: {
+      middleware: [
+        // TODO: mbryc - middleware.auth.requireUserTokenOrUserId,
+        middleware.database.ensureReadConsistency,
+      ],
+    },
   },
   'apps.setPerUserQuota': {
     handler: setPerUserQuotaHandler,
@@ -67,6 +92,12 @@ export default {
         validate: validators.numbers.validateQuota,
       },
     ],
+    metadata: {
+      middleware: [
+        // TODO: mbryc - middleware.auth.requireUserTokenOrUserId,
+        middleware.database.ensureReadConsistency,
+      ],
+    },
   },
 };
 /* eslint-enable sort-keys */

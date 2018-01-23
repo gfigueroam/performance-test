@@ -2,6 +2,7 @@ import chai from 'chai';
 import util from 'util';
 
 import logger from '../../../app/monitoring/logger';
+import constants from '../../../app/utils/constants';
 import tokens from './tokens';
 
 const expect = chai.expect;
@@ -41,6 +42,7 @@ function expectResponseError(result, done) {
 function sendGetRequest(path, onComplete) {
   chai.request(process.env.ENDPOINT)
     .get(path)
+    .set(constants.UDS_CONSISTENT_READ_HEADER, true)
     .end(onComplete);
 }
 
@@ -50,6 +52,7 @@ function sendPostRequest(path, token, params, onComplete) {
     .post(path)
     .set('Content-Type', 'application/json')
     .set('Authorization', token)
+    .set(constants.UDS_CONSISTENT_READ_HEADER, true)
     .send(params)
     .end(onComplete);
 }

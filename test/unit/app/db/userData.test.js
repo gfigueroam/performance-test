@@ -9,6 +9,11 @@ const requestor = 'unittest.userData.user';
 const key = 'unittest.userData.key';
 const data = 'some data';
 const type = 'text';
+const swatchCtx = {
+  database: {
+    consistentRead: true,
+  },
+};
 
 describe('userData', () => {
   before(() => {
@@ -62,10 +67,10 @@ describe('userData', () => {
   describe('set', () => {
     it('throws an error if "requestor" is not passed in the params', async () => {
       try {
-        await userData.set({
+        await userData.set.apply(swatchCtx, [{
           data: true,
           key,
-        });
+        }]);
         return Promise.reject();
       } catch (err) {
         return Promise.resolve();
@@ -74,10 +79,10 @@ describe('userData', () => {
 
     it('throws an error if "key" is not passed in the params', async () => {
       try {
-        await userData.set({
+        await userData.set.apply(swatchCtx, [{
           data: true,
           requestor,
-        });
+        }]);
         return Promise.reject();
       } catch (err) {
         return Promise.resolve();
@@ -86,10 +91,10 @@ describe('userData', () => {
 
     it('throws an error if "data" is not passed in the params', async () => {
       try {
-        await userData.set({
+        await userData.set.apply(swatchCtx, [{
           key,
           requestor,
-        });
+        }]);
         return Promise.reject();
       } catch (err) {
         return Promise.resolve();
@@ -98,11 +103,11 @@ describe('userData', () => {
 
     it('throws an error if "type" is not passed in the params', async () => {
       try {
-        await userData.set({
+        await userData.set.apply(swatchCtx, [{
           data,
           key,
           requestor,
-        });
+        }]);
         return Promise.reject();
       } catch (err) {
         return Promise.resolve();
@@ -110,13 +115,13 @@ describe('userData', () => {
     });
 
     it('calls appData.set with "hmh" as the app parameter', (done) => {
-      userData.set({
+      userData.set.apply(swatchCtx, [{
         data,
         key,
         owner: requestor,
         requestor,
         type,
-      })
+      }])
       .then(done)
       .catch(done);
     });
@@ -125,9 +130,9 @@ describe('userData', () => {
   describe('unset', () => {
     it('throws an error if "requestor" is not passed in the params', async () => {
       try {
-        await userData.unset({
+        await userData.unset.apply(swatchCtx, [{
           key,
-        });
+        }]);
         return Promise.reject();
       } catch (err) {
         return Promise.resolve();
@@ -136,9 +141,9 @@ describe('userData', () => {
 
     it('throws an error if "key" is not passed in the params', async () => {
       try {
-        await userData.unset({
+        await userData.unset.apply(swatchCtx, [{
           requestor,
-        });
+        }]);
         return Promise.reject();
       } catch (err) {
         return Promise.resolve();
@@ -146,10 +151,10 @@ describe('userData', () => {
     });
 
     it('calls appData.unset with "hmh" as the app param', (done) => {
-      userData.unset({
+      userData.unset.apply(swatchCtx, [{
         key,
         requestor,
-      })
+      }])
       .then(done)
       .catch(done);
     });
@@ -158,9 +163,9 @@ describe('userData', () => {
   describe('get', () => {
     it('throws an error if "requestor" is not passed in the params', async () => {
       try {
-        await userData.get({
+        await userData.get.apply(swatchCtx, [{
           key,
-        });
+        }]);
         return Promise.reject();
       } catch (err) {
         return Promise.resolve();
@@ -169,9 +174,9 @@ describe('userData', () => {
 
     it('throws an error if "key" is not passed in the params', async () => {
       try {
-        await userData.get({
+        await userData.get.apply(swatchCtx, [{
           requestor,
-        });
+        }]);
         return Promise.reject();
       } catch (err) {
         return Promise.resolve();
@@ -179,10 +184,10 @@ describe('userData', () => {
     });
 
     it('calls appData.get with "hmh" as the app name', (done) => {
-      userData.get({
+      userData.get.apply(swatchCtx, [{
         key,
         requestor,
-      })
+      }])
       .then((response) => {
         expect(response).to.deep.equal({});
         done();
@@ -194,8 +199,8 @@ describe('userData', () => {
   describe('list', () => {
     it('throws an error if "requestor" is not passed in the params', async () => {
       try {
-        await userData.list({
-        });
+        await userData.list.apply(swatchCtx, [{
+        }]);
         return Promise.reject();
       } catch (err) {
         return Promise.resolve();
@@ -203,9 +208,9 @@ describe('userData', () => {
     });
 
     it('calls appData.list with "hmh" as the app name', (done) => {
-      userData.list({
+      userData.list.apply(swatchCtx, [{
         requestor,
-      })
+      }])
       .then((response) => {
         expect(response).to.deep.equal({
           Items: [],

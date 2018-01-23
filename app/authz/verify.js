@@ -19,10 +19,10 @@ async function verifier(authz, shareId) {
   }
 
   // Query the DB to look up a registered authz method
-  const authzVerifier = await dbAuthz.info({ name: authz });
+  const authzVerifier = await dbAuthz.info.apply(this, [{ name: authz }]);
 
   // Query the DB to look up the shared content by ID
-  const shareData = await dbShare.query({ id: shareId });
+  const shareData = await dbShare.query.apply(this, [{ id: shareId }]);
 
   // Build an HTTP request to authz URL with correct params
   //  Throws on error or returns nothing and continues on success

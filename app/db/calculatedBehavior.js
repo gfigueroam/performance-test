@@ -84,6 +84,7 @@ async function get(params) {
 
   /* eslint-disable sort-keys */
   return dynamodbClient.instrumented('get', {
+    ConsistentRead: this.database && this.database.consistentRead,
     Key: {
       user: params.owner,
       key: params.key,
@@ -115,6 +116,7 @@ async function atomicUpdate(params) {
 
   // Look up the current value that already exists.
   const currentValue = await dynamodbClient.instrumented('get', {
+    ConsistentRead: this.database && this.database.consistentRead,
     Key: {
       key: params.key,
       user: params.owner,

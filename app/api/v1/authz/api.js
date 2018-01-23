@@ -1,6 +1,7 @@
 /* eslint-disable sort-keys */
 import parsers from '../../parsers';
 import validators from '../../validators';
+import middleware from '../../../middleware';
 
 import infoHandler from './info';
 import listHandler from './list';
@@ -24,6 +25,12 @@ export default {
         validate: validators.strings.validateURL,
       },
     ],
+    metadata: {
+      middleware: [
+        // TODO: mbryc - middleware.auth.requireUserTokenOrUserId,
+        middleware.database.ensureReadConsistency,
+      ],
+    },
   },
   'authz.info': {
     handler: infoHandler,
@@ -35,9 +42,21 @@ export default {
         validate: validators.strings.validateName,
       },
     ],
+    metadata: {
+      middleware: [
+        // TODO: mbryc - middleware.auth.requireUserTokenOrUserId,
+        middleware.database.ensureReadConsistency,
+      ],
+    },
   },
   'authz.list': {
     handler: listHandler,
+    metadata: {
+      middleware: [
+        // TODO: mbryc - middleware.auth.requireUserTokenOrUserId,
+        middleware.database.ensureReadConsistency,
+      ],
+    },
   },
   'authz.remove': {
     handler: removeHandler,
@@ -49,6 +68,12 @@ export default {
         validate: validators.strings.validateName,
       },
     ],
+    metadata: {
+      middleware: [
+        // TODO: mbryc - middleware.auth.requireUserTokenOrUserId,
+        middleware.database.ensureReadConsistency,
+      ],
+    },
   },
 };
 /* eslint-enable sort-keys */

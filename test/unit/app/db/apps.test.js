@@ -16,6 +16,11 @@ const documentClientStub = sinon.createStubInstance(AWS.DynamoDB.DocumentClient)
 
 const name = 'unittest.apps.appname';
 const quota = 1024;
+const swatchCtx = {
+  database: {
+    consistentRead: true,
+  },
+};
 
 describe('apps', () => {
   before(() => {
@@ -31,9 +36,9 @@ describe('apps', () => {
   describe('register', () => {
     it('throws an error if "name" is not passed in the params', async () => {
       try {
-        await apps.register({
+        await apps.register.apply(swatchCtx, [{
           quota,
-        });
+        }]);
         return Promise.reject();
       } catch (err) {
         return Promise.resolve();
@@ -42,9 +47,9 @@ describe('apps', () => {
 
     it('throws an error if "quota" is not passed in the params', async () => {
       try {
-        await apps.register({
+        await apps.register.apply(swatchCtx, [{
           name,
-        });
+        }]);
         return Promise.reject();
       } catch (err) {
         return Promise.resolve();
@@ -65,10 +70,10 @@ describe('apps', () => {
       });
 
       try {
-        await apps.register({
+        await apps.register.apply(swatchCtx, [{
           name,
           quota,
-        });
+        }]);
       } catch (err) {
         expect(err).to.equal(errors.codes.ERROR_CODE_NAME_IN_USE);
         return Promise.resolve();
@@ -92,10 +97,10 @@ describe('apps', () => {
       });
 
       try {
-        await apps.register({
+        await apps.register.apply(swatchCtx, [{
           name,
           quota,
-        });
+        }]);
       } catch (err) {
         return Promise.reject(err);
       }
@@ -107,7 +112,7 @@ describe('apps', () => {
   describe('remove', () => {
     it('throws an error if "name" is not passed in the params', async () => {
       try {
-        await apps.remove({});
+        await apps.remove.apply(swatchCtx, [{}]);
         return Promise.reject();
       } catch (err) {
         return Promise.resolve();
@@ -127,10 +132,10 @@ describe('apps', () => {
       });
 
       try {
-        await apps.remove({
+        await apps.remove.apply(swatchCtx, [{
           name,
           quota,
-        });
+        }]);
       } catch (err) {
         return Promise.reject(err);
       }
@@ -142,7 +147,7 @@ describe('apps', () => {
   describe('list', () => {
     it('succeeds in the happy case', async () => {
       documentClientStub.scan.callsFake(params => {
-        expect(params).to.have.all.keys('TableName');
+        expect(params).to.have.all.keys('ConsistentRead', 'TableName');
 
         return {
           promise: () => (Promise.resolve({
@@ -152,7 +157,7 @@ describe('apps', () => {
       });
 
       try {
-        const list = await apps.list();
+        const list = await apps.list.apply(swatchCtx);
         expect(list).to.deep.equal(['a', 'b', 'c']);
       } catch (err) {
         return Promise.reject(err);
@@ -182,7 +187,7 @@ describe('apps', () => {
       });
 
       try {
-        const list = await apps.list();
+        const list = await apps.list.apply(swatchCtx);
         // We don't care about order.
         expect(list).to.have.members(['a', 'b', 'c', 'd', 'e', 'f']);
       } catch (err) {
@@ -196,7 +201,7 @@ describe('apps', () => {
   describe('info', () => {
     it('throws an error if "name" is not passed in the params', async () => {
       try {
-        await apps.info({});
+        await apps.info.apply(swatchCtx, [{}]);
         return Promise.reject();
       } catch (err) {
         return Promise.resolve();
@@ -205,7 +210,7 @@ describe('apps', () => {
 
     it('returns an app if it exists', async () => {
       documentClientStub.get.callsFake(params => {
-        expect(params).to.have.all.keys('TableName', 'Key');
+        expect(params).to.have.all.keys('ConsistentRead', 'TableName', 'Key');
         expect(params.Key).to.deep.equal({
           name,
         });
@@ -221,9 +226,9 @@ describe('apps', () => {
       });
 
       try {
-        const info = await apps.info({
+        const info = await apps.info.apply(swatchCtx, [{
           name,
-        });
+        }]);
         expect(info).to.deep.equal({
           name,
           quota,
@@ -239,7 +244,7 @@ describe('apps', () => {
       documentClientStub.get.callsFake(params => {
         expect(params).to.have.property('TableName');
 
-        expect(params).to.have.all.keys('TableName', 'Key');
+        expect(params).to.have.all.keys('ConsistentRead', 'TableName', 'Key');
         expect(params.Key).to.deep.equal({
           name,
         });
@@ -252,9 +257,9 @@ describe('apps', () => {
       });
 
       try {
-        await apps.info({
+        await apps.info.apply(swatchCtx, [{
           name,
-        });
+        }]);
       } catch (err) {
         expect(err).to.deep.equal(errors.codes.ERROR_CODE_APP_NOT_FOUND);
         return Promise.resolve();
@@ -267,9 +272,9 @@ describe('apps', () => {
   describe('setQuota', () => {
     it('throws an error if "name" is not passed in the params', async () => {
       try {
-        await apps.setQuota({
+        await apps.setQuota.apply(swatchCtx, [{
           quota,
-        });
+        }]);
         return Promise.reject();
       } catch (err) {
         return Promise.resolve();
@@ -278,9 +283,9 @@ describe('apps', () => {
 
     it('throws an error if "quota" is not passed in the params', async () => {
       try {
-        await apps.setQuota({
+        await apps.setQuota.apply(swatchCtx, [{
           name,
-        });
+        }]);
         return Promise.reject();
       } catch (err) {
         return Promise.resolve();
@@ -301,10 +306,10 @@ describe('apps', () => {
       });
 
       try {
-        const result = await apps.setQuota({
+        const result = await apps.setQuota.apply(swatchCtx, [{
           name,
           quota,
-        });
+        }]);
         expect(result).to.equal(undefined);
       } catch (err) {
         return Promise.reject(err);
@@ -327,10 +332,10 @@ describe('apps', () => {
       });
 
       try {
-        await apps.setQuota({
+        await apps.setQuota.apply(swatchCtx, [{
           name,
           quota,
-        });
+        }]);
       } catch (err) {
         expect(err).to.deep.equal(errors.codes.ERROR_CODE_APP_NOT_FOUND);
         return Promise.resolve();

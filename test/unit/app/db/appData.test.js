@@ -21,6 +21,11 @@ const requestor = 'unittest.userData.user';
 const key = 'unittest.userData.key';
 const app = 'unittestapp';
 const data = 'unit test data';
+const swatchCtx = {
+  database: {
+    consistentRead: true,
+  },
+};
 
 describe('appData', () => {
   before(() => {
@@ -44,7 +49,7 @@ describe('appData', () => {
 
     it('throws an error if "requestor" is not passed in the params', async () => {
       try {
-        await appData.getApps({});
+        await appData.getApps.apply(swatchCtx, [{}]);
         return Promise.reject();
       } catch (err) {
         return Promise.resolve();
@@ -74,9 +79,9 @@ describe('appData', () => {
         };
       });
 
-      const userApps = await appData.getApps({
+      const userApps = await appData.getApps.apply(swatchCtx, [{
         user: requestor,
-      });
+      }]);
       expect(userApps).to.deep.equal(['a', 'b']);
     });
 
@@ -113,9 +118,9 @@ describe('appData', () => {
       });
       documentClientStub.query.throws(new Error('Did not expect another call to query.'));
 
-      const userApps = await appData.getApps({
+      const userApps = await appData.getApps.apply(swatchCtx, [{
         user: requestor,
-      });
+      }]);
       expect(userApps).to.deep.equal(['a', 'b', 'c', 'd', 'e', 'f']);
     });
 
@@ -134,9 +139,9 @@ describe('appData', () => {
           }],
         })),
       });
-      const userApps = await appData.getApps({
+      const userApps = await appData.getApps.apply(swatchCtx, [{
         user: requestor,
-      });
+      }]);
       expect(userApps).to.deep.equal(['a', 'b', 'd']);
     });
   });
@@ -147,11 +152,11 @@ describe('appData', () => {
     });
     it('throws an error if "requestor" is not passed in the params', async () => {
       try {
-        await appData.set({
+        await appData.set.apply(swatchCtx, [{
           app,
           data: true,
           key,
-        });
+        }]);
         return Promise.reject();
       } catch (err) {
         return Promise.resolve();
@@ -160,11 +165,11 @@ describe('appData', () => {
 
     it('throws an error if "key" is not passed in the params', async () => {
       try {
-        await appData.set({
+        await appData.set.apply(swatchCtx, [{
           app,
           data: true,
           requestor,
-        });
+        }]);
         return Promise.reject();
       } catch (err) {
         return Promise.resolve();
@@ -173,11 +178,11 @@ describe('appData', () => {
 
     it('throws an error if "data" is not passed in the params', async () => {
       try {
-        await appData.set({
+        await appData.set.apply(swatchCtx, [{
           app,
           key,
           requestor,
-        });
+        }]);
         return Promise.reject();
       } catch (err) {
         return Promise.resolve();
@@ -186,11 +191,11 @@ describe('appData', () => {
 
     it('throws an error if "app" is not passed in the params', async () => {
       try {
-        await appData.set({
+        await appData.set.apply(swatchCtx, [{
           data,
           key,
           requestor,
-        });
+        }]);
         return Promise.reject();
       } catch (err) {
         return Promise.resolve();
@@ -221,12 +226,12 @@ describe('appData', () => {
         });
       });
 
-      appData.set({
+      appData.set.apply(swatchCtx, [{
         app,
         data,
         key,
         requestor,
-      })
+      }])
       .then(done)
       .catch(done);
     });
@@ -241,12 +246,12 @@ describe('appData', () => {
         });
       });
 
-      appData.set({
+      appData.set.apply(swatchCtx, [{
         app,
         data,
         key,
         requestor,
-      })
+      }])
       .then(() => {
         quota.getConsumedQuota.reset();
         done('Expected an error!');
@@ -263,13 +268,13 @@ describe('appData', () => {
   describe('merge', () => {
     it('throws an error if "requestor" is not passed in the params', async () => {
       try {
-        await appData.merge({
+        await appData.merge.apply(swatchCtx, [{
           app,
           data: {
             b: true,
           },
           key,
-        });
+        }]);
         return Promise.reject();
       } catch (err) {
         return Promise.resolve();
@@ -278,13 +283,13 @@ describe('appData', () => {
 
     it('throws an error if "key" is not passed in the params', async () => {
       try {
-        await appData.merge({
+        await appData.merge.apply(swatchCtx, [{
           app,
           data: {
             b: true,
           },
           requestor,
-        });
+        }]);
         return Promise.reject();
       } catch (err) {
         return Promise.resolve();
@@ -293,11 +298,11 @@ describe('appData', () => {
 
     it('throws an error if "data" is not passed in the params', async () => {
       try {
-        await appData.merge({
+        await appData.merge.apply(swatchCtx, [{
           app,
           key,
           requestor,
-        });
+        }]);
         return Promise.reject();
       } catch (err) {
         return Promise.resolve();
@@ -306,11 +311,11 @@ describe('appData', () => {
 
     it('throws an error if "app" is not passed in the params', async () => {
       try {
-        await appData.set({
+        await appData.set.apply(swatchCtx, [{
           data,
           key,
           requestor,
-        });
+        }]);
         return Promise.reject();
       } catch (err) {
         return Promise.resolve();
@@ -351,7 +356,7 @@ describe('appData', () => {
           appUser: `${app}${constants.DELIMITER}${requestor}`,
           key,
         });
-        expect(params).to.have.all.keys('Key', 'TableName');
+        expect(params).to.have.all.keys('ConsistentRead', 'Key', 'TableName');
 
         return {
           promise: () => (Promise.resolve({
@@ -419,7 +424,7 @@ describe('appData', () => {
           appUser: `${app}${constants.DELIMITER}${requestor}`,
           key,
         });
-        expect(params).to.have.all.keys('Key', 'TableName');
+        expect(params).to.have.all.keys('ConsistentRead', 'Key', 'TableName');
 
         return {
           promise: () => (Promise.resolve({
@@ -435,14 +440,14 @@ describe('appData', () => {
         });
       });
 
-      appData.merge({
+      appData.merge.apply(swatchCtx, [{
         app,
         data: {
           newKey: 'newValue',
         },
         key,
         requestor,
-      })
+      }])
       .then((result) => {
         expect(result).to.deep.equal({
           newKey: 'newValue',
@@ -463,14 +468,14 @@ describe('appData', () => {
         });
       });
 
-      appData.merge({
+      appData.merge.apply(swatchCtx, [{
         app,
         data: {
           newKey: 'newValue',
         },
         key,
         requestor,
-      })
+      }])
       .then(() => {
         quota.getConsumedQuota.reset();
         done('Expected an error!');
@@ -487,10 +492,10 @@ describe('appData', () => {
   describe('unset', () => {
     it('throws an error if "requestor" is not passed in the params', async () => {
       try {
-        await appData.unset({
+        await appData.unset.apply(swatchCtx, [{
           app,
           key,
-        });
+        }]);
         return Promise.reject();
       } catch (err) {
         return Promise.resolve();
@@ -499,10 +504,10 @@ describe('appData', () => {
 
     it('throws an error if "key" is not passed in the params', async () => {
       try {
-        await appData.unset({
+        await appData.unset.apply(swatchCtx, [{
           app,
           requestor,
-        });
+        }]);
         return Promise.reject();
       } catch (err) {
         return Promise.resolve();
@@ -511,10 +516,10 @@ describe('appData', () => {
 
     it('throws an error if "app" is not passed in the params', async () => {
       try {
-        await appData.unset({
+        await appData.unset.apply(swatchCtx, [{
           key,
           requestor,
-        });
+        }]);
         return Promise.reject();
       } catch (err) {
         return Promise.resolve();
@@ -545,18 +550,18 @@ describe('appData', () => {
           appUser: `${app}${constants.DELIMITER}${requestor}`,
           key,
         });
-        expect(params).to.have.all.keys('Key', 'TableName');
+        expect(params).to.have.all.keys('ConsistentRead', 'Key', 'TableName');
         return {
           promise: () => (Promise.resolve({
             Item: {},
           })),
         };
       });
-      appData.unset({
+      appData.unset.apply(swatchCtx, [{
         app,
         key,
         requestor,
-      })
+      }])
       .then(done)
       .catch(done);
     });
@@ -565,10 +570,10 @@ describe('appData', () => {
   describe('get', () => {
     it('throws an error if "requestor" is not passed in the params', async () => {
       try {
-        await appData.get({
+        await appData.get.apply(swatchCtx, [{
           app,
           key,
-        });
+        }]);
         return Promise.reject();
       } catch (err) {
         return Promise.resolve();
@@ -577,10 +582,10 @@ describe('appData', () => {
 
     it('throws an error if "key" is not passed in the params', async () => {
       try {
-        await appData.get({
+        await appData.get.apply(swatchCtx, [{
           app,
           requestor,
-        });
+        }]);
         return Promise.reject();
       } catch (err) {
         return Promise.resolve();
@@ -589,10 +594,10 @@ describe('appData', () => {
 
     it('throws an error if "app" is not passed in the params', async () => {
       try {
-        await appData.get({
+        await appData.get.apply(swatchCtx, [{
           key,
           requestor,
-        });
+        }]);
         return Promise.reject();
       } catch (err) {
         return Promise.resolve();
@@ -605,16 +610,16 @@ describe('appData', () => {
           appUser: `${app}${constants.DELIMITER}${requestor}`,
           key,
         });
-        expect(params).to.have.all.keys('Key', 'TableName');
+        expect(params).to.have.all.keys('ConsistentRead', 'Key', 'TableName');
         return {
           promise: () => (Promise.resolve()),
         };
       });
-      appData.get({
+      appData.get.apply(swatchCtx, [{
         app,
         key,
         requestor,
-      })
+      }])
       .then(done)
       .catch(done);
     });
@@ -623,9 +628,9 @@ describe('appData', () => {
   describe('list', () => {
     it('throws an error if "requestor" is not passed in the params', async () => {
       try {
-        await appData.list({
+        await appData.list.apply(swatchCtx, [{
           app,
-        });
+        }]);
         return Promise.reject();
       } catch (err) {
         return Promise.resolve();
@@ -634,9 +639,9 @@ describe('appData', () => {
 
     it('throws an error if "app" is not passed in the params', async () => {
       try {
-        await appData.list({
+        await appData.list.apply(swatchCtx, [{
           requestor,
-        });
+        }]);
         return Promise.reject();
       } catch (err) {
         return Promise.resolve();
@@ -646,7 +651,8 @@ describe('appData', () => {
     it('calls dynamoDB.query and returns a promisified version', (done) => {
       documentClientStub.query.callsFake(params => {
         expect(params.KeyConditionExpression).to.equal('appUser = :appUser');
-        expect(params).to.have.all.keys('ExpressionAttributeNames',
+        expect(params).to.have.all.keys('ConsistentRead',
+          'ExpressionAttributeNames',
           'KeyConditionExpression',
           'ExpressionAttributeValues',
           'ProjectionExpression',
@@ -656,10 +662,10 @@ describe('appData', () => {
           promise: () => (Promise.resolve()),
         };
       });
-      appData.list({
+      appData.list.apply(swatchCtx, [{
         app,
         requestor,
-      })
+      }])
       .then(done)
       .catch(done);
     });

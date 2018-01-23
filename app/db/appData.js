@@ -23,6 +23,7 @@ async function get(params) {
   if (!params.owner) {
     params.owner = params.requestor;
   }
+
   // Verify requestor has access to owner's data.
   const allowed = await auth.ids.hasAccessTo(params.requestor, params.owner);
   if (!allowed) {
@@ -36,6 +37,7 @@ async function get(params) {
   }
 
   const getResult = await dynamodbClient.instrumented('get', {
+    ConsistentRead: this.database && this.database.consistentRead,
     Key: {
       appUser: `${params.app}${constants.DELIMITER}${params.owner}`,
       key: params.key,
@@ -130,6 +132,7 @@ async function merge(params) {
 
   // Look up the current value that already exists.
   const currentValue = await dynamodbClient.instrumented('get', {
+    ConsistentRead: this.database && this.database.consistentRead,
     Key: {
       appUser: `${params.app}${constants.DELIMITER}${params.owner}`,
       key: params.key,
@@ -226,6 +229,7 @@ async function unset(params) {
   // This API needs to throw an error if we delete a key which does not exist.
   // So we need to query first for the item.
   const getResult = await dynamodbClient.instrumented('get', {
+    ConsistentRead: this.database && this.database.consistentRead,
     Key: {
       appUser: `${params.app}${constants.DELIMITER}${params.owner}`,
       key: params.key,
@@ -274,6 +278,7 @@ async function list(params) {
   // TODO: Paginate
 
   const items = await dynamodbClient.instrumented('query', {
+    ConsistentRead: this.database && this.database.consistentRead,
     ExpressionAttributeNames: {
       '#key': 'key',
     },
@@ -296,6 +301,8 @@ async function getApps(params) {
   let lastEvaluatedKey;
   let items = [];
   do {
+    // Note: We do not set consistent read here because DynamoDB forbids consistent
+    // reads when accessing a global secondary index.
     const dynamoDBParams = {
       ExpressionAttributeNames: {
         '#user': 'user',

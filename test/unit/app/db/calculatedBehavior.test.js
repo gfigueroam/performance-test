@@ -16,6 +16,11 @@ const documentClientStub = sinon.createStubInstance(AWS.DynamoDB.DocumentClient)
 
 const requestor = 'unittest.calculatedBehavior.user';
 const key = 'unittest.calculatedBehavior.key';
+const swatchCtx = {
+  database: {
+    consistentRead: true,
+  },
+};
 
 describe('calculatedBehavior', () => {
   before(() => {
@@ -31,10 +36,10 @@ describe('calculatedBehavior', () => {
   describe('merge', () => {
     it('throws an error if "requestor" is not passed in the params', async () => {
       try {
-        await calculatedBehavior.merge({
+        await calculatedBehavior.merge.apply(swatchCtx, [{
           data: {},
           key,
-        });
+        }]);
         return Promise.reject();
       } catch (err) {
         return Promise.resolve();
@@ -43,10 +48,10 @@ describe('calculatedBehavior', () => {
 
     it('throws an error if "key" is not passed in the params', async () => {
       try {
-        await calculatedBehavior.merge({
+        await calculatedBehavior.merge.apply(swatchCtx, [{
           data: {},
           requestor,
-        });
+        }]);
         return Promise.reject();
       } catch (err) {
         return Promise.resolve();
@@ -55,10 +60,10 @@ describe('calculatedBehavior', () => {
 
     it('throws an error if "data" is not passed in the params', async () => {
       try {
-        await calculatedBehavior.merge({
+        await calculatedBehavior.merge.apply(swatchCtx, [{
           key,
           requestor,
-        });
+        }]);
         return Promise.reject();
       } catch (err) {
         return Promise.resolve();
@@ -83,11 +88,11 @@ describe('calculatedBehavior', () => {
       });
 
       try {
-        await calculatedBehavior.merge({
+        await calculatedBehavior.merge.apply(swatchCtx, [{
           data: {},
           key,
           requestor,
-        });
+        }]);
       } catch (err) {
         expect(err.message).to.equal(errors.codes.ERROR_CODE_INVALID_DATA_TYPE);
         return Promise.resolve();
@@ -131,11 +136,11 @@ describe('calculatedBehavior', () => {
       });
 
       try {
-        await calculatedBehavior.merge({
+        await calculatedBehavior.merge.apply(swatchCtx, [{
           data,
           key,
           requestor,
-        });
+        }]);
 
         return Promise.resolve();
       } catch (err) {
@@ -189,13 +194,13 @@ describe('calculatedBehavior', () => {
       });
 
       try {
-        await calculatedBehavior.merge({
+        await calculatedBehavior.merge.apply(swatchCtx, [{
           data: {
             someKey: 'replacementValue',
           },
           key,
           requestor,
-        });
+        }]);
 
         return Promise.resolve();
       } catch (err) {
@@ -207,10 +212,10 @@ describe('calculatedBehavior', () => {
   describe('atomicUpdate', () => {
     it('throws an error if "requestor" is not passed in the params', async () => {
       try {
-        await calculatedBehavior.atomicUpdate({
+        await calculatedBehavior.atomicUpdate.apply(swatchCtx, [{
           key,
           value: 1,
-        });
+        }]);
         return Promise.reject();
       } catch (err) {
         return Promise.resolve();
@@ -219,10 +224,10 @@ describe('calculatedBehavior', () => {
 
     it('throws an error if "key" is not passed in the params', async () => {
       try {
-        await calculatedBehavior.atomicUpdate({
+        await calculatedBehavior.atomicUpdate.apply(swatchCtx, [{
           requestor,
           value: 1,
-        });
+        }]);
         return Promise.reject();
       } catch (err) {
         return Promise.resolve();
@@ -231,10 +236,10 @@ describe('calculatedBehavior', () => {
 
     it('throws an error if "value" is not passed in the params', async () => {
       try {
-        await calculatedBehavior.atomicUpdate({
+        await calculatedBehavior.atomicUpdate.apply(swatchCtx, [{
           key,
           requestor,
-        });
+        }]);
         return Promise.reject();
       } catch (err) {
         return Promise.resolve();
@@ -248,7 +253,7 @@ describe('calculatedBehavior', () => {
           key,
           user: requestor,
         });
-        expect(params).to.have.all.keys('Key', 'TableName');
+        expect(params).to.have.all.keys('ConsistentRead', 'Key', 'TableName');
         return {
           promise: () => (Promise.resolve({
             Item: {
@@ -259,11 +264,11 @@ describe('calculatedBehavior', () => {
       });
 
       try {
-        await calculatedBehavior.atomicUpdate({
+        await calculatedBehavior.atomicUpdate.apply(swatchCtx, [{
           key,
           requestor,
           value: 1,
-        });
+        }]);
       } catch (err) {
         expect(err.message).to.equal(errors.codes.ERROR_CODE_INVALID_DATA_TYPE);
         return Promise.resolve();
@@ -279,7 +284,7 @@ describe('calculatedBehavior', () => {
           key,
           user: requestor,
         });
-        expect(params).to.have.all.keys('Key', 'TableName');
+        expect(params).to.have.all.keys('ConsistentRead', 'Key', 'TableName');
         return {
           promise: () => (Promise.resolve({
             Item: {
@@ -305,11 +310,11 @@ describe('calculatedBehavior', () => {
           promise: () => (Promise.resolve()),
         };
       });
-      calculatedBehavior.atomicUpdate({
+      calculatedBehavior.atomicUpdate.apply(swatchCtx, [{
         key,
         requestor,
         value: 1,
-      })
+      }])
       .then(done)
       .catch(done);
     });
@@ -321,7 +326,7 @@ describe('calculatedBehavior', () => {
           key,
           user: requestor,
         });
-        expect(params).to.have.all.keys('Key', 'TableName');
+        expect(params).to.have.all.keys('ConsistentRead', 'Key', 'TableName');
         return {
           promise: () => (Promise.resolve({
             Item: undefined,
@@ -344,11 +349,11 @@ describe('calculatedBehavior', () => {
           promise: () => (Promise.resolve()),
         };
       });
-      calculatedBehavior.atomicUpdate({
+      calculatedBehavior.atomicUpdate.apply(swatchCtx, [{
         key,
         requestor,
         value: 1,
-      })
+      }])
       .then(done)
       .catch(done);
     });
@@ -357,10 +362,10 @@ describe('calculatedBehavior', () => {
   describe('set', () => {
     it('throws an error if "requestor" is not passed in the params', async () => {
       try {
-        await calculatedBehavior.set({
+        await calculatedBehavior.set.apply(swatchCtx, [{
           data: true,
           key,
-        });
+        }]);
         return Promise.reject();
       } catch (err) {
         return Promise.resolve();
@@ -369,10 +374,10 @@ describe('calculatedBehavior', () => {
 
     it('throws an error if "key" is not passed in the params', async () => {
       try {
-        await calculatedBehavior.set({
+        await calculatedBehavior.set.apply(swatchCtx, [{
           data: true,
           requestor,
-        });
+        }]);
         return Promise.reject();
       } catch (err) {
         return Promise.resolve();
@@ -381,10 +386,10 @@ describe('calculatedBehavior', () => {
 
     it('throws an error if "data" is not passed in the params', async () => {
       try {
-        await calculatedBehavior.set({
+        await calculatedBehavior.set.apply(swatchCtx, [{
           key,
           requestor,
-        });
+        }]);
         return Promise.reject();
       } catch (err) {
         return Promise.resolve();
@@ -404,11 +409,11 @@ describe('calculatedBehavior', () => {
           promise: () => (Promise.resolve()),
         };
       });
-      calculatedBehavior.set({
+      calculatedBehavior.set.apply(swatchCtx, [{
         data,
         key,
         requestor,
-      })
+      }])
       .then(done)
       .catch(done);
     });
@@ -417,9 +422,9 @@ describe('calculatedBehavior', () => {
   describe('unset', () => {
     it('throws an error if "requestor" is not passed in the params', async () => {
       try {
-        await calculatedBehavior.unset({
+        await calculatedBehavior.unset.apply(swatchCtx, [{
           key,
-        });
+        }]);
         return Promise.reject();
       } catch (err) {
         return Promise.resolve();
@@ -428,9 +433,9 @@ describe('calculatedBehavior', () => {
 
     it('throws an error if "key" is not passed in the params', async () => {
       try {
-        await calculatedBehavior.unset({
+        await calculatedBehavior.unset.apply(swatchCtx, [{
           requestor,
-        });
+        }]);
         return Promise.reject();
       } catch (err) {
         return Promise.resolve();
@@ -448,10 +453,10 @@ describe('calculatedBehavior', () => {
           promise: () => (Promise.resolve()),
         };
       });
-      calculatedBehavior.unset({
+      calculatedBehavior.unset.apply(swatchCtx, [{
         key,
         requestor,
-      })
+      }])
       .then(done)
       .catch(done);
     });
@@ -460,9 +465,9 @@ describe('calculatedBehavior', () => {
   describe('get', () => {
     it('throws an error if "requestor" is not passed in the params', async () => {
       try {
-        await calculatedBehavior.get({
+        await calculatedBehavior.get.apply(swatchCtx, [{
           key,
-        });
+        }]);
         return Promise.reject();
       } catch (err) {
         return Promise.resolve();
@@ -471,9 +476,9 @@ describe('calculatedBehavior', () => {
 
     it('throws an error if "key" is not passed in the params', async () => {
       try {
-        await calculatedBehavior.get({
+        await calculatedBehavior.get.apply(swatchCtx, [{
           requestor,
-        });
+        }]);
         return Promise.reject();
       } catch (err) {
         return Promise.resolve();
@@ -486,15 +491,15 @@ describe('calculatedBehavior', () => {
           key,
           user: requestor,
         });
-        expect(params).to.have.all.keys('Key', 'TableName');
+        expect(params).to.have.all.keys('ConsistentRead', 'Key', 'TableName');
         return {
           promise: () => (Promise.resolve()),
         };
       });
-      calculatedBehavior.get({
+      calculatedBehavior.get.apply(swatchCtx, [{
         key,
         requestor,
-      })
+      }])
       .then(done)
       .catch(done);
     });

@@ -21,7 +21,7 @@ async function get(params) {
   }
 
   params.app = constants.HMH_APP;
-  return appData.get(params);
+  return appData.get.apply(this, [params]);
 }
 
 async function set(params) {
@@ -48,7 +48,7 @@ async function set(params) {
   }
 
   params.app = constants.HMH_APP;
-  return appData.set(params);
+  return appData.set.apply(this, [params]);
 }
 
 async function unset(params) {
@@ -69,7 +69,7 @@ async function unset(params) {
   }
 
   params.app = constants.HMH_APP;
-  return appData.unset(params);
+  return appData.unset.apply(this, [params]);
 }
 
 async function list(params) {
@@ -87,7 +87,7 @@ async function list(params) {
   }
 
   params.app = constants.HMH_APP;
-  return appData.list(params);
+  return appData.list.apply(this, [params]);
 }
 
 module.exports = {

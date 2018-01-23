@@ -8,6 +8,7 @@ async function info(params) {
   }
 
   const getResult = await dynamodbClient.instrumented('get', {
+    ConsistentRead: this.database && this.database.consistentRead,
     Key: {
       name: params.name,
     },
@@ -26,6 +27,7 @@ async function list() {
   let lastEvaluatedKey;
   do {
     const params = {
+      ConsistentRead: this.database && this.database.consistentRead,
       TableName: nconf.get('database').authzTableName,
     };
 

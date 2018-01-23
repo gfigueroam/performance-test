@@ -12,6 +12,11 @@ const documentClientStub = sinon.createStubInstance(AWS.DynamoDB.DocumentClient)
 
 const requestor = 'unittest.userData.user';
 const app = 'unittestapp';
+const swatchCtx = {
+  database: {
+    consistentRead: true,
+  },
+};
 
 describe('quota', () => {
   before(() => {
@@ -27,9 +32,9 @@ describe('quota', () => {
   describe('getConsumedQuota', () => {
     it('throws an error if "requestor" is not passed in the params', async () => {
       try {
-        await quota.getConsumedQuota({
+        await quota.getConsumedQuota.apply(swatchCtx, [{
           app,
-        });
+        }]);
         return Promise.reject();
       } catch (err) {
         return Promise.resolve();
@@ -38,9 +43,9 @@ describe('quota', () => {
 
     it('throws an error if "app" is not passed in the params', async () => {
       try {
-        await quota.getConsumedQuota({
+        await quota.getConsumedQuota.apply(swatchCtx, [{
           requestor,
-        });
+        }]);
         return Promise.reject();
       } catch (err) {
         return Promise.resolve();
@@ -56,7 +61,8 @@ describe('quota', () => {
         d: false,
       }];
       documentClientStub.query.callsFake(params => {
-        expect(params).to.have.all.keys('ExpressionAttributeNames',
+        expect(params).to.have.all.keys('ConsistentRead',
+          'ExpressionAttributeNames',
           'KeyConditionExpression',
           'ExpressionAttributeValues',
           'Select',
@@ -72,10 +78,10 @@ describe('quota', () => {
         };
       });
 
-      const consumed = await quota.getConsumedQuota({
+      const consumed = await quota.getConsumedQuota.apply(swatchCtx, [{
         app,
         requestor,
-      });
+      }]);
       expect(consumed).to.equal(sizeof(Items));
     });
 
@@ -107,10 +113,10 @@ describe('quota', () => {
         })),
       });
 
-      const consumed = await quota.getConsumedQuota({
+      const consumed = await quota.getConsumedQuota.apply(swatchCtx, [{
         app,
         requestor,
-      });
+      }]);
       expect(consumed).to.equal(2 * sizeof(Items));
     });
   });
