@@ -1,10 +1,11 @@
 import db from '../../../db/calculatedBehavior';
 
-export default async function unsetHandler(key, user) {
-  this.logger.info(`data.cb.unset: key (${key}), user (${user})`);
+export default async function unsetHandler(key, requestor, owner) {
+  this.logger.info(`data.cb.unset: key (${key}), requestor (${requestor}), owner (${owner})`);
   const result = await db.unset({
     key,
-    user,
+    owner,
+    requestor,
   });
 
   return result;

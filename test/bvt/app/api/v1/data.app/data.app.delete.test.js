@@ -10,7 +10,7 @@ const expect = chai.expect;
 
 const app = `uds.bvt.data.app.delete.app.${seed.buildNumber}`;
 const key = `uds.bvt.data.app.delete.test.${seed.buildNumber}`;
-const user = 'data.user.test.user.1';
+const requestor = 'data.requestor.test.requestor.1';
 const data = {
   key1: true,
   key2: 'some string',
@@ -28,7 +28,7 @@ describe('data.app.delete', () => {
       app,
       data,
       key,
-      user,
+      user: requestor,
     });
   });
 
@@ -40,7 +40,7 @@ describe('data.app.delete', () => {
     http.sendPostRequest(paths.DATA_APP_DELETE, tokens.serviceToken, {
       app: 'invalid-app-name',
       key,
-      user,
+      requestor,
     }, (err, response) => {
       expect(err).to.equal(null);
       expect(response.body).to.deep.equal({
@@ -55,7 +55,7 @@ describe('data.app.delete', () => {
     http.sendPostRequest(paths.DATA_APP_DELETE, tokens.serviceToken, {
       app: 'non.existent.app',
       key,
-      user,
+      requestor,
     }, (err, response) => {
       expect(err).to.equal(null);
       expect(response.body).to.deep.equal({
@@ -70,7 +70,7 @@ describe('data.app.delete', () => {
     http.sendPostRequest(paths.DATA_APP_DELETE, tokens.serviceToken, {
       app,
       key: 'non.existent.key',
-      user,
+      requestor,
     }, (err, response) => {
       expect(err).to.equal(null);
       expect(response.body).to.deep.equal({
@@ -85,7 +85,7 @@ describe('data.app.delete', () => {
     http.sendPostRequest(paths.DATA_APP_DELETE, tokens.serviceToken, {
       app,
       key,
-      user,
+      requestor,
     }, (err, response) => {
       expect(err).to.equal(null);
       expect(response.body).to.deep.equal({
@@ -95,7 +95,7 @@ describe('data.app.delete', () => {
       http.sendPostRequest(paths.DATA_APP_GET, tokens.serviceToken, {
         app,
         key,
-        user,
+        requestor,
       }, (err2, response2) => {
         expect(err2).to.equal(null);
         expect(response2.body).to.deep.equal({

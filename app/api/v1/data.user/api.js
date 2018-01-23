@@ -32,7 +32,14 @@ export default {
         optional: false,
       },
       {
-        name: 'user',
+        name: 'requestor',
+        optional: true,
+        parse: parsers.strings.parseOptionalString,
+        validate: validators.strings.validateOptionalUser,
+      },
+      {
+        name: 'owner',
+        optional: true,
         parse: parsers.strings.parseOptionalString,
         validate: validators.strings.validateOptionalUser,
       },
@@ -54,7 +61,14 @@ export default {
         validate: validators.strings.validateKey,
       },
       {
-        name: 'user',
+        name: 'requestor',
+        optional: true,
+        parse: parsers.strings.parseOptionalString,
+        validate: validators.strings.validateOptionalUser,
+      },
+      {
+        name: 'owner',
+        optional: true,
         parse: parsers.strings.parseOptionalString,
         validate: validators.strings.validateOptionalUser,
       },
@@ -75,7 +89,14 @@ export default {
     handler: listHandler,
     args: [
       {
-        name: 'user',
+        name: 'requestor',
+        optional: true,
+        parse: parsers.strings.parseOptionalString,
+        validate: validators.strings.validateOptionalUser,
+      },
+      {
+        name: 'owner',
+        optional: true,
         parse: parsers.strings.parseOptionalString,
         validate: validators.strings.validateOptionalUser,
       },
@@ -101,7 +122,14 @@ export default {
         optional: false,
       },
       {
-        name: 'user',
+        name: 'requestor',
+        optional: true,
+        parse: parsers.strings.parseOptionalString,
+        validate: validators.strings.validateOptionalUser,
+      },
+      {
+        name: 'owner',
+        optional: true,
         parse: parsers.strings.parseOptionalString,
         validate: validators.strings.validateOptionalUser,
       },
@@ -123,7 +151,14 @@ export default {
         validate: validators.strings.validateKey,
       },
       {
-        name: 'user',
+        name: 'requestor',
+        optional: true,
+        parse: parsers.strings.parseOptionalString,
+        validate: validators.strings.validateOptionalUser,
+      },
+      {
+        name: 'owner',
+        optional: true,
         parse: parsers.strings.parseOptionalString,
         validate: validators.strings.validateOptionalUser,
       },
@@ -151,7 +186,14 @@ export default {
         validate: validators.strings.validateCtx,
       },
       {
-        name: 'user',
+        name: 'requestor',
+        optional: true,
+        parse: parsers.strings.parseOptionalString,
+        validate: validators.strings.validateOptionalUser,
+      },
+      {
+        name: 'owner',
+        optional: true,
         parse: parsers.strings.parseOptionalString,
         validate: validators.strings.validateOptionalUser,
       },
@@ -167,7 +209,14 @@ export default {
         validate: validators.strings.validateShareId,
       },
       {
-        name: 'user',
+        name: 'requestor',
+        optional: true,
+        parse: parsers.strings.parseOptionalString,
+        validate: validators.strings.validateOptionalUser,
+      },
+      {
+        name: 'owner',
+        optional: true,
         parse: parsers.strings.parseOptionalString,
         validate: validators.strings.validateOptionalUser,
       },

@@ -8,7 +8,7 @@ import tokens from '../../../../../common/helpers/tokens';
 const expect = chai.expect;
 
 const key = `uds.bvt.data.user.delete.test.${seed.buildNumber}`;
-const user = 'data.admin.test.user.1';
+const requestor = 'data.admin.test.requestor.1';
 const data = 'this is some data';
 
 describe('data.user.delete', () => {
@@ -17,34 +17,33 @@ describe('data.user.delete', () => {
       data,
       key,
       type: 'text',
-      user,
-
+      user: requestor,
     }, done);
   });
 
   it('deletes an existing value', (done) => {
     // Ensure something already set.
     http.sendPostRequest(paths.DATA_USER_GET, tokens.serviceToken,
-      { key, user }, (err, response) => {
+      { key, requestor }, (err, response) => {
         expect(err).to.equal(null);
         expect(response.body).to.deep.equal({
           ok: true,
           result: {
             data,
             key,
-            user,
+            user: requestor,
           },
         });
         // delete the value
         http.sendPostRequest(paths.DATA_USER_DELETE, tokens.serviceToken,
-          { key, user }, (err2, response2) => {
+          { key, requestor }, (err2, response2) => {
             expect(err2).to.equal(null);
             expect(response2.body).to.deep.equal({
               ok: true,
             });
             // Verify nothing set now
             http.sendPostRequest(paths.DATA_USER_GET, tokens.serviceToken,
-              { key, user }, (err3, response3) => {
+              { key, requestor }, (err3, response3) => {
                 expect(err3).to.equal(null);
                 expect(response3.body).to.deep.equal({
                   ok: true,

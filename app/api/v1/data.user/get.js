@@ -1,15 +1,16 @@
 import db from '../../../db/userData';
 
-export default async function getHandler(key, user) {
-  this.logger.info(`data.user.get: key (${key}), user (${user})`);
+export default async function getHandler(key, requestor, owner) {
+  this.logger.info(`data.user.get: key (${key}), requestor (${requestor}), owner (${owner})`);
   const item = await db.get({
     key,
-    user,
+    owner,
+    requestor,
   });
 
   return item.Item ? {
     data: item.Item.data,
     key,
-    user,
+    user: requestor,
   } : undefined;
 }

@@ -19,7 +19,8 @@ See [Naming rules](common-names.html) for more information on names.
 |:---               |:---               |:---       |:---
 | `key`             | `achievements`    | Required  | The key whose stored value is to be updated.
 | `data`            | `{"achievementXYZ": true}`    | Required  | The object which is to be merged with the existing stored value.
-| `user`            | `<userID>`        | Optional  | The user whose stored value is to be updated. Required when a service token is used, otherwise is derived from the user auth token.
+| `requestor`   | `user_345`            | Optional  | The user making the request. Required if token type is service token.
+| `owner`       | `user_789`            | Optional  | The user whose data is being accessed. Defaults to `requestor` if not specified.
 
 ## Result
 

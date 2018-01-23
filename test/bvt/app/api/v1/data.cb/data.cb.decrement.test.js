@@ -9,13 +9,13 @@ import errors from '../../../../../../app/models/errors';
 const expect = chai.expect;
 
 const key = `uds.bvt.data.cb.decrement.test.${seed.buildNumber}`;
-const user = `data.admin.test.user.${seed.buildNumber}`;
+const requestor = `data.admin.test.requestor.${seed.buildNumber}`;
 
 describe('data.cb.decrement', () => {
   after((done) => {
     seed.calculatedBehavior.unset({
       key,
-      user,
+      user: requestor,
     }, done);
   });
 
@@ -24,7 +24,7 @@ describe('data.cb.decrement', () => {
       http.sendPostRequestSuccess(paths.DATA_CB_SET, tokens.serviceToken, {
         data: value,
         key,
-        user,
+        requestor,
       }, { ok: true }, (err) => {
         if (err) {
           return reject(err);
@@ -38,7 +38,7 @@ describe('data.cb.decrement', () => {
     return new Promise((resolve, reject) => {
       http.sendPostRequestSuccess(paths.DATA_CB_DECREMENT, tokens.serviceToken, {
         key,
-        user,
+        requestor,
       }, { ok: true }, (err) => {
         if (err) {
           return reject(err);
@@ -52,7 +52,7 @@ describe('data.cb.decrement', () => {
     return new Promise((resolve, reject) => {
       http.sendPostRequest(paths.DATA_CB_GET, tokens.serviceToken, {
         key,
-        user,
+        requestor,
       }, (err, res) => {
         if (err) {
           return reject(err);
@@ -66,7 +66,7 @@ describe('data.cb.decrement', () => {
   }
 
   it('prevents decrementing a key without an authorized service token', done => {
-    const params = { key, user }; // Valid request
+    const params = { key, requestor }; // Valid request
     const emptyToken = ''; // Missing token should fail
     const errorCode = errors.codes.ERROR_CODE_AUTH_NO_TOKEN;
 
@@ -75,14 +75,14 @@ describe('data.cb.decrement', () => {
 
   it('fails if the "key" parameter is not present', done => {
     http.sendPostRequestErrorDetails(paths.DATA_CB_INCREMENT, tokens.serviceToken, {
-      user,
+      requestor,
     }, 'missing_arg', 'Required argument "key" missing.', done);
   });
 
-  it('fails if the "user" parameter is not present', done => {
-    http.sendPostRequestErrorDetails(paths.DATA_CB_INCREMENT, tokens.serviceToken, {
+  it('fails if the "requestor" parameter is not present with a serviceToken', done => {
+    http.sendPostRequestError(paths.DATA_CB_INCREMENT, tokens.serviceToken, {
       key,
-    }, 'missing_arg', 'Required argument "user" missing.', done);
+    }, errors.codes.ERROR_CODE_USER_NOT_FOUND, done);
   });
 
   it('decrements a non-existing value', done => {
@@ -124,7 +124,7 @@ describe('data.cb.decrement', () => {
     .then(() => {
       http.sendPostRequestError(paths.DATA_CB_DECREMENT, tokens.serviceToken, {
         key,
-        user,
+        requestor,
       }, errors.codes.ERROR_CODE_INVALID_DATA_TYPE, done);
     });
   });
@@ -134,7 +134,7 @@ describe('data.cb.decrement', () => {
     .then(() => {
       http.sendPostRequestError(paths.DATA_CB_DECREMENT, tokens.serviceToken, {
         key,
-        user,
+        requestor,
       }, errors.codes.ERROR_CODE_INVALID_DATA_TYPE, done);
     });
   });
@@ -144,7 +144,7 @@ describe('data.cb.decrement', () => {
     .then(() => {
       http.sendPostRequestError(paths.DATA_CB_DECREMENT, tokens.serviceToken, {
         key,
-        user,
+        requestor,
       }, errors.codes.ERROR_CODE_INVALID_DATA_TYPE, done);
     });
   });

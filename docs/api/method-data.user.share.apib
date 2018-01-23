@@ -11,7 +11,8 @@ Share data for a given user.
 | `key`         | `annotation_id123`        | Required  | A unique key to identify the data being stored.
 | `authz`       | `shared_text`             | Required  | The name of the authorization mode to use.
 | `ctx`         | `id_123`                  | Required  | A context to be used for authorization.
-| `user`        | `user_345`                | Optional  | The user as which to get the data. Required if token type is service token.
+| `requestor`   | `user_345`            | Optional  | The user making the request. Required if token type is service token.
+| `owner`       | `user_789`            | Optional  | The user whose data is being accessed. Defaults to `requestor` if not specified.
 
 ## Result
 

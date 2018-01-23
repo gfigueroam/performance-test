@@ -1,11 +1,12 @@
 import db from '../../../db/appData';
 
-export default async function deleteHandler(key, app, user) {
-  this.logger.info(`data.app.delete: app (${app}), key (${key}), user (${user})`);
+export default async function deleteHandler(key, app, requestor, owner) {
+  this.logger.info(`data.app.delete: app (${app}), key (${key}), requestor (${requestor}), owner (${owner})`);
   await db.unset({
     app,
     key,
-    user,
+    owner,
+    requestor,
   });
 
   return undefined;

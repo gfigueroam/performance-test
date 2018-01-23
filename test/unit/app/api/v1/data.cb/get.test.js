@@ -8,7 +8,7 @@ import getHandler from '../../../../../../app/api/v1/data.cb/get';
 const expect = chai.expect;
 
 const key = 'test.data.user.set.name';
-const user = 'hmh-test-user.123';
+const requestor = 'hmh-test-user.123';
 const swatchCtx = { logger };
 
 let getStub;
@@ -35,18 +35,19 @@ describe('data.cb.get', () => {
     getStub.callsFake((params) => {
       expect(params).to.deep.equal({
         key,
-        user,
+        owner: undefined,
+        requestor,
       });
 
       return Promise.resolve({
         Item: {
           data: val,
           key,
-          user,
+          user: requestor,
         },
       });
     });
-    getHandler.apply(swatchCtx, [key, user]).then(result => {
+    getHandler.apply(swatchCtx, [key, requestor]).then(result => {
       expect(result).to.deep.equal(val);
       expect(calculatedBehavior.get.called).to.equal(true);
 
@@ -58,12 +59,13 @@ describe('data.cb.get', () => {
     getStub.callsFake((params) => {
       expect(params).to.deep.equal({
         key,
-        user,
+        owner: undefined,
+        requestor,
       });
 
       return Promise.resolve({});
     });
-    getHandler.apply(swatchCtx, [key, user]).then(result => {
+    getHandler.apply(swatchCtx, [key, requestor]).then(result => {
       expect(result).to.equal(undefined);
       expect(calculatedBehavior.get.called).to.equal(true);
 

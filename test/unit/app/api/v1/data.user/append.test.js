@@ -7,11 +7,11 @@ const expect = chai.expect;
 const key = 'test.data.user.append.name';
 const type = 'test';
 const data = 'Sample custom user text';
-const user = 'hmh-test-user.123';
+const requestor = 'hmh-test-user.123';
 
 describe('data.user.append', () => {
   it('returns no value', done => {
-    appendHandler(key, type, data, user).then(result => {
+    appendHandler(key, type, data, requestor).then(result => {
       expect(result).to.equal(undefined);
       done();
     }).catch(done);

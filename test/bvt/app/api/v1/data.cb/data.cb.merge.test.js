@@ -9,13 +9,13 @@ import errors from '../../../../../../app/models/errors';
 const expect = chai.expect;
 
 const key = `uds.bvt.data.cb.merge.test.${seed.buildNumber}`;
-const user = `data.admin.test.user.${seed.buildNumber}`;
+const requestor = `data.admin.test.requestor.${seed.buildNumber}`;
 
 describe('data.cb.merge', () => {
   after((done) => {
     seed.calculatedBehavior.unset({
       key,
-      user,
+      user: requestor,
     }, done);
   });
 
@@ -24,7 +24,7 @@ describe('data.cb.merge', () => {
       http.sendPostRequestSuccess(paths.DATA_CB_SET, tokens.serviceToken, {
         data: value,
         key,
-        user,
+        requestor,
       }, { ok: true }, (err) => {
         if (err) {
           return reject(err);
@@ -39,7 +39,7 @@ describe('data.cb.merge', () => {
       http.sendPostRequestSuccess(paths.DATA_CB_MERGE, tokens.serviceToken, {
         data,
         key,
-        user,
+        requestor,
       }, { ok: true }, (err) => {
         if (err) {
           return reject(err);
@@ -53,7 +53,7 @@ describe('data.cb.merge', () => {
     return new Promise((resolve, reject) => {
       http.sendPostRequest(paths.DATA_CB_GET, tokens.serviceToken, {
         key,
-        user,
+        requestor,
       }, (err, res) => {
         if (err) {
           return reject(err);
@@ -69,21 +69,21 @@ describe('data.cb.merge', () => {
   it('fails if the "key" parameter is not present', done => {
     http.sendPostRequestErrorDetails(paths.DATA_CB_MERGE, tokens.serviceToken, {
       data: {},
-      user,
+      requestor,
     }, 'missing_arg', 'Required argument "key" missing.', done);
   });
 
-  it('fails if the "user" parameter is not present', done => {
-    http.sendPostRequestErrorDetails(paths.DATA_CB_MERGE, tokens.serviceToken, {
+  it('fails if the "requestor" parameter is not present while using a service token', done => {
+    http.sendPostRequestError(paths.DATA_CB_MERGE, tokens.serviceToken, {
       data: {},
       key,
-    }, 'missing_arg', 'Required argument "user" missing.', done);
+    }, errors.codes.ERROR_CODE_USER_NOT_FOUND, done);
   });
 
   it('fails if the "data" parameter is not present', done => {
     http.sendPostRequestErrorDetails(paths.DATA_CB_MERGE, tokens.serviceToken, {
       key,
-      user,
+      requestor,
     }, 'missing_arg', 'Required argument "data" missing.', done);
   });
 
@@ -230,7 +230,7 @@ describe('data.cb.merge', () => {
       http.sendPostRequestError(paths.DATA_CB_MERGE, tokens.serviceToken, {
         data: {},
         key,
-        user,
+        requestor,
       }, errors.codes.ERROR_CODE_INVALID_DATA_TYPE, done);
     });
   });
@@ -241,7 +241,7 @@ describe('data.cb.merge', () => {
       http.sendPostRequestError(paths.DATA_CB_MERGE, tokens.serviceToken, {
         data: {},
         key,
-        user,
+        requestor,
       }, errors.codes.ERROR_CODE_INVALID_DATA_TYPE, done);
     });
   });
@@ -252,7 +252,7 @@ describe('data.cb.merge', () => {
       http.sendPostRequestError(paths.DATA_CB_MERGE, tokens.serviceToken, {
         data: {},
         key,
-        user,
+        requestor,
       }, errors.codes.ERROR_CODE_INVALID_DATA_TYPE, done);
     });
   });
@@ -263,7 +263,7 @@ describe('data.cb.merge', () => {
       http.sendPostRequestError(paths.DATA_CB_MERGE, tokens.serviceToken, {
         data: 4,
         key,
-        user,
+        requestor,
       }, errors.codes.ERROR_CODE_INVALID_DATA, done);
     });
   });
@@ -274,7 +274,7 @@ describe('data.cb.merge', () => {
       http.sendPostRequestError(paths.DATA_CB_MERGE, tokens.serviceToken, {
         data: true,
         key,
-        user,
+        requestor,
       }, errors.codes.ERROR_CODE_INVALID_DATA, done);
     });
   });
@@ -285,7 +285,7 @@ describe('data.cb.merge', () => {
       http.sendPostRequestError(paths.DATA_CB_MERGE, tokens.serviceToken, {
         data: 12.45,
         key,
-        user,
+        requestor,
       }, errors.codes.ERROR_CODE_INVALID_DATA, done);
     });
   });
@@ -296,7 +296,7 @@ describe('data.cb.merge', () => {
       http.sendPostRequestError(paths.DATA_CB_MERGE, tokens.serviceToken, {
         data: 'some string that we are trying to merge',
         key,
-        user,
+        requestor,
       }, errors.codes.ERROR_CODE_INVALID_DATA, done);
     });
   });

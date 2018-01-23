@@ -8,7 +8,7 @@ import unsetHandler from '../../../../../../app/api/v1/data.cb/unset';
 const expect = chai.expect;
 
 const key = 'test.data.user.set.name';
-const user = 'hmh-test-user.123';
+const requestor = 'hmh-test-user.123';
 const swatchCtx = { logger };
 
 describe('data.cb.unset', () => {
@@ -20,10 +20,11 @@ describe('data.cb.unset', () => {
     sinon.stub(calculatedBehavior, 'unset').callsFake((params) => {
       expect(params).to.deep.equal({
         key,
-        user,
+        owner: undefined,
+        requestor,
       });
     });
-    unsetHandler.apply(swatchCtx, [key, user]).then(result => {
+    unsetHandler.apply(swatchCtx, [key, requestor]).then(result => {
       expect(result).to.equal(undefined);
       expect(calculatedBehavior.unset.called).to.equal(true);
       done();

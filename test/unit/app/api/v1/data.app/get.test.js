@@ -9,7 +9,7 @@ const expect = chai.expect;
 
 const key = 'test.data.app.get.key';
 const app = 'test.data.app.get.app';
-const user = 'hmh-test-user.123';
+const requestor = 'hmh-test-user.123';
 const swatchCtx = { logger };
 
 describe('data.app.get', () => {
@@ -21,13 +21,14 @@ describe('data.app.get', () => {
       expect(params).to.deep.equal({
         app,
         key,
-        user,
+        owner: undefined,
+        requestor,
       });
       return Promise.resolve({
         Item: undefined,
       });
     });
-    getHandler.apply(swatchCtx, [key, app, user]).then(result => {
+    getHandler.apply(swatchCtx, [key, app, requestor]).then(result => {
       expect(result).to.deep.equal(undefined);
       done();
     }).catch(done);

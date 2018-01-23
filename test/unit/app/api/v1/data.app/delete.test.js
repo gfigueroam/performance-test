@@ -9,7 +9,7 @@ const expect = chai.expect;
 
 const key = 'test.data.app.delete.key';
 const app = 'test.data.app.delete.app';
-const user = 'hmh-test-user.123';
+const requestor = 'hmh-test-user.123';
 const swatchCtx = { logger };
 
 describe('data.app.delete', () => {
@@ -22,11 +22,12 @@ describe('data.app.delete', () => {
       expect(params).to.deep.equal({
         app,
         key,
-        user,
+        owner: undefined,
+        requestor,
       });
       return Promise.resolve(undefined);
     });
-    deleteHandler.apply(swatchCtx, [key, app, user]).then(result => {
+    deleteHandler.apply(swatchCtx, [key, app, requestor]).then(result => {
       expect(result).to.equal(undefined);
       done();
     }).catch(done);

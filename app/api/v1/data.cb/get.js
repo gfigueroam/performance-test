@@ -1,10 +1,11 @@
 import db from '../../../db/calculatedBehavior';
 
-export default async function getHandler(key, user) {
-  this.logger.info(`data.cb.get: key (${key}), user (${user})`);
+export default async function getHandler(key, requestor, owner) {
+  this.logger.info(`data.cb.get: key (${key}), requestor (${requestor}), owner (${owner})`);
   const item = await db.get({
     key,
-    user,
+    owner,
+    requestor,
   });
 
   return item.Item ? item.Item.data : undefined;

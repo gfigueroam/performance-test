@@ -9,13 +9,13 @@ import errors from '../../../../../../app/models/errors';
 const expect = chai.expect;
 
 const key = `uds.bvt.data.cb.get.test.${seed.buildNumber}`;
-const user = 'data.admin.test.user.1';
+const requestor = 'data.admin.test.requestor.1';
 
 describe('data.cb.get', () => {
   after((done) => {
     seed.calculatedBehavior.unset({
       key,
-      user,
+      user: requestor,
     }, done);
   });
 
@@ -24,7 +24,7 @@ describe('data.cb.get', () => {
       http.sendPostRequestSuccess(paths.DATA_CB_SET, tokens.serviceToken, {
         data: value,
         key,
-        user,
+        requestor,
       }, { ok: true }, (err) => {
         if (err) {
           return reject(err);
@@ -38,7 +38,7 @@ describe('data.cb.get', () => {
     return new Promise((resolve, reject) => {
       http.sendPostRequest(paths.DATA_CB_GET, tokens.serviceToken, {
         key,
-        user,
+        requestor,
       }, (err, res) => {
         if (err) {
           return reject(err);
@@ -51,16 +51,16 @@ describe('data.cb.get', () => {
     });
   }
 
-  it('fails if the "user" parameter is not present', done => {
-    http.sendPostRequestErrorDetails(paths.DATA_CB_GET, tokens.serviceToken, {
-      user,
-    }, 'missing_arg', 'Required argument "key" missing.', done);
+  it('fails if the "requestor" parameter is not present when using a service token', done => {
+    http.sendPostRequestError(paths.DATA_CB_GET, tokens.serviceToken, {
+      key,
+    }, errors.codes.ERROR_CODE_USER_NOT_FOUND, done);
   });
 
   it('fails if the "key" parameter is not present', done => {
     http.sendPostRequestErrorDetails(paths.DATA_CB_GET, tokens.serviceToken, {
-      key,
-    }, 'missing_arg', 'Required argument "user" missing.', done);
+      requestor,
+    }, 'missing_arg', 'Required argument "key" missing.', done);
   });
 
   it('returns a stored boolean value', done => {
@@ -130,7 +130,7 @@ describe('data.cb.get', () => {
     new Promise((resolve, reject) => {
       http.sendPostRequest(paths.DATA_CB_GET, tokens.serviceToken, {
         key: 'invalid-key',
-        user,
+        requestor,
       }, (err, res) => {
         if (err) {
           return reject(err);
@@ -153,7 +153,7 @@ describe('data.cb.get', () => {
     new Promise((resolve, reject) => {
       http.sendPostRequest(paths.DATA_CB_GET, tokens.serviceToken, {
         key: 'non.existent.bvt.key',
-        user,
+        requestor,
       }, (err, res) => {
         if (err) {
           return reject(err);

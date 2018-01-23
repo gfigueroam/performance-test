@@ -1,15 +1,26 @@
 import sizeof from 'object-sizeof';
+import errors from '../models/errors';
 
 import nconf from '../config';
 import dynamodbClient from './dynamoDBClient';
 import constants from '../utils/constants';
+import auth from '../auth';
 
 async function getConsumedQuota(params) {
-  if (!params.user) {
-    throw new Error('Parameter "user" is required.');
+  if (!params.requestor) {
+    throw new Error('Parameter "requestor" is required.');
   }
   if (!params.app) {
     throw new Error('Parameter "app" is required.');
+  }
+  // If owner is not specified, default to the requestor.
+  if (!params.owner) {
+    params.owner = params.requestor;
+  }
+  // Verify requestor has access to owner's data.
+  const allowed = await auth.ids.hasAccessTo(params.requestor, params.owner);
+  if (!allowed) {
+    throw new Error(errors.codes.ERROR_CODE_AUTH_INVALID);
   }
 
   let lastEvaluatedKey;
@@ -20,7 +31,7 @@ async function getConsumedQuota(params) {
         '#appUser': 'appUser',
       },
       ExpressionAttributeValues: {
-        ':appUser': `${params.app}${constants.DELIMITER}${params.user}`,
+        ':appUser': `${params.app}${constants.DELIMITER}${params.owner}`,
       },
       KeyConditionExpression: '#appUser = :appUser',
       Select: 'ALL_ATTRIBUTES', // Return full items

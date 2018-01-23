@@ -14,7 +14,7 @@ const expect = chai.expect;
 
 const documentClientStub = sinon.createStubInstance(AWS.DynamoDB.DocumentClient);
 
-const user = 'unittest.calculatedBehavior.user';
+const requestor = 'unittest.calculatedBehavior.user';
 const key = 'unittest.calculatedBehavior.key';
 
 describe('calculatedBehavior', () => {
@@ -29,7 +29,7 @@ describe('calculatedBehavior', () => {
   });
 
   describe('merge', () => {
-    it('throws an error if "user" is not passed in the params', async () => {
+    it('throws an error if "requestor" is not passed in the params', async () => {
       try {
         await calculatedBehavior.merge({
           data: {},
@@ -45,7 +45,7 @@ describe('calculatedBehavior', () => {
       try {
         await calculatedBehavior.merge({
           data: {},
-          user,
+          requestor,
         });
         return Promise.reject();
       } catch (err) {
@@ -57,7 +57,7 @@ describe('calculatedBehavior', () => {
       try {
         await calculatedBehavior.merge({
           key,
-          user,
+          requestor,
         });
         return Promise.reject();
       } catch (err) {
@@ -70,7 +70,7 @@ describe('calculatedBehavior', () => {
       documentClientStub.get.callsFake(params => {
         expect(params.Key).to.deep.equal({
           key,
-          user,
+          user: requestor,
         });
         expect(params).to.have.all.keys('Key', 'TableName');
         return {
@@ -86,7 +86,7 @@ describe('calculatedBehavior', () => {
         await calculatedBehavior.merge({
           data: {},
           key,
-          user,
+          requestor,
         });
       } catch (err) {
         expect(err.message).to.equal(errors.codes.ERROR_CODE_INVALID_DATA_TYPE);
@@ -104,7 +104,7 @@ describe('calculatedBehavior', () => {
       documentClientStub.get.callsFake(params => {
         expect(params.Key).to.deep.equal({
           key,
-          user,
+          user: requestor,
         });
         expect(params).to.have.all.keys('Key', 'TableName');
         return {
@@ -119,7 +119,7 @@ describe('calculatedBehavior', () => {
         expect(params.Item).to.deep.equal({
           data,
           key,
-          user,
+          user: requestor,
         });
 
         expect(params.ConditionExpression).to.equal('attribute_not_exists(#data)');
@@ -134,7 +134,7 @@ describe('calculatedBehavior', () => {
         await calculatedBehavior.merge({
           data,
           key,
-          user,
+          requestor,
         });
 
         return Promise.resolve();
@@ -148,7 +148,7 @@ describe('calculatedBehavior', () => {
       documentClientStub.get.callsFake(params => {
         expect(params.Key).to.deep.equal({
           key,
-          user,
+          user: requestor,
         });
         expect(params).to.have.all.keys('Key', 'TableName');
         return {
@@ -170,7 +170,7 @@ describe('calculatedBehavior', () => {
 
         expect(params.Key).to.deep.equal({
           key,
-          user,
+          user: requestor,
         });
 
         expect(params.ExpressionAttributeValues[':value']).to.deep.equal({
@@ -194,7 +194,7 @@ describe('calculatedBehavior', () => {
             someKey: 'replacementValue',
           },
           key,
-          user,
+          requestor,
         });
 
         return Promise.resolve();
@@ -205,7 +205,7 @@ describe('calculatedBehavior', () => {
   });
 
   describe('atomicUpdate', () => {
-    it('throws an error if "user" is not passed in the params', async () => {
+    it('throws an error if "requestor" is not passed in the params', async () => {
       try {
         await calculatedBehavior.atomicUpdate({
           key,
@@ -220,7 +220,7 @@ describe('calculatedBehavior', () => {
     it('throws an error if "key" is not passed in the params', async () => {
       try {
         await calculatedBehavior.atomicUpdate({
-          user,
+          requestor,
           value: 1,
         });
         return Promise.reject();
@@ -233,7 +233,7 @@ describe('calculatedBehavior', () => {
       try {
         await calculatedBehavior.atomicUpdate({
           key,
-          user,
+          requestor,
         });
         return Promise.reject();
       } catch (err) {
@@ -246,7 +246,7 @@ describe('calculatedBehavior', () => {
       documentClientStub.get.callsFake(params => {
         expect(params.Key).to.deep.equal({
           key,
-          user,
+          user: requestor,
         });
         expect(params).to.have.all.keys('Key', 'TableName');
         return {
@@ -261,7 +261,7 @@ describe('calculatedBehavior', () => {
       try {
         await calculatedBehavior.atomicUpdate({
           key,
-          user,
+          requestor,
           value: 1,
         });
       } catch (err) {
@@ -277,7 +277,7 @@ describe('calculatedBehavior', () => {
       documentClientStub.get.callsFake(params => {
         expect(params.Key).to.deep.equal({
           key,
-          user,
+          user: requestor,
         });
         expect(params).to.have.all.keys('Key', 'TableName');
         return {
@@ -296,7 +296,7 @@ describe('calculatedBehavior', () => {
 
         expect(params.Key).to.deep.equal({
           key,
-          user,
+          user: requestor,
         });
 
         expect(params.ExpressionAttributeValues[':value']).to.equal(1);
@@ -307,7 +307,7 @@ describe('calculatedBehavior', () => {
       });
       calculatedBehavior.atomicUpdate({
         key,
-        user,
+        requestor,
         value: 1,
       })
       .then(done)
@@ -319,7 +319,7 @@ describe('calculatedBehavior', () => {
       documentClientStub.get.callsFake(params => {
         expect(params.Key).to.deep.equal({
           key,
-          user,
+          user: requestor,
         });
         expect(params).to.have.all.keys('Key', 'TableName');
         return {
@@ -337,7 +337,7 @@ describe('calculatedBehavior', () => {
         expect(params.Item).to.deep.equal({
           data: 1,
           key,
-          user,
+          user: requestor,
         });
 
         return {
@@ -346,7 +346,7 @@ describe('calculatedBehavior', () => {
       });
       calculatedBehavior.atomicUpdate({
         key,
-        user,
+        requestor,
         value: 1,
       })
       .then(done)
@@ -355,7 +355,7 @@ describe('calculatedBehavior', () => {
   });
 
   describe('set', () => {
-    it('throws an error if "user" is not passed in the params', async () => {
+    it('throws an error if "requestor" is not passed in the params', async () => {
       try {
         await calculatedBehavior.set({
           data: true,
@@ -371,7 +371,7 @@ describe('calculatedBehavior', () => {
       try {
         await calculatedBehavior.set({
           data: true,
-          user,
+          requestor,
         });
         return Promise.reject();
       } catch (err) {
@@ -383,7 +383,7 @@ describe('calculatedBehavior', () => {
       try {
         await calculatedBehavior.set({
           key,
-          user,
+          requestor,
         });
         return Promise.reject();
       } catch (err) {
@@ -397,7 +397,7 @@ describe('calculatedBehavior', () => {
         expect(params.Item).to.deep.equal({
           data,
           key,
-          user,
+          user: requestor,
         });
         expect(params).to.have.all.keys('Item', 'TableName');
         return {
@@ -407,7 +407,7 @@ describe('calculatedBehavior', () => {
       calculatedBehavior.set({
         data,
         key,
-        user,
+        requestor,
       })
       .then(done)
       .catch(done);
@@ -415,7 +415,7 @@ describe('calculatedBehavior', () => {
   });
 
   describe('unset', () => {
-    it('throws an error if "user" is not passed in the params', async () => {
+    it('throws an error if "requestor" is not passed in the params', async () => {
       try {
         await calculatedBehavior.unset({
           key,
@@ -429,7 +429,7 @@ describe('calculatedBehavior', () => {
     it('throws an error if "key" is not passed in the params', async () => {
       try {
         await calculatedBehavior.unset({
-          user,
+          requestor,
         });
         return Promise.reject();
       } catch (err) {
@@ -441,7 +441,7 @@ describe('calculatedBehavior', () => {
       documentClientStub.delete.callsFake(params => {
         expect(params.Key).to.deep.equal({
           key,
-          user,
+          user: requestor,
         });
         expect(params).to.have.all.keys('Key', 'TableName');
         return {
@@ -450,7 +450,7 @@ describe('calculatedBehavior', () => {
       });
       calculatedBehavior.unset({
         key,
-        user,
+        requestor,
       })
       .then(done)
       .catch(done);
@@ -458,7 +458,7 @@ describe('calculatedBehavior', () => {
   });
 
   describe('get', () => {
-    it('throws an error if "user" is not passed in the params', async () => {
+    it('throws an error if "requestor" is not passed in the params', async () => {
       try {
         await calculatedBehavior.get({
           key,
@@ -472,7 +472,7 @@ describe('calculatedBehavior', () => {
     it('throws an error if "key" is not passed in the params', async () => {
       try {
         await calculatedBehavior.get({
-          user,
+          requestor,
         });
         return Promise.reject();
       } catch (err) {
@@ -484,7 +484,7 @@ describe('calculatedBehavior', () => {
       documentClientStub.get.callsFake(params => {
         expect(params.Key).to.deep.equal({
           key,
-          user,
+          user: requestor,
         });
         expect(params).to.have.all.keys('Key', 'TableName');
         return {
@@ -493,7 +493,7 @@ describe('calculatedBehavior', () => {
       });
       calculatedBehavior.get({
         key,
-        user,
+        requestor,
       })
       .then(done)
       .catch(done);

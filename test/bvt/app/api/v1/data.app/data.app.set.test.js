@@ -11,7 +11,7 @@ const expect = chai.expect;
 
 const app = `uds.bvt.data.app.set.app.${seed.buildNumber}`;
 const key = `uds.bvt.data.app.set.test.${seed.buildNumber}`;
-const user = 'data.user.test.user.1';
+const requestor = 'data.requestor.test.requestor.1';
 const data = {
   key1: true,
   key2: 'some string',
@@ -33,7 +33,7 @@ describe('data.app.set', () => {
     await seed.app.remove({
       app,
       key,
-      user,
+      user: requestor,
     });
   });
 
@@ -42,7 +42,7 @@ describe('data.app.set', () => {
       app: 'invalid-app-name',
       data,
       key,
-      user,
+      requestor,
     }, (err, response) => {
       expect(err).to.equal(null);
       expect(response.body).to.deep.equal({
@@ -58,7 +58,7 @@ describe('data.app.set', () => {
       app: 'non.existent.app',
       data,
       key,
-      user,
+      requestor,
     }, (err, response) => {
       expect(err).to.equal(null);
       expect(response.body).to.deep.equal({
@@ -74,7 +74,7 @@ describe('data.app.set', () => {
       app,
       data: 'some invalid data',
       key,
-      user,
+      requestor,
     }, (err, response) => {
       expect(err).to.equal(null);
       expect(response.body).to.deep.equal({
@@ -90,7 +90,7 @@ describe('data.app.set', () => {
       app,
       data,
       key,
-      user,
+      requestor,
     }, (err, response) => {
       expect(err).to.equal(null);
       expect(response.body).to.deep.equal({
@@ -100,7 +100,7 @@ describe('data.app.set', () => {
       http.sendPostRequest(paths.DATA_APP_GET, tokens.serviceToken, {
         app,
         key,
-        user,
+        requestor,
       }, (err2, response2) => {
         expect(err2).to.equal(null);
         expect(response2.body).to.deep.equal({
@@ -127,7 +127,7 @@ describe('data.app.set', () => {
       app,
       data: largeData,
       key,
-      user,
+      requestor,
     }, (err, response) => {
       expect(err).to.equal(null);
       expect(response.body).to.deep.equal({
@@ -150,13 +150,14 @@ describe('data.app.set', () => {
 
     // Since data is just less than half of the quota, we should be able to store it once.
     // A second store would theoretically take up less than the quota, except we
-    // consider the other fields to count against quota (eg, appKey, appUser, user, and key).
+    // consider the other fields to count against quota
+    // (eg, appKey, apprequestor, requestor, and key).
     // Those add just enough overhead that a second attempt to store will fail.
     http.sendPostRequest(paths.DATA_APP_SET, tokens.serviceToken, {
       app,
       data: halfQuotaData,
       key,
-      user: `${user}.2`,
+      requestor: `${requestor}.2`,
     }, (err, response) => {
       expect(err).to.equal(null);
       expect(response.body).to.deep.equal({
@@ -167,7 +168,7 @@ describe('data.app.set', () => {
         app,
         data: halfQuotaData,
         key: `${key}.2`,
-        user: `${user}.2`,
+        requestor: `${requestor}.2`,
       }, (err2, response2) => {
         expect(err2).to.equal(null);
         expect(response2.body).to.deep.equal({

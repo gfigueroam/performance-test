@@ -5,7 +5,7 @@ import userData from '../../../../app/db/userData';
 
 const expect = chai.expect;
 
-const user = 'unittest.userData.user';
+const requestor = 'unittest.userData.user';
 const key = 'unittest.userData.key';
 const data = 'some data';
 const type = 'text';
@@ -17,8 +17,9 @@ describe('userData', () => {
         app: 'hmh',
         data,
         key,
+        owner: requestor,
+        requestor,
         type,
-        user,
       });
       return undefined;
     });
@@ -26,7 +27,8 @@ describe('userData', () => {
       expect(params).to.deep.equal({
         app: 'hmh',
         key,
-        user,
+        owner: requestor,
+        requestor,
       });
       return {};
     });
@@ -34,14 +36,16 @@ describe('userData', () => {
       expect(params).to.deep.equal({
         app: 'hmh',
         key,
-        user,
+        owner: requestor,
+        requestor,
       });
       return undefined;
     });
     sinon.stub(appData, 'list').callsFake(params => {
       expect(params).to.deep.equal({
         app: 'hmh',
-        user,
+        owner: requestor,
+        requestor,
       });
       return {
         Items: [],
@@ -56,7 +60,7 @@ describe('userData', () => {
   });
 
   describe('set', () => {
-    it('throws an error if "user" is not passed in the params', async () => {
+    it('throws an error if "requestor" is not passed in the params', async () => {
       try {
         await userData.set({
           data: true,
@@ -72,7 +76,7 @@ describe('userData', () => {
       try {
         await userData.set({
           data: true,
-          user,
+          requestor,
         });
         return Promise.reject();
       } catch (err) {
@@ -84,7 +88,7 @@ describe('userData', () => {
       try {
         await userData.set({
           key,
-          user,
+          requestor,
         });
         return Promise.reject();
       } catch (err) {
@@ -97,7 +101,7 @@ describe('userData', () => {
         await userData.set({
           data,
           key,
-          user,
+          requestor,
         });
         return Promise.reject();
       } catch (err) {
@@ -109,8 +113,9 @@ describe('userData', () => {
       userData.set({
         data,
         key,
+        owner: requestor,
+        requestor,
         type,
-        user,
       })
       .then(done)
       .catch(done);
@@ -118,7 +123,7 @@ describe('userData', () => {
   });
 
   describe('unset', () => {
-    it('throws an error if "user" is not passed in the params', async () => {
+    it('throws an error if "requestor" is not passed in the params', async () => {
       try {
         await userData.unset({
           key,
@@ -132,7 +137,7 @@ describe('userData', () => {
     it('throws an error if "key" is not passed in the params', async () => {
       try {
         await userData.unset({
-          user,
+          requestor,
         });
         return Promise.reject();
       } catch (err) {
@@ -143,7 +148,7 @@ describe('userData', () => {
     it('calls appData.unset with "hmh" as the app param', (done) => {
       userData.unset({
         key,
-        user,
+        requestor,
       })
       .then(done)
       .catch(done);
@@ -151,7 +156,7 @@ describe('userData', () => {
   });
 
   describe('get', () => {
-    it('throws an error if "user" is not passed in the params', async () => {
+    it('throws an error if "requestor" is not passed in the params', async () => {
       try {
         await userData.get({
           key,
@@ -165,7 +170,7 @@ describe('userData', () => {
     it('throws an error if "key" is not passed in the params', async () => {
       try {
         await userData.get({
-          user,
+          requestor,
         });
         return Promise.reject();
       } catch (err) {
@@ -176,7 +181,7 @@ describe('userData', () => {
     it('calls appData.get with "hmh" as the app name', (done) => {
       userData.get({
         key,
-        user,
+        requestor,
       })
       .then((response) => {
         expect(response).to.deep.equal({});
@@ -187,7 +192,7 @@ describe('userData', () => {
   });
 
   describe('list', () => {
-    it('throws an error if "user" is not passed in the params', async () => {
+    it('throws an error if "requestor" is not passed in the params', async () => {
       try {
         await userData.list({
         });
@@ -199,7 +204,7 @@ describe('userData', () => {
 
     it('calls appData.list with "hmh" as the app name', (done) => {
       userData.list({
-        user,
+        requestor,
       })
       .then((response) => {
         expect(response).to.deep.equal({

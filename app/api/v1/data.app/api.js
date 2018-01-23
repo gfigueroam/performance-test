@@ -25,7 +25,13 @@ export default {
         validate: validators.strings.validateApp,
       },
       {
-        name: 'user',
+        name: 'requestor',
+        parse: parsers.strings.parseOptionalString,
+        validate: validators.strings.validateOptionalUser,
+      },
+      {
+        name: 'owner',
+        optional: true,
         parse: parsers.strings.parseOptionalString,
         validate: validators.strings.validateOptionalUser,
       },
@@ -52,7 +58,13 @@ export default {
         validate: validators.strings.validateApp,
       },
       {
-        name: 'user',
+        name: 'requestor',
+        parse: parsers.strings.parseOptionalString,
+        validate: validators.strings.validateOptionalUser,
+      },
+      {
+        name: 'owner',
+        optional: true,
         parse: parsers.strings.parseOptionalString,
         validate: validators.strings.validateOptionalUser,
       },
@@ -68,7 +80,13 @@ export default {
         validate: validators.strings.validateApp,
       },
       {
-        name: 'user',
+        name: 'requestor',
+        parse: parsers.strings.parseOptionalString,
+        validate: validators.strings.validateOptionalUser,
+      },
+      {
+        name: 'owner',
+        optional: true,
         parse: parsers.strings.parseOptionalString,
         validate: validators.strings.validateOptionalUser,
       },
@@ -90,7 +108,13 @@ export default {
         validate: validators.strings.validateApp,
       },
       {
-        name: 'user',
+        name: 'requestor',
+        parse: parsers.strings.parseOptionalString,
+        validate: validators.strings.validateOptionalUser,
+      },
+      {
+        name: 'owner',
+        optional: true,
         parse: parsers.strings.parseOptionalString,
         validate: validators.strings.validateOptionalUser,
       },
@@ -117,7 +141,13 @@ export default {
         validate: validators.strings.validateApp,
       },
       {
-        name: 'user',
+        name: 'requestor',
+        parse: parsers.strings.parseOptionalString,
+        validate: validators.strings.validateOptionalUser,
+      },
+      {
+        name: 'owner',
+        optional: true,
         parse: parsers.strings.parseOptionalString,
         validate: validators.strings.validateOptionalUser,
       },

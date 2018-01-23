@@ -8,7 +8,7 @@ import getHandler from '../../../../../../app/api/v1/data.user/get';
 const expect = chai.expect;
 
 const key = 'test.data.user.get.name';
-const user = 'hmh-test-user.123';
+const requestor = 'hmh-test-user.123';
 const data = 'some data';
 const swatchCtx = { logger };
 
@@ -27,14 +27,15 @@ describe('data.user.get', () => {
     getStub.callsFake((params) => {
       expect(params).to.deep.equal({
         key,
-        user,
+        owner: undefined,
+        requestor,
       });
 
       return Promise.resolve({
         Item: undefined,
       });
     });
-    getHandler.apply(swatchCtx, [key, user]).then(result => {
+    getHandler.apply(swatchCtx, [key, requestor]).then(result => {
       expect(result).to.deep.equal(undefined);
       done();
     }).catch(done);
@@ -44,22 +45,23 @@ describe('data.user.get', () => {
     getStub.callsFake((params) => {
       expect(params).to.deep.equal({
         key,
-        user,
+        owner: undefined,
+        requestor,
       });
 
       return Promise.resolve({
         Item: {
           data,
           key,
-          user,
+          user: requestor,
         },
       });
     });
-    getHandler.apply(swatchCtx, [key, user]).then(result => {
+    getHandler.apply(swatchCtx, [key, requestor]).then(result => {
       expect(result).to.deep.equal({
         data,
         key,
-        user,
+        user: requestor,
       });
       done();
     }).catch(done);

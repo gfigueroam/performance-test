@@ -1,10 +1,11 @@
 import db from '../../../db/userData';
 
-export default async function deleteHandler(key, user) {
-  this.logger.info(`data.user.get: key (${key}), user (${user})`);
+export default async function deleteHandler(key, requestor, owner) {
+  this.logger.info(`data.user.get: key (${key}), requestor (${requestor}), owner (${owner})`);
   await db.unset({
     key,
-    user,
+    owner,
+    requestor,
   });
 
   return undefined;

@@ -11,7 +11,7 @@ const expect = chai.expect;
 const app = `uds.bvt.data.app.list.app.${seed.buildNumber}`;
 const key1 = `uds.bvt.data.app.list.test.1.${seed.buildNumber}`;
 const key2 = `uds.bvt.data.app.list.test.2.${seed.buildNumber}`;
-const user = `data.app.test.user.${seed.buildNumber}`;
+const requestor = `data.app.test.requestor.${seed.buildNumber}`;
 const data = {};
 
 describe('data.app.list', () => {
@@ -25,20 +25,20 @@ describe('data.app.list', () => {
     await seed.app.remove({
       app,
       key: key1,
-      user,
+      user: requestor,
     });
 
     await seed.app.remove({
       app,
       key: key2,
-      user,
+      user: requestor,
     });
   });
 
   it('returns app_not_found when the app is not registered', (done) => {
     http.sendPostRequest(paths.DATA_APP_LIST, tokens.serviceToken, {
       app: 'non.existent.app',
-      user,
+      requestor,
     }, (err, response) => {
       expect(err).to.equal(null);
       expect(response.body).to.deep.equal({
@@ -52,7 +52,7 @@ describe('data.app.list', () => {
   it('returns an empty list when no keys are set', (done) => {
     http.sendPostRequest(paths.DATA_APP_LIST, tokens.serviceToken, {
       app,
-      user,
+      requestor,
     }, (err, response) => {
       expect(err).to.equal(null);
       expect(response.body).to.deep.equal({
@@ -70,12 +70,12 @@ describe('data.app.list', () => {
       app,
       data,
       key: key1,
-      user,
+      user: requestor,
     });
     return new Promise((resolve) => {
       http.sendPostRequest(paths.DATA_APP_LIST, tokens.serviceToken, {
         app,
-        user,
+        requestor,
       }, (err, response) => {
         expect(err).to.equal(null);
         expect(response.body).to.deep.equal({
@@ -94,12 +94,12 @@ describe('data.app.list', () => {
       app,
       data,
       key: key2,
-      user,
+      user: requestor,
     });
     return new Promise((resolve) => {
       http.sendPostRequest(paths.DATA_APP_LIST, tokens.serviceToken, {
         app,
-        user,
+        requestor,
       }, (err, response) => {
         expect(err).to.equal(null);
         expect(response.body).to.deep.equal({

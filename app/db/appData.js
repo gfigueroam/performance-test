@@ -7,16 +7,26 @@ import errors from '../models/errors';
 import constants from '../utils/constants';
 import logger from '../monitoring/logger';
 import quota from './quota';
+import auth from '../auth';
 
 async function get(params) {
   if (!params.key) {
     throw new Error('Parameter "key" is required.');
   }
-  if (!params.user) {
-    throw new Error('Parameter "user" is required.');
+  if (!params.requestor) {
+    throw new Error('Parameter "requestor" is required.');
   }
   if (!params.app) {
     throw new Error('Parameter "app" is required.');
+  }
+  // If owner is not specified, default to the requestor.
+  if (!params.owner) {
+    params.owner = params.requestor;
+  }
+  // Verify requestor has access to owner's data.
+  const allowed = await auth.ids.hasAccessTo(params.requestor, params.owner);
+  if (!allowed) {
+    throw new Error(errors.codes.ERROR_CODE_AUTH_INVALID);
   }
 
   if (params.app !== constants.HMH_APP) {
@@ -27,7 +37,7 @@ async function get(params) {
 
   const getResult = await dynamodbClient.instrumented('get', {
     Key: {
-      appUser: `${params.app}${constants.DELIMITER}${params.user}`,
+      appUser: `${params.app}${constants.DELIMITER}${params.owner}`,
       key: params.key,
     },
     TableName: nconf.get('database').appDataJsonTableName,
@@ -43,11 +53,20 @@ async function set(params) {
   if (!params.key) {
     throw new Error('Parameter "key" is required.');
   }
-  if (!params.user) {
-    throw new Error('Parameter "user" is required.');
+  if (!params.requestor) {
+    throw new Error('Parameter "requestor" is required.');
   }
   if (!params.data) {
     throw new Error('Parameter "data" is required.');
+  }
+  // If owner is not specified, default to the requestor.
+  if (!params.owner) {
+    params.owner = params.requestor;
+  }
+  // Verify requestor has access to owner's data.
+  const allowed = await auth.ids.hasAccessTo(params.requestor, params.owner);
+  if (!allowed) {
+    throw new Error(errors.codes.ERROR_CODE_AUTH_INVALID);
   }
 
   if (params.app !== constants.HMH_APP) {
@@ -65,11 +84,11 @@ async function set(params) {
   await dynamodbClient.instrumented('put', {
     Item: {
       appKey: `${params.app}${constants.DELIMITER}${params.key}`,
-      appUser: `${params.app}${constants.DELIMITER}${params.user}`,
+      appUser: `${params.app}${constants.DELIMITER}${params.owner}`,
       data: params.data,
       key: params.key,
       type: params.type,
-      user: params.user,
+      user: params.owner,
     },
     TableName: nconf.get('database').appDataJsonTableName,
   });
@@ -78,14 +97,23 @@ async function set(params) {
 }
 
 async function merge(params) {
-  if (!params.user) {
-    throw new Error('Parameter "user" is required.');
+  if (!params.requestor) {
+    throw new Error('Parameter "requestor" is required.');
   }
   if (!params.key) {
     throw new Error('Parameter "key" is required.');
   }
   if (!params.data) {
     throw new Error('Parameter "data" is required.');
+  }
+  // If owner is not specified, default to the requestor.
+  if (!params.owner) {
+    params.owner = params.requestor;
+  }
+  // Verify requestor has access to owner's data.
+  const allowed = await auth.ids.hasAccessTo(params.requestor, params.owner);
+  if (!allowed) {
+    throw new Error(errors.codes.ERROR_CODE_AUTH_INVALID);
   }
 
   if (params.app !== constants.HMH_APP) {
@@ -103,7 +131,7 @@ async function merge(params) {
   // Look up the current value that already exists.
   const currentValue = await dynamodbClient.instrumented('get', {
     Key: {
-      appUser: `${params.app}${constants.DELIMITER}${params.user}`,
+      appUser: `${params.app}${constants.DELIMITER}${params.owner}`,
       key: params.key,
     },
     TableName: nconf.get('database').appDataJsonTableName,
@@ -132,7 +160,7 @@ async function merge(params) {
           ':value': newValue,
         },
         Key: {
-          appUser: `${params.app}${constants.DELIMITER}${params.user}`,
+          appUser: `${params.app}${constants.DELIMITER}${params.owner}`,
           key: params.key,
         },
         TableName: nconf.get('database').appDataJsonTableName,
@@ -143,7 +171,7 @@ async function merge(params) {
     }
 
     // Not an object value - this should never happen.
-    logger.error(`Found a non-object data type in app data for key ${params.key}, user ${params.user}, app ${params.app}.`);
+    logger.error(`Found a non-object data type in app data for key ${params.key}, user ${params.owner}, app ${params.app}.`);
     throw new Error(errors.codes.ERROR_CODE_INVALID_DATA_TYPE);
   } else {
     // There is not an existing value, so store the new value as though the previous value was {}.
@@ -156,11 +184,11 @@ async function merge(params) {
       },
       Item: {
         appKey: `${params.app}${constants.DELIMITER}${params.key}`,
-        appUser: `${params.app}${constants.DELIMITER}${params.user}`,
+        appUser: `${params.app}${constants.DELIMITER}${params.owner}`,
         data: params.data,
         key: params.key,
         type: params.type,
-        user: params.user,
+        user: params.owner,
       },
       TableName: nconf.get('database').appDataJsonTableName,
     });
@@ -176,8 +204,17 @@ async function unset(params) {
   if (!params.key) {
     throw new Error('Parameter "key" is required.');
   }
-  if (!params.user) {
-    throw new Error('Parameter "user" is required.');
+  if (!params.requestor) {
+    throw new Error('Parameter "requestor" is required.');
+  }
+  // If owner is not specified, default to the requestor.
+  if (!params.owner) {
+    params.owner = params.requestor;
+  }
+  // Verify requestor has access to owner's data.
+  const allowed = await auth.ids.hasAccessTo(params.requestor, params.owner);
+  if (!allowed) {
+    throw new Error(errors.codes.ERROR_CODE_AUTH_INVALID);
   }
 
   if (params.app !== constants.HMH_APP) {
@@ -190,7 +227,7 @@ async function unset(params) {
   // So we need to query first for the item.
   const getResult = await dynamodbClient.instrumented('get', {
     Key: {
-      appUser: `${params.app}${constants.DELIMITER}${params.user}`,
+      appUser: `${params.app}${constants.DELIMITER}${params.owner}`,
       key: params.key,
     },
     TableName: nconf.get('database').appDataJsonTableName,
@@ -202,7 +239,7 @@ async function unset(params) {
 
   await dynamodbClient.instrumented('delete', {
     Key: {
-      appUser: `${params.app}${constants.DELIMITER}${params.user}`,
+      appUser: `${params.app}${constants.DELIMITER}${params.owner}`,
       key: params.key,
     },
     TableName: nconf.get('database').appDataJsonTableName,
@@ -215,8 +252,17 @@ async function list(params) {
   if (!params.app) {
     throw new Error('Parameter "app" is required.');
   }
-  if (!params.user) {
-    throw new Error('Parameter "user" is required.');
+  if (!params.requestor) {
+    throw new Error('Parameter "requestor" is required.');
+  }
+  // If owner is not specified, default to the requestor.
+  if (!params.owner) {
+    params.owner = params.requestor;
+  }
+  // Verify requestor has access to owner's data.
+  const allowed = await auth.ids.hasAccessTo(params.requestor, params.owner);
+  if (!allowed) {
+    throw new Error(errors.codes.ERROR_CODE_AUTH_INVALID);
   }
 
   if (params.app !== constants.HMH_APP) {
@@ -232,7 +278,7 @@ async function list(params) {
       '#key': 'key',
     },
     ExpressionAttributeValues: {
-      ':appUser': `${params.app}${constants.DELIMITER}${params.user}`,
+      ':appUser': `${params.app}${constants.DELIMITER}${params.owner}`,
     },
     KeyConditionExpression: 'appUser = :appUser',
     ProjectionExpression: '#key', // Only return the data we are interested in

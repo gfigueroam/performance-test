@@ -10,7 +10,7 @@ const expect = chai.expect;
 
 const documentClientStub = sinon.createStubInstance(AWS.DynamoDB.DocumentClient);
 
-const user = 'unittest.userData.user';
+const requestor = 'unittest.userData.user';
 const app = 'unittestapp';
 
 describe('quota', () => {
@@ -25,7 +25,7 @@ describe('quota', () => {
   });
 
   describe('getConsumedQuota', () => {
-    it('throws an error if "user" is not passed in the params', async () => {
+    it('throws an error if "requestor" is not passed in the params', async () => {
       try {
         await quota.getConsumedQuota({
           app,
@@ -39,7 +39,7 @@ describe('quota', () => {
     it('throws an error if "app" is not passed in the params', async () => {
       try {
         await quota.getConsumedQuota({
-          user,
+          requestor,
         });
         return Promise.reject();
       } catch (err) {
@@ -74,7 +74,7 @@ describe('quota', () => {
 
       const consumed = await quota.getConsumedQuota({
         app,
-        user,
+        requestor,
       });
       expect(consumed).to.equal(sizeof(Items));
     });
@@ -109,7 +109,7 @@ describe('quota', () => {
 
       const consumed = await quota.getConsumedQuota({
         app,
-        user,
+        requestor,
       });
       expect(consumed).to.equal(2 * sizeof(Items));
     });

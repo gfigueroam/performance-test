@@ -1,10 +1,11 @@
 import nconf from '../config';
 import errors from '../models/errors';
 import dynamodbClient from './dynamoDBClient';
+import auth from '../auth';
 
 async function set(params) {
-  if (!params.user) {
-    throw new Error('Parameter "user" is required.');
+  if (!params.requestor) {
+    throw new Error('Parameter "requestor" is required.');
   }
   if (!params.key) {
     throw new Error('Parameter "key" is required.');
@@ -12,11 +13,20 @@ async function set(params) {
   if (params.data === undefined) {
     throw new Error('Parameter "data" is required.');
   }
+  // If owner is not specified, default to the requestor.
+  if (!params.owner) {
+    params.owner = params.requestor;
+  }
+  // Verify requestor has access to owner's data.
+  const allowed = await auth.ids.hasAccessTo(params.requestor, params.owner);
+  if (!allowed) {
+    throw new Error(errors.codes.ERROR_CODE_AUTH_INVALID);
+  }
 
   /* eslint-disable sort-keys */
   await dynamodbClient.instrumented('put', {
     Item: {
-      user: params.user,
+      user: params.owner,
       key: params.key,
       data: params.data,
     },
@@ -28,17 +38,26 @@ async function set(params) {
 }
 
 async function unset(params) {
-  if (!params.user) {
-    throw new Error('Parameter "user" is required.');
+  if (!params.requestor) {
+    throw new Error('Parameter "requestor" is required.');
   }
   if (!params.key) {
     throw new Error('Parameter "key" is required.');
+  }
+  // If owner is not specified, default to the requestor.
+  if (!params.owner) {
+    params.owner = params.requestor;
+  }
+  // Verify requestor has access to owner's data.
+  const allowed = await auth.ids.hasAccessTo(params.requestor, params.owner);
+  if (!allowed) {
+    throw new Error(errors.codes.ERROR_CODE_AUTH_INVALID);
   }
 
   await dynamodbClient.instrumented('delete', {
     Key: {
       key: params.key,
-      user: params.user,
+      user: params.owner,
     },
     TableName: nconf.get('database').calculatedBehaviorTableName,
   });
@@ -47,17 +66,26 @@ async function unset(params) {
 }
 
 async function get(params) {
-  if (!params.user) {
-    throw new Error('Parameter "user" is required.');
+  if (!params.requestor) {
+    throw new Error('Parameter "requestor" is required.');
   }
   if (!params.key) {
     throw new Error('Parameter "key" is required.');
+  }
+  // If owner is not specified, default to the requestor.
+  if (!params.owner) {
+    params.owner = params.requestor;
+  }
+  // Verify requestor has access to owner's data.
+  const allowed = await auth.ids.hasAccessTo(params.requestor, params.owner);
+  if (!allowed) {
+    throw new Error(errors.codes.ERROR_CODE_AUTH_INVALID);
   }
 
   /* eslint-disable sort-keys */
   return dynamodbClient.instrumented('get', {
     Key: {
-      user: params.user,
+      user: params.owner,
       key: params.key,
     },
     TableName: nconf.get('database').calculatedBehaviorTableName,
@@ -66,8 +94,8 @@ async function get(params) {
 }
 
 async function atomicUpdate(params) {
-  if (!params.user) {
-    throw new Error('Parameter "user" is required.');
+  if (!params.requestor) {
+    throw new Error('Parameter "requestor" is required.');
   }
   if (!params.key) {
     throw new Error('Parameter "key" is required.');
@@ -75,12 +103,21 @@ async function atomicUpdate(params) {
   if (!params.value) {
     throw new Error('Parameter "value" is required.');
   }
+  // If owner is not specified, default to the requestor.
+  if (!params.owner) {
+    params.owner = params.requestor;
+  }
+  // Verify requestor has access to owner's data.
+  const allowed = await auth.ids.hasAccessTo(params.requestor, params.owner);
+  if (!allowed) {
+    throw new Error(errors.codes.ERROR_CODE_AUTH_INVALID);
+  }
 
   // Look up the current value that already exists.
   const currentValue = await dynamodbClient.instrumented('get', {
     Key: {
       key: params.key,
-      user: params.user,
+      user: params.owner,
     },
     TableName: nconf.get('database').calculatedBehaviorTableName,
   });
@@ -104,7 +141,7 @@ async function atomicUpdate(params) {
         },
         Key: {
           key: params.key,
-          user: params.user,
+          user: params.owner,
         },
         TableName: nconf.get('database').calculatedBehaviorTableName,
         UpdateExpression: 'SET #data = #data + :value',
@@ -127,7 +164,7 @@ async function atomicUpdate(params) {
       Item: {
         data: newValue,
         key: params.key,
-        user: params.user,
+        user: params.owner,
       },
       TableName: nconf.get('database').calculatedBehaviorTableName,
     });
@@ -137,8 +174,8 @@ async function atomicUpdate(params) {
 }
 
 async function merge(params) {
-  if (!params.user) {
-    throw new Error('Parameter "user" is required.');
+  if (!params.requestor) {
+    throw new Error('Parameter "requestor" is required.');
   }
   if (!params.key) {
     throw new Error('Parameter "key" is required.');
@@ -146,12 +183,21 @@ async function merge(params) {
   if (!params.data) {
     throw new Error('Parameter "data" is required.');
   }
+  // If owner is not specified, default to the requestor.
+  if (!params.owner) {
+    params.owner = params.requestor;
+  }
+  // Verify requestor has access to owner's data.
+  const allowed = await auth.ids.hasAccessTo(params.requestor, params.owner);
+  if (!allowed) {
+    throw new Error(errors.codes.ERROR_CODE_AUTH_INVALID);
+  }
 
   // Look up the current value that already exists.
   const currentValue = await dynamodbClient.instrumented('get', {
     Key: {
       key: params.key,
-      user: params.user,
+      user: params.owner,
     },
     TableName: nconf.get('database').calculatedBehaviorTableName,
   });
@@ -180,7 +226,7 @@ async function merge(params) {
         },
         Key: {
           key: params.key,
-          user: params.user,
+          user: params.owner,
         },
         TableName: nconf.get('database').calculatedBehaviorTableName,
         UpdateExpression: 'SET #data = :value',
@@ -203,7 +249,7 @@ async function merge(params) {
       Item: {
         data: params.data,
         key: params.key,
-        user: params.user,
+        user: params.owner,
       },
       TableName: nconf.get('database').calculatedBehaviorTableName,
     });

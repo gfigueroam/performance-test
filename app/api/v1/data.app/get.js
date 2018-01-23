@@ -1,11 +1,12 @@
 import db from '../../../db/appData';
 
-export default async function getHandler(key, app, user) {
-  this.logger.info(`data.app.get: app (${app}), key (${key}), user (${user})`);
+export default async function getHandler(key, app, requestor, owner) {
+  this.logger.info(`data.app.get: app (${app}), key (${key}), requestor (${requestor}), owner (${owner})`);
   const item = await db.get({
     app,
     key,
-    user,
+    owner,
+    requestor,
   });
 
   return item.Item ? {

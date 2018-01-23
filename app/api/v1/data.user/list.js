@@ -1,9 +1,10 @@
 import db from '../../../db/userData';
 
-export default async function listHandler(user) {
-  this.logger.info(`data.user.list: user (${user})`);
+export default async function listHandler(requestor, owner) {
+  this.logger.info(`data.user.list: requestor (${requestor}), owner (${owner})`);
   const list = await db.list({
-    user,
+    owner,
+    requestor,
   });
 
 

@@ -1,12 +1,13 @@
 import db from '../../../db/userData';
 
-export default async function setHandler(key, type, data, user) {
-  this.logger.info(`data.user.get: key (${key}), user (${user})`);
+export default async function setHandler(key, type, data, requestor, owner) {
+  this.logger.info(`data.user.get: key (${key}), requestor (${requestor}), owner (${owner})`);
   await db.set({
     data,
     key,
+    owner,
+    requestor,
     type,
-    user,
   });
 
   return undefined;

@@ -1,4 +1,4 @@
 /* eslint-disable */
-export default async function appendHandler(key, type, data, user) {
+export default async function appendHandler(key, type, data, requestor, owner) {
 }
 /* eslint-enable */

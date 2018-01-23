@@ -11,7 +11,7 @@ const expect = chai.expect;
 
 const app = `uds.bvt.data.app.merge.app.${seed.buildNumber}`;
 const key = `uds.bvt.data.app.merge.test.${seed.buildNumber}`;
-const user = 'data.user.test.user.1';
+const requestor = 'data.requestor.test.requestor.1';
 const data = {
   key1: true,
   key2: 'some string',
@@ -33,7 +33,7 @@ describe('data.app.merge', () => {
     await seed.app.remove({
       app,
       key,
-      user,
+      user: requestor,
     });
   });
 
@@ -42,7 +42,7 @@ describe('data.app.merge', () => {
       app: 'invalid-app-name',
       data,
       key,
-      user,
+      requestor,
     }, (err, response) => {
       expect(err).to.equal(null);
       expect(response.body).to.deep.equal({
@@ -58,7 +58,7 @@ describe('data.app.merge', () => {
       app: 'non.existent.app',
       data,
       key,
-      user,
+      requestor,
     }, (err, response) => {
       expect(err).to.equal(null);
       expect(response.body).to.deep.equal({
@@ -74,7 +74,7 @@ describe('data.app.merge', () => {
       app,
       data: 'some invalid data',
       key,
-      user,
+      requestor,
     }, (err, response) => {
       expect(err).to.equal(null);
       expect(response.body).to.deep.equal({
@@ -90,7 +90,7 @@ describe('data.app.merge', () => {
       app,
       data,
       key,
-      user,
+      requestor,
     }, (err, response) => {
       expect(err).to.equal(null);
       expect(response.body).to.deep.equal({
@@ -104,7 +104,7 @@ describe('data.app.merge', () => {
       http.sendPostRequest(paths.DATA_APP_GET, tokens.serviceToken, {
         app,
         key,
-        user,
+        requestor,
       }, (err2, response2) => {
         expect(err2).to.equal(null);
         expect(response2.body).to.deep.equal({
@@ -128,7 +128,7 @@ describe('data.app.merge', () => {
         },
       },
       key,
-      user,
+      requestor,
     }, (err, response) => {
       expect(err).to.equal(null);
       expect(response.body).to.deep.equal({
@@ -149,7 +149,7 @@ describe('data.app.merge', () => {
       http.sendPostRequest(paths.DATA_APP_GET, tokens.serviceToken, {
         app,
         key,
-        user,
+        requestor,
       }, (err2, response2) => {
         expect(err2).to.equal(null);
         expect(response2.body).to.deep.equal({
@@ -180,7 +180,7 @@ describe('data.app.merge', () => {
         },
       },
       key,
-      user,
+      requestor,
     }, (err, response) => {
       expect(err).to.equal(null);
       expect(response.body).to.deep.equal({
@@ -201,7 +201,7 @@ describe('data.app.merge', () => {
       http.sendPostRequest(paths.DATA_APP_GET, tokens.serviceToken, {
         app,
         key,
-        user,
+        requestor,
       }, (err2, response2) => {
         expect(err2).to.equal(null);
         expect(response2.body).to.deep.equal({
@@ -233,7 +233,7 @@ describe('data.app.merge', () => {
         key5: 'whatever',
       },
       key,
-      user,
+      requestor,
     }, (err, response) => {
       expect(err).to.equal(null);
       expect(response.body).to.deep.equal({
@@ -255,7 +255,7 @@ describe('data.app.merge', () => {
       http.sendPostRequest(paths.DATA_APP_GET, tokens.serviceToken, {
         app,
         key,
-        user,
+        requestor,
       }, (err2, response2) => {
         expect(err2).to.equal(null);
         expect(response2.body).to.deep.equal({
@@ -290,7 +290,7 @@ describe('data.app.merge', () => {
       app,
       data: largeData,
       key,
-      user,
+      requestor,
     }, (err, response) => {
       expect(err).to.equal(null);
       expect(response.body).to.deep.equal({
@@ -313,13 +313,14 @@ describe('data.app.merge', () => {
 
     // Since data is just less than half of the quota, we should be able to store it once.
     // A second store would theoretically take up less than the quota, except we
-    // consider the other fields to count against quota (eg, appKey, appUser, user, and key).
+    // consider the other fields to count against quota
+    // (eg, appKey, apprequestor, requestor, and key).
     // Those add just enough overhead that a second attempt to store will fail.
     http.sendPostRequest(paths.DATA_APP_MERGE, tokens.serviceToken, {
       app,
       data: halfQuotaData,
       key,
-      user: `${user}.2`,
+      requestor: `${requestor}.2`,
     }, (err, response) => {
       expect(err).to.equal(null);
 
@@ -335,7 +336,7 @@ describe('data.app.merge', () => {
         app,
         data: halfQuotaData,
         key,
-        user: `${user}.2`,
+        requestor: `${requestor}.2`,
       }, (err2, response2) => {
         expect(err2).to.equal(null);
         expect(response2.body).to.deep.equal({

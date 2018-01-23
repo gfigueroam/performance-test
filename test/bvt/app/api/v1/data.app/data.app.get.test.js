@@ -10,7 +10,7 @@ const expect = chai.expect;
 
 const app = `uds.bvt.data.app.get.app.${seed.buildNumber}`;
 const key = `uds.bvt.data.app.get.test.${seed.buildNumber}`;
-const user = 'data.user.test.user.1';
+const requestor = 'data.requestor.test.requestor.1';
 const data = {
   key1: true,
   key2: 'some string',
@@ -28,7 +28,7 @@ describe('data.app.get', () => {
       app,
       data,
       key,
-      user,
+      user: requestor,
     });
   });
 
@@ -38,7 +38,7 @@ describe('data.app.get', () => {
     await seed.app.remove({
       app,
       key,
-      user,
+      user: requestor,
     });
   });
 
@@ -46,7 +46,7 @@ describe('data.app.get', () => {
     http.sendPostRequest(paths.DATA_APP_GET, tokens.serviceToken, {
       app: 'invalid-app-name',
       key,
-      user,
+      requestor,
     }, (err, response) => {
       expect(err).to.equal(null);
       expect(response.body).to.deep.equal({
@@ -61,7 +61,7 @@ describe('data.app.get', () => {
     http.sendPostRequest(paths.DATA_APP_GET, tokens.serviceToken, {
       app: 'non.existent.app',
       key,
-      user,
+      requestor,
     }, (err, response) => {
       expect(err).to.equal(null);
       expect(response.body).to.deep.equal({
@@ -76,7 +76,7 @@ describe('data.app.get', () => {
     http.sendPostRequest(paths.DATA_APP_GET, tokens.serviceToken, {
       app,
       key: 'non.existent.key',
-      user,
+      requestor,
     }, (err, response) => {
       expect(err).to.equal(null);
       expect(response.body).to.deep.equal({
@@ -90,7 +90,7 @@ describe('data.app.get', () => {
     http.sendPostRequest(paths.DATA_APP_GET, tokens.serviceToken, {
       app,
       key,
-      user,
+      requestor,
     }, (err, response) => {
       expect(err).to.equal(null);
       expect(response.body).to.deep.equal({

@@ -1,12 +1,13 @@
 import db from '../../../db/appData';
 
-export default async function setHandler(key, data, app, user) {
-  this.logger.info(`data.app.set: app (${app}), key (${key}), user (${user}), data ${data}`);
+export default async function setHandler(key, data, app, requestor, owner) {
+  this.logger.info(`data.app.set: app (${app}), key (${key}), requestor (${requestor}), owner (${owner}), data ${data}`);
   await db.set({
     app,
     data,
     key,
-    user,
+    owner,
+    requestor,
   });
 
   return undefined;

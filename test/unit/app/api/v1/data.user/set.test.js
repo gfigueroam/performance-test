@@ -10,7 +10,7 @@ const expect = chai.expect;
 const key = 'test.data.user.set.name';
 const type = 'test';
 const data = 'Sample custom user text';
-const user = 'hmh-test-user.123';
+const requestor = 'hmh-test-user.123';
 
 const swatchCtx = { logger };
 
@@ -25,11 +25,12 @@ describe('data.user.set', () => {
       expect(params).to.deep.equal({
         data,
         key,
+        owner: undefined,
+        requestor,
         type,
-        user,
       });
     });
-    setHandler.apply(swatchCtx, [key, type, data, user]).then(result => {
+    setHandler.apply(swatchCtx, [key, type, data, requestor]).then(result => {
       expect(result).to.equal(undefined);
       expect(userData.set.called).to.equal(true);
       done();

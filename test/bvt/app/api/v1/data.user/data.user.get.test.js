@@ -8,7 +8,7 @@ import tokens from '../../../../../common/helpers/tokens';
 const expect = chai.expect;
 
 const key = `uds.bvt.data.user.get.test.${seed.buildNumber}`;
-const user = 'data.user.test.user.1';
+const requestor = 'data.user.test.requestor.1';
 const data = 'this is some data';
 
 describe('data.user.get', () => {
@@ -17,7 +17,7 @@ describe('data.user.get', () => {
       data,
       key,
       type: 'text',
-      user,
+      user: requestor,
 
     }, done);
   });
@@ -25,14 +25,14 @@ describe('data.user.get', () => {
   after((done) => {
     seed.user.unset({
       key,
-      user,
+      user: requestor,
     }, done);
   });
 
   it('returns null when retrieving a non-existent key', (done) => {
     http.sendPostRequest(paths.DATA_USER_GET, tokens.serviceToken, {
       key: 'data.user.get.non.existent.key',
-      user,
+      requestor,
     }, (err, response) => {
       expect(err).to.equal(null);
       expect(response.body).to.deep.equal({
@@ -45,7 +45,7 @@ describe('data.user.get', () => {
   it('retrieves text data correctly', (done) => {
     http.sendPostRequest(paths.DATA_USER_GET, tokens.serviceToken, {
       key,
-      user,
+      requestor,
     }, (err, response) => {
       expect(err).to.equal(null);
       expect(response.body).to.deep.equal({
@@ -53,7 +53,7 @@ describe('data.user.get', () => {
         result: {
           data,
           key,
-          user,
+          user: requestor,
         },
       });
       done();

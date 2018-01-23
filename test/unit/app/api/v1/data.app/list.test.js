@@ -8,7 +8,7 @@ import listHandler from '../../../../../../app/api/v1/data.app/list';
 const expect = chai.expect;
 
 const app = 'test.data.app.list.app';
-const user = 'hmh-test-user.123';
+const requestor = 'hmh-test-user.123';
 const swatchCtx = { logger };
 
 describe('data.app.list', () => {
@@ -19,7 +19,8 @@ describe('data.app.list', () => {
     sinon.stub(appData, 'list').callsFake((params) => {
       expect(params).to.deep.equal({
         app,
-        user,
+        owner: undefined,
+        requestor,
       });
       return Promise.resolve({
         Items: [
@@ -28,7 +29,7 @@ describe('data.app.list', () => {
         ],
       });
     });
-    listHandler.apply(swatchCtx, [app, user]).then(result => {
+    listHandler.apply(swatchCtx, [app, requestor]).then(result => {
       expect(result).to.deep.equal({
         keys: ['data_1', 'data_2'],
       });

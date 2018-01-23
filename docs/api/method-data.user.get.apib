@@ -9,7 +9,8 @@ Retrieve data for a given user. This method is intended to access data stored by
 | Argument      | Example                   | Required  | Description
 |:---           |:---                       |:---       |:---
 | `key`         | `annotation_id123`        | Required  | A unique key to identify the data being stored.
-| `user`        | `user_345`                | Optional  | The user as which to get the data. Required if token type is service token.
+| `requestor`   | `user_345`            | Optional  | The user making the request. Required if token type is service token.
+| `owner`       | `user_789`            | Optional  | The user whose data is being accessed. Defaults to `requestor` if not specified.
 
 ## Result
 

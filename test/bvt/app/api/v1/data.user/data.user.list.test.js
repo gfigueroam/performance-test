@@ -9,25 +9,25 @@ const expect = chai.expect;
 
 const key1 = `uds.bvt.data.user.list.test.1.${seed.buildNumber}`;
 const key2 = `uds.bvt.data.user.list.test.2.${seed.buildNumber}`;
-const user = `data.user.test.user.${seed.buildNumber}`;
+const requestor = `data.user.test.requestor.${seed.buildNumber}`;
 const data = 'this is some data';
 
 describe('data.user.list', () => {
   after((done) => {
     seed.user.unset({
       key: key1,
-      user,
+      user: requestor,
     }, () => {
       seed.user.unset({
         key: key2,
-        user,
+        user: requestor,
       }, done);
     });
   });
 
   it('returns an empty list when no keys are set', (done) => {
     http.sendPostRequest(paths.DATA_USER_LIST, tokens.serviceToken,
-      { user }, (err, response) => {
+      { requestor }, (err, response) => {
         expect(err).to.equal(null);
         expect(response.body).to.deep.equal({
           ok: true,
@@ -41,13 +41,13 @@ describe('data.user.list', () => {
 
   it('returns a list of one key', (done) => {
     http.sendPostRequest(paths.DATA_USER_SET, tokens.serviceToken,
-      { data, key: key1, type: 'text', user }, (err2, response2) => {
+      { data, key: key1, requestor, type: 'text' }, (err2, response2) => {
         expect(err2).to.equal(null);
         expect(response2.body).to.deep.equal({
           ok: true,
         });
         http.sendPostRequest(paths.DATA_USER_LIST, tokens.serviceToken,
-          { user }, (err, response) => {
+          { requestor }, (err, response) => {
             expect(err).to.equal(null);
             expect(response.body).to.deep.equal({
               ok: true,
@@ -62,13 +62,13 @@ describe('data.user.list', () => {
 
   it('returns a list of two keys', (done) => {
     http.sendPostRequest(paths.DATA_USER_SET, tokens.serviceToken,
-      { data, key: key2, type: 'text', user }, (err2, response2) => {
+      { data, key: key2, requestor, type: 'text' }, (err2, response2) => {
         expect(err2).to.equal(null);
         expect(response2.body).to.deep.equal({
           ok: true,
         });
         http.sendPostRequest(paths.DATA_USER_LIST, tokens.serviceToken,
-          { user }, (err, response) => {
+          { requestor }, (err, response) => {
             expect(err).to.equal(null);
             expect(response.body).to.deep.equal({
               ok: true,

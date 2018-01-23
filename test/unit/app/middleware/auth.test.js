@@ -9,7 +9,7 @@ import runner from '../../../common/helpers/runner';
 
 const expect = chai.expect;
 
-const user = 'some.test.user.guid.1';
+const requestor = 'some.test.user.guid.1';
 
 
 // Test function that does nothing for cases that throw
@@ -48,7 +48,7 @@ const mockServiceTokenCtx = {
     useStubAuth: false,
   },
   logger,
-  params: { user },
+  params: { requestor },
 };
 
 // Service token context with no user param

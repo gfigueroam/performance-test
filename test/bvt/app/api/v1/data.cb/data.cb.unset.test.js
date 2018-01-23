@@ -4,11 +4,12 @@ import http from '../../../../../common/helpers/http';
 import seed from '../../../../../common/seed';
 import paths from '../../../../../common/helpers/paths';
 import tokens from '../../../../../common/helpers/tokens';
+import errors from '../../../../../../app/models/errors';
 
 const expect = chai.expect;
 
 const key = `uds.bvt.data.cb.set.test.${seed.buildNumber}`;
-const user = 'data.admin.test.user.1';
+const requestor = 'data.admin.test.requestor.1';
 
 describe('data.cb.unset', () => {
   function store(value) {
@@ -16,7 +17,7 @@ describe('data.cb.unset', () => {
       http.sendPostRequestSuccess(paths.DATA_CB_SET, tokens.serviceToken, {
         data: value,
         key,
-        user,
+        requestor,
       }, { ok: true }, (err) => {
         if (err) {
           return reject(err);
@@ -30,7 +31,7 @@ describe('data.cb.unset', () => {
     return new Promise((resolve, reject) => {
       http.sendPostRequestSuccess(paths.DATA_CB_UNSET, tokens.serviceToken, {
         key,
-        user,
+        requestor,
       }, { ok: true }, (err) => {
         if (err) {
           return reject(err);
@@ -44,7 +45,7 @@ describe('data.cb.unset', () => {
     return new Promise((resolve, reject) => {
       http.sendPostRequest(paths.DATA_CB_GET, tokens.serviceToken, {
         key,
-        user,
+        requestor,
       }, (err, res) => {
         if (err) {
           return reject(err);
@@ -57,15 +58,15 @@ describe('data.cb.unset', () => {
     });
   }
 
-  it('fails if the "user" parameter is not present', done => {
-    http.sendPostRequestErrorDetails(paths.DATA_CB_UNSET, tokens.serviceToken, {
+  it('fails if the "requestor" parameter is not present while using a service token', done => {
+    http.sendPostRequestError(paths.DATA_CB_UNSET, tokens.serviceToken, {
       key,
-    }, 'missing_arg', 'Required argument "user" missing.', done);
+    }, errors.codes.ERROR_CODE_USER_NOT_FOUND, done);
   });
 
   it('fails if the "key" parameter is not present', done => {
     http.sendPostRequestErrorDetails(paths.DATA_CB_UNSET, tokens.serviceToken, {
-      user,
+      requestor,
     }, 'missing_arg', 'Required argument "key" missing.', done);
   });
 

@@ -1,10 +1,11 @@
 import db from '../../../db/calculatedBehavior';
 
-export default async function incrementHandler(key, user) {
-  this.logger.info(`data.cb.increment: key (${key}), user (${user})`);
+export default async function incrementHandler(key, requestor, owner) {
+  this.logger.info(`data.cb.increment: key (${key}), requestor (${requestor}), owner (${owner})`);
   const result = await db.atomicUpdate({
     key,
-    user,
+    owner,
+    requestor,
     value: 1,
   });
 

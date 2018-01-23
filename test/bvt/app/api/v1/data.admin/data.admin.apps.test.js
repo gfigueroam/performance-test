@@ -57,7 +57,6 @@ describe('data.admin.apps', () => {
       key,
       type: 'text',
       user,
-
     }, () => {
       http.sendPostRequest(paths.DATA_ADMIN_APPS, tokens.serviceToken, {
         user,

@@ -5,6 +5,8 @@ function unset(params, done) {
   if (!params.user || !params.key) {
     throw new Error('user and key are required parameters');
   }
+  params.requestor = params.user;
+  delete params.user;
 
   http.sendSeedRequest(paths.DATA_USER_DELETE, params, done);
 }
@@ -13,6 +15,8 @@ function set(params, done) {
   if (!params.user || !params.key || !params.type || !params.data) {
     throw new Error('user, key, type, and data are required parameters');
   }
+  params.requestor = params.user;
+  delete params.user;
 
   http.sendSeedRequest(paths.DATA_USER_SET, params, done);
 }

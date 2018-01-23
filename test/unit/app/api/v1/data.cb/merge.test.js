@@ -9,7 +9,7 @@ const expect = chai.expect;
 
 const key = 'test.data.user.merge.name';
 const data = 'Sample data value';
-const user = 'hmh-test-user.123';
+const requestor = 'hmh-test-user.123';
 const swatchCtx = { logger };
 
 describe('data.cb.merge', () => {
@@ -22,10 +22,11 @@ describe('data.cb.merge', () => {
       expect(params).to.deep.equal({
         data,
         key,
-        user,
+        owner: undefined,
+        requestor,
       });
     });
-    mergeHandler.apply(swatchCtx, [key, data, user]).then(result => {
+    mergeHandler.apply(swatchCtx, [key, data, requestor]).then(result => {
       expect(result).to.equal(undefined);
       expect(calculatedBehavior.merge.called).to.equal(true);
       done();

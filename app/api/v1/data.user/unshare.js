@@ -1,4 +1,4 @@
 /* eslint-disable */
-export default async function unshareHandler(id, user) {
+export default async function unshareHandler(id, requestor, owner) {
 }
 /* eslint-enable */

@@ -17,7 +17,7 @@ const expect = chai.expect;
 
 const documentClientStub = sinon.createStubInstance(AWS.DynamoDB.DocumentClient);
 
-const user = 'unittest.userData.user';
+const requestor = 'unittest.userData.user';
 const key = 'unittest.userData.key';
 const app = 'unittestapp';
 const data = 'unit test data';
@@ -42,7 +42,7 @@ describe('appData', () => {
       documentClientStub.query.reset();
     });
 
-    it('throws an error if "user" is not passed in the params', async () => {
+    it('throws an error if "requestor" is not passed in the params', async () => {
       try {
         await appData.getApps({});
         return Promise.reject();
@@ -75,7 +75,7 @@ describe('appData', () => {
       });
 
       const userApps = await appData.getApps({
-        user,
+        user: requestor,
       });
       expect(userApps).to.deep.equal(['a', 'b']);
     });
@@ -114,7 +114,7 @@ describe('appData', () => {
       documentClientStub.query.throws(new Error('Did not expect another call to query.'));
 
       const userApps = await appData.getApps({
-        user,
+        user: requestor,
       });
       expect(userApps).to.deep.equal(['a', 'b', 'c', 'd', 'e', 'f']);
     });
@@ -135,7 +135,7 @@ describe('appData', () => {
         })),
       });
       const userApps = await appData.getApps({
-        user,
+        user: requestor,
       });
       expect(userApps).to.deep.equal(['a', 'b', 'd']);
     });
@@ -145,7 +145,7 @@ describe('appData', () => {
     after(() => {
       documentClientStub.query.reset();
     });
-    it('throws an error if "user" is not passed in the params', async () => {
+    it('throws an error if "requestor" is not passed in the params', async () => {
       try {
         await appData.set({
           app,
@@ -163,7 +163,7 @@ describe('appData', () => {
         await appData.set({
           app,
           data: true,
-          user,
+          requestor,
         });
         return Promise.reject();
       } catch (err) {
@@ -176,7 +176,7 @@ describe('appData', () => {
         await appData.set({
           app,
           key,
-          user,
+          requestor,
         });
         return Promise.reject();
       } catch (err) {
@@ -189,7 +189,7 @@ describe('appData', () => {
         await appData.set({
           data,
           key,
-          user,
+          requestor,
         });
         return Promise.reject();
       } catch (err) {
@@ -201,11 +201,11 @@ describe('appData', () => {
       documentClientStub.put.callsFake(params => {
         expect(params.Item).to.deep.equal({
           appKey: `${app}${constants.DELIMITER}${key}`,
-          appUser: `${app}${constants.DELIMITER}${user}`,
+          appUser: `${app}${constants.DELIMITER}${requestor}`,
           data,
           key,
           type: undefined,
-          user,
+          user: requestor,
         });
 
         expect(params).to.have.all.keys('Item', 'TableName');
@@ -225,7 +225,7 @@ describe('appData', () => {
         app,
         data,
         key,
-        user,
+        requestor,
       })
       .then(done)
       .catch(done);
@@ -245,7 +245,7 @@ describe('appData', () => {
         app,
         data,
         key,
-        user,
+        requestor,
       })
       .then(() => {
         quota.getConsumedQuota.reset();
@@ -261,7 +261,7 @@ describe('appData', () => {
   });
 
   describe('merge', () => {
-    it('throws an error if "user" is not passed in the params', async () => {
+    it('throws an error if "requestor" is not passed in the params', async () => {
       try {
         await appData.merge({
           app,
@@ -283,7 +283,7 @@ describe('appData', () => {
           data: {
             b: true,
           },
-          user,
+          requestor,
         });
         return Promise.reject();
       } catch (err) {
@@ -296,7 +296,7 @@ describe('appData', () => {
         await appData.merge({
           app,
           key,
-          user,
+          requestor,
         });
         return Promise.reject();
       } catch (err) {
@@ -309,7 +309,7 @@ describe('appData', () => {
         await appData.set({
           data,
           key,
-          user,
+          requestor,
         });
         return Promise.reject();
       } catch (err) {
@@ -334,7 +334,7 @@ describe('appData', () => {
             },
           },
           Key: {
-            appUser: `${app}${constants.DELIMITER}${user}`,
+            appUser: `${app}${constants.DELIMITER}${requestor}`,
             key,
           },
           TableName: nconf.get('database').appDataJsonTableName,
@@ -348,7 +348,7 @@ describe('appData', () => {
 
       documentClientStub.get.callsFake(params => {
         expect(params.Key).to.deep.equal({
-          appUser: `${app}${constants.DELIMITER}${user}`,
+          appUser: `${app}${constants.DELIMITER}${requestor}`,
           key,
         });
         expect(params).to.have.all.keys('Key', 'TableName');
@@ -377,7 +377,7 @@ describe('appData', () => {
           newKey: 'newValue',
         },
         key,
-        user,
+        requestor,
       })
       .then((result) => {
         expect(result).to.deep.equal({
@@ -398,13 +398,13 @@ describe('appData', () => {
           },
           Item: {
             appKey: `${app}${constants.DELIMITER}${key}`,
-            appUser: `${app}${constants.DELIMITER}${user}`,
+            appUser: `${app}${constants.DELIMITER}${requestor}`,
             data: {
               newKey: 'newValue',
             },
             key,
             type: undefined,
-            user,
+            user: requestor,
           },
           TableName: nconf.get('database').appDataJsonTableName,
         });
@@ -416,7 +416,7 @@ describe('appData', () => {
 
       documentClientStub.get.callsFake(params => {
         expect(params.Key).to.deep.equal({
-          appUser: `${app}${constants.DELIMITER}${user}`,
+          appUser: `${app}${constants.DELIMITER}${requestor}`,
           key,
         });
         expect(params).to.have.all.keys('Key', 'TableName');
@@ -441,7 +441,7 @@ describe('appData', () => {
           newKey: 'newValue',
         },
         key,
-        user,
+        requestor,
       })
       .then((result) => {
         expect(result).to.deep.equal({
@@ -469,7 +469,7 @@ describe('appData', () => {
           newKey: 'newValue',
         },
         key,
-        user,
+        requestor,
       })
       .then(() => {
         quota.getConsumedQuota.reset();
@@ -485,7 +485,7 @@ describe('appData', () => {
   });
 
   describe('unset', () => {
-    it('throws an error if "user" is not passed in the params', async () => {
+    it('throws an error if "requestor" is not passed in the params', async () => {
       try {
         await appData.unset({
           app,
@@ -501,7 +501,7 @@ describe('appData', () => {
       try {
         await appData.unset({
           app,
-          user,
+          requestor,
         });
         return Promise.reject();
       } catch (err) {
@@ -513,7 +513,7 @@ describe('appData', () => {
       try {
         await appData.unset({
           key,
-          user,
+          requestor,
         });
         return Promise.reject();
       } catch (err) {
@@ -524,7 +524,7 @@ describe('appData', () => {
     it('calls dynamoDB.delete and returns a promisified version', (done) => {
       documentClientStub.delete.callsFake(params => {
         expect(params.Key).to.deep.equal({
-          appUser: `${app}${constants.DELIMITER}${user}`,
+          appUser: `${app}${constants.DELIMITER}${requestor}`,
           key,
         });
         expect(params).to.have.all.keys('Key', 'TableName');
@@ -542,7 +542,7 @@ describe('appData', () => {
       // method should throw a key not found error
       documentClientStub.get.callsFake(params => {
         expect(params.Key).to.deep.equal({
-          appUser: `${app}${constants.DELIMITER}${user}`,
+          appUser: `${app}${constants.DELIMITER}${requestor}`,
           key,
         });
         expect(params).to.have.all.keys('Key', 'TableName');
@@ -555,7 +555,7 @@ describe('appData', () => {
       appData.unset({
         app,
         key,
-        user,
+        requestor,
       })
       .then(done)
       .catch(done);
@@ -563,7 +563,7 @@ describe('appData', () => {
   });
 
   describe('get', () => {
-    it('throws an error if "user" is not passed in the params', async () => {
+    it('throws an error if "requestor" is not passed in the params', async () => {
       try {
         await appData.get({
           app,
@@ -579,7 +579,7 @@ describe('appData', () => {
       try {
         await appData.get({
           app,
-          user,
+          requestor,
         });
         return Promise.reject();
       } catch (err) {
@@ -591,7 +591,7 @@ describe('appData', () => {
       try {
         await appData.get({
           key,
-          user,
+          requestor,
         });
         return Promise.reject();
       } catch (err) {
@@ -602,7 +602,7 @@ describe('appData', () => {
     it('calls dynamoDB.get and returns a promisified version', (done) => {
       documentClientStub.get.callsFake(params => {
         expect(params.Key).to.deep.equal({
-          appUser: `${app}${constants.DELIMITER}${user}`,
+          appUser: `${app}${constants.DELIMITER}${requestor}`,
           key,
         });
         expect(params).to.have.all.keys('Key', 'TableName');
@@ -613,7 +613,7 @@ describe('appData', () => {
       appData.get({
         app,
         key,
-        user,
+        requestor,
       })
       .then(done)
       .catch(done);
@@ -621,7 +621,7 @@ describe('appData', () => {
   });
 
   describe('list', () => {
-    it('throws an error if "user" is not passed in the params', async () => {
+    it('throws an error if "requestor" is not passed in the params', async () => {
       try {
         await appData.list({
           app,
@@ -635,7 +635,7 @@ describe('appData', () => {
     it('throws an error if "app" is not passed in the params', async () => {
       try {
         await appData.list({
-          user,
+          requestor,
         });
         return Promise.reject();
       } catch (err) {
@@ -658,7 +658,7 @@ describe('appData', () => {
       });
       appData.list({
         app,
-        user,
+        requestor,
       })
       .then(done)
       .catch(done);

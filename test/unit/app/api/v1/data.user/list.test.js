@@ -8,7 +8,7 @@ import listHandler from '../../../../../../app/api/v1/data.user/list';
 const expect = chai.expect;
 
 const key = 'test.data.user.list.name';
-const user = 'hmh-test-user.123';
+const requestor = 'hmh-test-user.123';
 const swatchCtx = { logger };
 
 let listStub;
@@ -25,7 +25,8 @@ describe('data.user.list', () => {
   it('handles an empty array', done => {
     listStub.callsFake((params) => {
       expect(params).to.deep.equal({
-        user,
+        owner: undefined,
+        requestor,
       });
 
       return Promise.resolve({
@@ -33,7 +34,7 @@ describe('data.user.list', () => {
       });
     });
 
-    listHandler.apply(swatchCtx, [user]).then(result => {
+    listHandler.apply(swatchCtx, [requestor]).then(result => {
       expect(result).to.deep.equal({
         keys: [],
       });
@@ -44,7 +45,8 @@ describe('data.user.list', () => {
   it('handles an array with an item', done => {
     listStub.callsFake((params) => {
       expect(params).to.deep.equal({
-        user,
+        owner: undefined,
+        requestor,
       });
 
       return Promise.resolve({
@@ -54,7 +56,7 @@ describe('data.user.list', () => {
       });
     });
 
-    listHandler.apply(swatchCtx, [user]).then(result => {
+    listHandler.apply(swatchCtx, [requestor]).then(result => {
       expect(result).to.deep.equal({
         keys: [key],
       });

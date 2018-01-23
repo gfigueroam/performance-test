@@ -9,7 +9,7 @@ const expect = chai.expect;
 
 const key = 'test.data.user.set.name';
 const data = 'Sample data value';
-const user = 'hmh-test-user.123';
+const requestor = 'hmh-test-user.123';
 const swatchCtx = { logger };
 
 describe('data.cb.set', () => {
@@ -22,10 +22,11 @@ describe('data.cb.set', () => {
       expect(params).to.deep.equal({
         data,
         key,
-        user,
+        owner: undefined,
+        requestor,
       });
     });
-    setHandler.apply(swatchCtx, [key, data, user]).then(result => {
+    setHandler.apply(swatchCtx, [key, data, requestor]).then(result => {
       expect(result).to.equal(undefined);
       expect(calculatedBehavior.set.called).to.equal(true);
       done();

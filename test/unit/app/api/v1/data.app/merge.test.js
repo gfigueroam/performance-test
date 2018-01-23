@@ -10,7 +10,7 @@ const expect = chai.expect;
 const key = 'test.data.app.merge.key';
 const data = { additionalKey: true };
 const app = 'test.data.app.merge.app';
-const user = 'hmh-test-user.123';
+const requestor = 'hmh-test-user.123';
 const swatchCtx = { logger };
 
 describe('data.app.merge', () => {
@@ -24,12 +24,13 @@ describe('data.app.merge', () => {
         app,
         data,
         key,
-        user,
+        owner: undefined,
+        requestor,
       });
       return Promise.resolve(data);
     });
 
-    mergeHandler.apply(swatchCtx, [key, data, app, user]).then(result => {
+    mergeHandler.apply(swatchCtx, [key, data, app, requestor]).then(result => {
       expect(result).to.deep.equal({
         data,
         key,

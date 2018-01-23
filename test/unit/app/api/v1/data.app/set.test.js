@@ -10,7 +10,7 @@ const expect = chai.expect;
 const key = 'test.data.app.set.key';
 const data = { additionalKey: true };
 const app = 'test.data.app.set.app';
-const user = 'hmh-test-user.123';
+const requestor = 'hmh-test-user.123';
 const swatchCtx = { logger };
 
 describe('data.app.set', () => {
@@ -23,11 +23,12 @@ describe('data.app.set', () => {
         app,
         data,
         key,
-        user,
+        owner: undefined,
+        requestor,
       });
       return Promise.resolve(undefined);
     });
-    setHandler.apply(swatchCtx, [key, data, app, user]).then(result => {
+    setHandler.apply(swatchCtx, [key, data, app, requestor]).then(result => {
       expect(result).to.equal(undefined);
       done();
     }).catch(done);

@@ -8,7 +8,7 @@ import deleteHandler from '../../../../../../app/api/v1/data.user/delete';
 const expect = chai.expect;
 
 const key = 'test.data.user.delete.name';
-const user = 'hmh-test-user.123';
+const requestor = 'hmh-test-user.123';
 const swatchCtx = { logger };
 
 describe('data.user.delete', () => {
@@ -20,10 +20,11 @@ describe('data.user.delete', () => {
     sinon.stub(userData, 'unset').callsFake((params) => {
       expect(params).to.deep.equal({
         key,
-        user,
+        owner: undefined,
+        requestor,
       });
     });
-    deleteHandler.apply(swatchCtx, [key, user]).then(result => {
+    deleteHandler.apply(swatchCtx, [key, requestor]).then(result => {
       expect(result).to.equal(undefined);
       done();
     }).catch(done);
