@@ -6,6 +6,15 @@ FORMAT: 1A
 
 As a user reads content, page turn events are emitted to Apache Spark. When the Apache Spark worker detects an abnormally long pause between page turn events, it will assume the reader has stopped reading and will emit a message to UDS on the UDS Calculated Behavior Kafka queue.
 
+# Requirements
+Content Progression needs to be queried on a learning spine basis; each learning spine consists of upwards of a thousand skills or modules.
+
+1. Ability to query for a user’s content progression within a given module
+1. Ability to query for a user’s content progression across all modules within a content ID
+1. Ability to query for a user’s content progression across all modules within a program
+1. Teacher should be able to retrieve a student’s content progression
+
+
 ## UDS Calculated Behavior Kafka Messages
 Each UDS Calculated Behavior message will have:
 * `user` - the user affected by this message
@@ -14,15 +23,15 @@ Each UDS Calculated Behavior message will have:
 * `value` - the value to use for `merge` and `set` operations.
 
 ## Processing Content Progression Events
- UDS will have a kafka consumer listening for these events which will call the appropriate API, `data.cb.<operation>`. UDS models all content progression as a single object. This object has a key for each contentID that the user has stored some content progression, and the value of each key will be coordinates of the user's progression through the content (and any other desired metadata, such as a mastery score). To update or store content progression, the UDS kafka message's operation will be `merge`, and the UDS API call will be:
+ UDS will have a kafka consumer listening for these events which will call the appropriate API, `data.cb.<operation>`. UDS will model content progression as a hierarchical key with a common prefix `contentProgression-`. The key will then have a `learningSpineID` followed by `contentID`. The content progression for all modules within the same piece of content will be stored under the same UDS key. This object has one entry for each module whose value will be coordinates of the user's progression through the content (and any other desired metadata, such as a mastery score). To update or store content progression, the UDS kafka message's operation will be `merge`, and the UDS API call will be:
 
-  `uds.data.cb.merge(user: <user>, key: "contentProgression", object: {"contentIdXYZ": {"coords": {"page": 120}}})`
+  `uds.data.cb.merge(user: <user>, key: "contentProgression-<learningSpineID>-<contentID>", object: {"module7": {"coords": {"page": 120}}})`
 
-When a user first stores content progression, they will not have a value for the `contentProgression` key; however the merge operation will behave as though the pre-existing value is `{}` and the resulting content progression will be
+When a user first stores content progression, they will not have a value for the `contentProgression-<learningSpineID>-<contentID>` key; however the merge operation will behave as though the pre-existing value is `{}` and the resulting content progression will be
 
 ```
 {
-  "contentIdXYZ": {
+  "module7": {
     "coords": {
       "page": 120
     }
@@ -30,28 +39,28 @@ When a user first stores content progression, they will not have a value for the
 }
 ```
 
-If the user then proceeds to read to page 32 of contentIdABC, the spark worker will emit the following message to UDS:
+If the user then proceeds to read to page 32 of module 8, the spark worker will emit the following message to UDS:
 ```
 user: <user>,
-key: "contentProgression",
+key: "contentProgression-<learningSpineID>-<contentID>",
 operation: "merge",
-value: {"contentIdABC": {"coords": {"page": 32}}}
+value: {"module8": {"coords": {"page": 32}}}
 ```
 
 The UDS Kafka consumer will then place the following call to the UDS API:
 
-  `uds.data.cb.merge(user: <user>, key: "contentProgression", object: {"contentIdABC": {"coords": {"page": 32}}})`
+  `uds.data.cb.merge(user: <user>, key: "contentProgression-<learningSpineID>-<contentID>", object: {"module8": {"coords": {"page": 32}}})`
 
 The resulting content progression will be
 
 ```
 {
-  "contentIdXYZ": {
+  "module7": {
     "coords": {
       "page": 120
     }
   },
-  "contentIdABC": {
+  "module8": {
     "coords": {
       "page": 32
     }
@@ -59,13 +68,31 @@ The resulting content progression will be
 }
 ```
 
-## Querying A User's Content Progression
-Simply get the current contentProgression value and access the relevant content ID:
-
+## Querying A User's Content Progression for an entire learning spine
+Using `data.cb.query`,
 ```
-  const contentProgression = await uds.data.cb.get(user: <user>, key: "contentProgression");
-  const currentPage = contentProgression.contentIdABC.coords.page
-```
+  uds.data.cb.get({
+    user: <user>,
+    key: "contentProgression-<learningSpineID>"
+  });
 
-## Content Progression Object Size
-It is technically possible for the object stored under the `contentProgression` key to grow very large. However, assuming a learner goes from K-12 reading (and thus storing content progression for) 100 books per year, we believe the total size of the object will be 13 * 100 = 1,300 records, which is a reasonable size to use as an upper-bound. (In all likelihood the average content progression size may be much smaller: if a learner uses 10 textbooks per year, then this would be only a 130-key object.) Potential future UDS API enhancements could allow for a GraphQL query to return a subset of the content progression object if necessary.
+  Response:
+  {
+    "ok": true,
+    "result": [
+      "key": "contentProgression-<learningSpineID>-<contentID>",
+      "data": {
+        "module7": {
+          "coords": {
+            "page": 120
+          }
+        },
+        "module8": {
+          "coords": {
+            "page": 32
+          }
+        }
+      }
+    ]
+  }
+```

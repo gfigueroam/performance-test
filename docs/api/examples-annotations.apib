@@ -19,51 +19,113 @@ Throughout our ebooks we offer the ability for users to take notes directly in t
 }
 ```
 
-This would be paired with a make/delete/change API set.
+# Requirements
+1. Teacher can view a student’s annotations.
+1. User can get a list of all annotations within a given module.
+1. Teacher can make an annotation and share with multiple students.
+1. User can get list of all annotations they have created across all pieces of content.
+1. User can get list of all annotations stored within a given content ID
+1. User can remove an annotation they made.
+1. User can hide annotation a teacher has made.
 
 ## Data Modeling
 Annotations are user data and therefore stored in `data.user`. Each annotation has a content ID, a locator, and the text of the annotation itself. In addition there is some annotation metadata such as the color to use for highlighting. Annotations need to be retrieved in batch for a given user by content ID to enable highlighting of all annotations within a given content ID.
 
-*Assumption*: There is no need to get a list of content IDs which contain annotations for a given user. (This would be useful if there was the need to display a list of content to the user and denote in some way which ones the user has annotated.)
+Annotations are stored in a hierarchy defined by key prefix. All annotations for a user will be stored under a UDS key beginning with `annotation-`, with subsequent parts of the key identifying the content and module and finally a unique id for the annotation. The final key will use the format `annotation-<contentID>-<moduleID>-<annotationID>`. This makes it easy to use the `data.user.query` API to retrieve all annotations within a given module ID or content ID, or retrieve all annotations for a user.
 
 ## Data Definition
-Annotations are a built-in data type and there is no additional configuration necessary.
+Annotations are a [built-in data type](common-types.html) and there is no additional configuration necessary.
 
 ## Data Manipulation (for a given user)
-### Get existing annotations for a piece of content
+### Get existing annotations for module1 that's part of contentA
 ```
-data.user.get({
-  key: 'contentID',
-  type: 'list<annotation>' // Despite not being part of the API,
-                           // may want to attach user data of different types
-                           // to the same content ID. Needs more thought.
+data.user.query({
+  key: 'annotation-contentA-module1',
 })
 
 Response:
 {
   "ok": true,
   "result": [{
-    coordinates: 145,
-    annotationText: "this is the text that is highlighted",
-    metadata: {
-      color: "#ffff00"
+    key: "annotation-contentA-module1-annotation1"
+    type: "annotation",
+    data: {
+      createdAt: 1516919976,
+      locator: {
+        pageNumber: 12,
+        paragraph: 2,
+        offset: 8
+      },
+      text: "I really liked the way the author explained this."
+    }
+  }]
+}
+```
+
+### Get annotations across all modules of contentA
+```
+data.user.query({
+  key: 'annotation-contentA',
+})
+
+Response:
+{
+  "ok": true,
+  "result": [{
+    key: "annotation-contentA-module1-annotation1"
+    type: "annotation",
+    data: {
+      createdAt: 1516919976,
+      locator: {
+        pageNumber: 12,
+        paragraph: 2,
+        offset: 8
+      },
+      text: "I really liked the way the author explained this."
+    }
+  }, {
+    key: "annotation-contentA-module2-annotation2"
+    type: "annotation",
+    data: {
+      createdAt: 1516919977,
+      locator: {
+        pageNumber: 20,
+        paragraph: 5,
+        offset: 124
+      },
+      text: "This is exactly how the teacher explained it during fifth period."
+    }
+  }, {
+    key: "annotation-contentA-module5-annotation3"
+    type: "annotation",
+    data: {
+      createdBy: 'TEACHER-USER-ID'
+      createdAt: 1516919978,
+      locator: {
+        pageNumber: 78,
+        paragraph: 3,
+        offset: 35
+      },
+      text: "I think you should study this to prepare for next week's quiz."
     }
   }]
 }
 ```
 
 ### Add a new annotation
-Even if there are no existing annotations, the `data.user.append` method operates the same way as though there was an empty list.
+Simply store the annotation using `data.user.set`; the annotation ID can be generated as a GUID while the remaining portion of the UDS key should comply with the annotation key standard described above.
 ```
-data.user.append({
-  key: 'contentID',
-  type: 'list<annotation>',
+data.user.set({
+  key: 'annotation-contentA-module3-589624-12213-123123',
+  type: 'annotation',
   data: {
-    coordinates: 145,
-    annotationText: "this is the text that is highlighted",
-    metadata: {
-      color: "#ffff00"
-    }
+    createdAt: 1516919977,
+    locator: {
+      pageNumber: 20,
+      paragraph: 5,
+      offset: 124
+    },
+    text: "This is exactly how the teacher explained it during fifth period."
   }
 })
 
@@ -74,45 +136,49 @@ Response:
 ```
 
 ### Delete an annotation
-Deletions are difficult. First the set of annotations must be retrieved from UDS, the appropriate annotation removed, and the remaining annotations re-added one at a time.
+Deleting an annotation is trivial using `data.user.delete`.
 
 ```
-const existingAnnotations = await data.user.get({
-  key: 'contentID',
-  type: 'list<annotation>' // Despite not being part of the API,
-                           // may want to attach user data of different types
-                           // to the same content ID. Needs more thought.
+data.user.delete({
+  key: 'annotation-contentA-module3-589624-12213-123123',
 });
 
-if (existingAnnotations.ok) {
-  // Delete all annotations to prepare for re-adding
-  const deletion = await data.user.delete({
-    key: 'contentID',
-    type: 'list<annotation>'
-  });
+Response:
+{
+  "ok": true
+}
+```
 
-  if (deletion.ok) {
-    for(let i = 0; i < existingAnnotations.result.length; i++) {
-      // Don't append the annotation we want to delete.
-      if (existingAnnotations.result[i].coordinates != 5) {
-        const appendResult = await data.user.append({
-          key: 'contentID',
-          type: 'list<annotation>',
-          data: existingAnnotations.result[i]
-        });
-        if (!appendResult.ok) {
-          throw new Error('Something went wrong :(');
-        }
-      }
-    }
+### Teacher shares an annotation with one or more students
+The teacher creates an annotation, then stores it into each student's UDS annotations store one at a time. (Obviously the teacher's experience would be a UI where they enter the note into some system like Ed, and then once the teacher selects the students to receive the annotation, that system stores into into each student's UDS automatically.) By storing directly into a student's UDS annotations, the teacher's annotation is automatically returned by queries when displaying annotations visible to the student. The `createdBy` field is respected by the applications which display the annotation to the student, prohibiting the student from editing the teacher's annotation, but allowing the student to delete the annotation. UDS itself has no semantic meaning of the annotation schema and does not prohibit the student from editing their own annotation. Please note that the `requestor` field is optional; if UDS is called with a user token, the `requestor` parameter will be automatically set to the user identified by the user token.
+
+```
+data.user.set({
+  key: 'annotation-contentA-module3-589624-12213-123123',
+  type: 'annotation',
+  requestor: 'TEACHER-USER-ID',
+  owner: 'STUDENT-USER-ID'
+  data: {
+    createdBy: 'TEACHER-USER-ID',
+    createdAt: 1516919977,
+    locator: {
+      pageNumber: 20,
+      paragraph: 5,
+      offset: 124
+    },
+    text: "This is exactly how I explained it during fifth period."
   }
+})
+
+Response:
+{
+  "ok": true
 }
 ```
 
 ## Limitations
 UDS does not:
 * allow a user to apply a custom order to their annotations
-* allow a user to delete a single annotation atomically
 
-UDS should, but does not:
-* limit the number of annotations stored for a given user for each content ID
+UDS could, but does not:
+* limit the number of annotations stored for a given user for each content ID. This is because quotas apply only to application data, not to user data.
