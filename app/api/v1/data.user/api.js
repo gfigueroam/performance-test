@@ -77,8 +77,7 @@ export default {
     ],
     metadata: {
       middleware: [
-        // middleware.data.parseUserData, (Parse `data` based on `type`)
-        // middleware.data.validateUserData, (Validate `data` based on `type`)
+        // TODO: mbryc - middleware.auth.requireUserTokenOrUserId,
         middleware.database.ensureReadConsistency,
       ],
     },
@@ -157,8 +156,8 @@ export default {
     ],
     metadata: {
       middleware: [
-        // middleware.data.parseUserData, (Parse `data` based on `type`)
-        // middleware.data.validateUserData, (Validate `data` based on `type`)
+        // TODO: mbryc - middleware.auth.requireUserTokenOrUserId,
+        middleware.data.validateUserDataType,
         middleware.database.ensureReadConsistency,
       ],
     },

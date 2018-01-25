@@ -155,7 +155,7 @@ function validateCtx(param) {
 
 function validateType(param) {
   // Check that param matches a known whitelist of data types
-  if (!system.types.includes(param)) {
+  if (!system.types[param]) {
     throw errors.codes.ERROR_CODE_INVALID_DATA_TYPE;
   }
 }

@@ -4,7 +4,7 @@ import http from '../../../../../common/helpers/http';
 import seed from '../../../../../common/seed';
 import paths from '../../../../../common/helpers/paths';
 import tokens from '../../../../../common/helpers/tokens';
-// import errors from '../../../../../../app/models/errors';
+import errors from '../../../../../../app/models/errors';
 
 const expect = chai.expect;
 
@@ -18,6 +18,30 @@ describe('data.user.set', () => {
       key,
       user: requestor,
     }, done);
+  });
+
+  it('returns an error when type is "text" but data is instead an object', (done) => {
+    http.sendPostRequest(paths.DATA_USER_SET, tokens.serviceToken,
+      { data: {}, key, requestor, type: 'text' }, (err, response) => {
+        expect(err).to.equal(null);
+        expect(response.body).to.deep.equal({
+          error: errors.codes.ERROR_CODE_INVALID_DATA,
+          ok: false,
+        });
+        done();
+      });
+  });
+
+  it('returns an error when type is not recognized', (done) => {
+    http.sendPostRequest(paths.DATA_USER_SET, tokens.serviceToken,
+      { data, key, requestor, type: 'some-invalid-type' }, (err, response) => {
+        expect(err).to.equal(null);
+        expect(response.body).to.deep.equal({
+          error: errors.codes.ERROR_CODE_INVALID_DATA_TYPE,
+          ok: false,
+        });
+        done();
+      });
   });
 
   it('successfully sets text data', (done) => {

@@ -224,8 +224,6 @@ describe('String Validators', () => {
     it('should allow valid types', () => {
       [
         'text',
-        'image',
-        'video',
       ].forEach(type => {
         expect(() => stringValidators.validateType(type)).not.to.throw();
       });

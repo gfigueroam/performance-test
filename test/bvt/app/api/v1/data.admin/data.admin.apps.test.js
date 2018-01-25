@@ -53,7 +53,7 @@ describe('data.admin.apps', () => {
 
   it('returns an empty array when the user has only has user data', (done) => {
     seed.user.set({
-      data,
+      data: 'some text data',
       key,
       type: 'text',
       user,
