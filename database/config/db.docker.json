@@ -4,6 +4,7 @@
     "appsTableName": "uds-docker-apps",
     "appDataJsonTableName": "uds-docker-app-data-json",
     "authzTableName": "uds-docker-authz",
+    "shareTableName": "uds-docker-share",
     "endpoint": "http://dynamodb:5201",
     "credentials": {
       "accessKeyId": "fakeAccessKey",

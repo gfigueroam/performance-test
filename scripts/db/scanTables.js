@@ -22,6 +22,7 @@ async function execute() {
     nconf.get('database').appsTableName,
     nconf.get('database').appDataJsonTableName,
     nconf.get('database').authzTableName,
+    nconf.get('database').shareTableName,
   ].map(async (dynamoDBTableName) => {
     try {
       const data = await db.scan({

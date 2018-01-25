@@ -1,5 +1,8 @@
-/* eslint-disable */
+import db from '../../../db/share';
+
 export default async function getSharedHandler(id) {
-  return {};
+  this.logger.info(`data.user.getShared: id (${id})`);
+
+  const result = await db.getShared.apply(this, [{ id }]);
+  return result;
 }
-/* eslint-enable */

@@ -26,7 +26,31 @@ const mockCtx = {
 
 const shareId = 'testshareid1';
 
+// Define a fake authz configuration record in the DB
+const clientAuthzId = 'some-client-authz-id;';
+const clientAuthzUrl = 'https://test-client.hmhco.com/authz';
+const mockAuthzResult = {
+  name: clientAuthzId,
+  url: clientAuthzUrl,
+};
+
 const authzTableName = config.get('database').authzTableName;
+
+// Define a fake set of authz parameters to be verified
+const shareParams = {
+  authz: clientAuthzId,
+  ctx: 'mock-ctx',
+  dataKey: 'mock-key',
+  key: shareId,
+  user: 'mock-user',
+};
+
+// Define the data object we expect to pass into authz rest call
+const expectedRestParams = {
+  ctx: 'mock-ctx',
+  key: 'mock-key',
+  user_id: 'mock-user',
+};
 
 describe('authz', () => {
   before(() => {
@@ -43,7 +67,7 @@ describe('authz', () => {
 
   it('should always allow access when using simple allow verifier', async () => {
     try {
-      await authz.verify.call(mockCtx, 'uds_authz_allow', shareId);
+      await authz.verify.call(mockCtx, shareId, { authz: 'uds_authz_allow' });
       return Promise.resolve();
     } catch (err) {
       return Promise.reject();
@@ -52,23 +76,15 @@ describe('authz', () => {
 
   it('should throw if authorization header is in an invalid format', async () => {
     try {
-      await authz.verify.call(mockCtx, 'uds_authz_deny', shareId);
+      await authz.verify.call(mockCtx, shareId, { authz: 'uds_authz_deny' });
       return Promise.reject();
     } catch (err) {
-      expect(err).to.equal(errors.codes.ERROR_CODE_AUTHZ_ACCESS_DENIED);
+      expect(err.message).to.equal(errors.codes.ERROR_CODE_AUTHZ_ACCESS_DENIED);
       return Promise.resolve();
     }
   });
 
   it('should look up authz method and allow access when valid', async () => {
-    const clientAuthzId = 'some-client-authz-id;';
-    const clientAuthzUrl = 'https://test-client.hmhco.com/authz';
-
-    const mockAuthzResult = {
-      name: clientAuthzId,
-      url: clientAuthzUrl,
-    };
-
     documentClientStub.get.callsFake(params => {
       expect(params).to.have.all.keys('ConsistentRead', 'TableName', 'Key');
       expect(params.ConsistentRead).to.equal(false);
@@ -84,16 +100,12 @@ describe('authz', () => {
 
     restStub.callsFake((url, params) => {
       expect(url).to.equal(clientAuthzUrl);
-      expect(params).to.deep.equal({
-        ctx: 'mock-ctx',
-        key: 'mock-key',
-        user_id: 'mock-user',
-      });
+      expect(params).to.deep.equal(expectedRestParams);
       return undefined;
     });
 
     try {
-      await authz.verify.call(mockCtx, clientAuthzId, shareId);
+      await authz.verify.call(mockCtx, shareId, shareParams);
     } catch (err) {
       return Promise.reject(err);
     }
@@ -102,14 +114,6 @@ describe('authz', () => {
   });
 
   it('should look up authz method and allow access when valid using a consistent read', async () => {
-    const clientAuthzId = 'some-client-authz-id;';
-    const clientAuthzUrl = 'https://test-client.hmhco.com/authz';
-
-    const mockAuthzResult = {
-      name: clientAuthzId,
-      url: clientAuthzUrl,
-    };
-
     documentClientStub.get.callsFake(params => {
       expect(params).to.have.all.keys('ConsistentRead', 'TableName', 'Key');
       expect(params.ConsistentRead).to.equal(true);
@@ -125,17 +129,13 @@ describe('authz', () => {
 
     restStub.callsFake((url, params) => {
       expect(url).to.equal(clientAuthzUrl);
-      expect(params).to.deep.equal({
-        ctx: 'mock-ctx',
-        key: 'mock-key',
-        user_id: 'mock-user',
-      });
+      expect(params).to.deep.equal(expectedRestParams);
       return undefined;
     });
 
     try {
       mockCtx.database.consistentRead = true;
-      await authz.verify.call(mockCtx, clientAuthzId, shareId);
+      await authz.verify.call(mockCtx, shareId, shareParams);
     } catch (err) {
       return Promise.reject(err);
     }

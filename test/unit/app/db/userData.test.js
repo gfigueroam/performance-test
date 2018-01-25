@@ -118,7 +118,6 @@ describe('userData', () => {
       userData.set.apply(swatchCtx, [{
         data,
         key,
-        owner: requestor,
         requestor,
         type,
       }])

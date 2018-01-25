@@ -322,6 +322,43 @@ describe('appData', () => {
       }
     });
 
+    it('throws an error if an unexpected type is returned', async () => {
+      documentClientStub.get.callsFake(params => {
+        expect(params.Key).to.deep.equal({
+          appUser: `${app}${constants.DELIMITER}${requestor}`,
+          key,
+        });
+        expect(params).to.have.all.keys('ConsistentRead', 'Key', 'TableName');
+
+        return {
+          promise: () => (Promise.resolve({
+            Item: 'not-an-object',
+          })),
+        };
+      });
+
+      apps.info.callsFake(params => {
+        expect(params.name).to.equal(app);
+        return Promise.resolve({
+          quota: 1024,
+        });
+      });
+
+      try {
+        await appData.merge({
+          app,
+          data: {
+            newKey: 'newValue',
+          },
+          key,
+          requestor,
+        });
+        return Promise.reject();
+      } catch (err) {
+        return Promise.resolve();
+      }
+    });
+
     it('calls dynamoDB.update if there is an existing value already stored', (done) => {
       documentClientStub.update.callsFake(params => {
         expect(params).to.deep.equal({

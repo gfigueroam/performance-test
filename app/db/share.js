@@ -1,18 +1,144 @@
-async function query(params) {
+import uuid from 'uuid';
+
+import auth from '../auth';
+import authz from '../authz';
+import constants from '../utils/constants';
+import dynamodbClient from './dynamoDBClient';
+import errors from '../models/errors';
+import nconf from '../config';
+
+
+async function getShared(params) {
   if (!params.id) {
     throw new Error('Parameter "id" is required.');
   }
 
-  // TODOBT - Implement this with DB lookup by share ID
+  // First query the share table by share id to get metadata
+  const shareResult = await dynamodbClient.instrumented('get', {
+    ConsistentRead: this.database && this.database.consistentRead,
+    Key: {
+      key: params.id,
+    },
+    TableName: nconf.get('database').shareTableName,
+  });
+
+  // Throw an error if nothing matches the unique share id
+  if (!shareResult.Item) {
+    throw new Error(errors.codes.ERROR_CODE_SHARE_ID_NOT_FOUND);
+  }
+
+  // Now run the correct authz check to verify access to data
+  //  Throws on error or any non-200 response from authz endpoint
+  await authz.verify.apply(this, [params.id, shareResult.Item]);
+
+  // Query for item data in app data table belonging to owner
+  const getResult = await dynamodbClient.instrumented('get', {
+    ConsistentRead: this.database && this.database.consistentRead,
+    Key: {
+      appUser: shareResult.Item.appUser,
+      key: shareResult.Item.dataKey,
+    },
+    TableName: nconf.get('database').appDataJsonTableName,
+  });
+
+  // Throw an error if no data matches the key in the share record
+  if (!getResult.Item) {
+    throw new Error(errors.codes.ERROR_CODE_KEY_NOT_FOUND);
+  }
+
   return {
-    authz: 'mock-authz',
-    ctx: 'mock-ctx',
-    id: params.id,
-    key: 'mock-key',
-    user: 'mock-user',
+    data: getResult.Item.data,
+    key: getResult.Item.key,
   };
 }
 
+async function share(params) {
+  if (!params.key) {
+    throw new Error('Parameter "key" is required.');
+  }
+  if (!params.authz) {
+    throw new Error('Parameter "authz" is required.');
+  }
+  if (!params.ctx) {
+    throw new Error('Parameter "ctx" is required.');
+  }
+  if (!params.requestor) {
+    throw new Error('Parameter "requestor" is required.');
+  }
+  // If owner is not specified, default to the requestor.
+  if (!params.owner) {
+    params.owner = params.requestor;
+  }
+
+  // Verify requestor has access to owner's data.
+  const allowed = await auth.ids.hasAccessTo(params.requestor, params.owner);
+  if (!allowed) {
+    throw new Error(errors.codes.ERROR_CODE_AUTH_INVALID);
+  }
+
+  // Generate a unique share id and share in context of HMH app
+  params.id = uuid.v4();
+  params.app = constants.HMH_APP;
+
+  await dynamodbClient.instrumented('put', {
+    Item: {
+      appKey: `${params.app}${constants.DELIMITER}${params.key}`,
+      appUser: `${params.app}${constants.DELIMITER}${params.owner}`,
+      authz: params.authz,
+      ctx: params.ctx,
+      dataKey: params.key,
+      key: params.id,
+      user: params.owner,
+    },
+    TableName: nconf.get('database').shareTableName,
+  });
+
+  return params.id;
+}
+
+async function unshare(params) {
+  if (!params.id) {
+    throw new Error('Parameter "id" is required.');
+  }
+  if (!params.requestor) {
+    throw new Error('Parameter "requestor" is required.');
+  }
+  // If owner is not specified, default to the requestor.
+  if (!params.owner) {
+    params.owner = params.requestor;
+  }
+
+  // Verify requestor has access to owner's data and is allowed to unshare
+  const allowed = await auth.ids.hasAccessTo(params.requestor, params.owner);
+  if (!allowed) {
+    throw new Error(errors.codes.ERROR_CODE_AUTH_INVALID);
+  }
+
+  // Query for item first and throw an error if share id does not exist
+  const getResult = await dynamodbClient.instrumented('get', {
+    ConsistentRead: this.database && this.database.consistentRead,
+    Key: {
+      key: params.id,
+    },
+    TableName: nconf.get('database').shareTableName,
+  });
+
+  if (!getResult.Item) {
+    throw new Error(errors.codes.ERROR_CODE_SHARE_ID_NOT_FOUND);
+  }
+
+  await dynamodbClient.instrumented('delete', {
+    Key: {
+      key: params.id,
+    },
+    TableName: nconf.get('database').shareTableName,
+  });
+
+  return undefined;
+}
+
 module.exports = {
-  query,
+  getShared,
+  share,
+  unshare,
 };

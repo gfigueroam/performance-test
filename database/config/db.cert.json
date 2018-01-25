@@ -3,6 +3,7 @@
     "calculatedBehaviorTableName": "uds-cert-calculated-behavior",
     "appsTableName": "uds-cert-apps",
     "appDataJsonTableName": "uds-cert-app-data-json",
-    "authzTableName": "uds-cert-authz"
+    "authzTableName": "uds-cert-authz",
+    "shareTableName": "uds-cert-share"
   }
 }

@@ -1,5 +1,4 @@
 import dbAuthz from '../db/authz';
-import dbShare from '../db/share';
 import rest from '../utils/rest';
 
 import simple from './simple';
@@ -9,8 +8,10 @@ const defaultAuthz = {
   uds_authz_deny: simple.deny,
 };
 
-async function verifier(authz, shareId) {
-  this.logger.info(`Authz module verifying item '${shareId}' with verifier '${authz}'`);
+async function verify(shareId, shareItem) {
+  this.logger.info(`Authz module verifying item '${shareId}' with share metadata '${shareItem}'`);
+
+  const authz = shareItem.authz;
 
   // Check whether the authz key is a known internal type
   if (defaultAuthz[authz]) {
@@ -21,19 +22,15 @@ async function verifier(authz, shareId) {
   // Query the DB to look up a registered authz method
   const authzVerifier = await dbAuthz.info.apply(this, [{ name: authz }]);
 
-  // Query the DB to look up the shared content by ID
-  const shareData = await dbShare.query.apply(this, [{ id: shareId }]);
-
-  // Build an HTTP request to authz URL with correct params
-  //  Throws on error or returns nothing and continues on success
+  // Build an HTTP GET request to authz URL with query string
   const authzParams = {
-    ctx: shareData.ctx,
-    key: shareData.key,
-    user_id: shareData.user,
+    ctx: shareItem.ctx,
+    key: shareItem.dataKey,
+    user_id: shareItem.user,
   };
   await rest.get.call(this, authzVerifier.url, authzParams);
 
   return undefined;
 }
 
-export default verifier;
+export default verify;

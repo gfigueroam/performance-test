@@ -183,12 +183,9 @@ describe('String Validators', () => {
 
   describe('validateShareId', () => {
     it('should allow valid share IDs', () => {
-      [
-        'abcd1234',
-        'ABCD1234abcd',
-      ].forEach(type => {
-        expect(() => stringValidators.validateShareId(type)).not.to.throw();
-      });
+      expect(() => stringValidators.validateShareId(
+        '12345678-abcd-efAB-CDEF-1234567890Aa',
+      )).not.to.throw();
     });
 
     it('should reject invalid share IDs', () => {
@@ -199,6 +196,10 @@ describe('String Validators', () => {
       }
 
       // Reject strings that don't conform to a possible UDS-generated IDs
+      [
+        'abcd1234',
+        'ABCD1234abcd',
+      ].forEach(s => { checkInvalidShareId(s); });
       invalidNames.forEach(s => { checkInvalidShareId(s); });
     });
   });

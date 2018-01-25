@@ -3,6 +3,7 @@
     "calculatedBehaviorTableName": "uds-prod-calculated-behavior",
     "appsTableName": "uds-prod-apps",
     "appDataJsonTableName": "uds-prod-app-data-json",
-    "authzTableName": "uds-prod-authz"
+    "authzTableName": "uds-prod-authz",
+    "shareTableName": "uds-prod-share"
   }
 }

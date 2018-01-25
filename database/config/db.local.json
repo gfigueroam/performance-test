@@ -4,6 +4,7 @@
     "calculatedBehaviorTableName": "uds-local-calculated-behavior",
     "appsTableName": "uds-local-apps",
     "appDataJsonTableName": "uds-local-app-data-json",
-    "authzTableName": "uds-local-authz"
+    "authzTableName": "uds-local-authz",
+    "shareTableName": "uds-local-share"
   }
 }
