@@ -1,0 +1,20 @@
+FORMAT: 1A
+
+# User Data Types
+
+UDS supports two data types:
+
+## Text
+Any string data.
+
+## Annotation
+Data that represents an annotation. The schema is defined in [annotation.json](https://github.com/hmhco/uds/tree/master/app/models/system/types/annotation.json).
+
+# Adding new types
+
+To add a new type to UDS is relatively simple. However, types are meant to be restricted to commonly occuring types that are shared across various HMH services and teams. In order to prevent every team from creating their own unique types, adding a new type to UDS requires code changes to UDS. This allows the creation of new types to undergo the standard code review process, during which the need for the new type can be debated and changes to the schema proposed.
+
+In order to deploy a new type follow this easy two step process:
+
+1. Update this documentation page.
+2. Add the new JSON schema definition as a stand-alone JSON file to the [types](https://github.com/hmhco/uds/tree/master/app/models/system/types) directory using the naming convention `<singular_type_name>.json`.

@@ -165,9 +165,11 @@
   },
   "dependencies": {
     "aguid": "2.0.0",
+    "ajv": "^6.0.1",
     "avsc": "^5.0.7",
     "aws-sdk": "^2.134.0",
     "bunyan": "^1.8.10",
+    "glob": "^7.1.2",
     "grid-framework": "github:hmhco/hmh.grid.framework#v1.0.2",
     "idm-nodejs-common": "hmhco/idm-nodejs-common#v1.0.14",
     "jsonwebtoken": "^7.4.2",

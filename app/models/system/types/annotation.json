@@ -1,0 +1,43 @@
+{
+  "$id": "http://hmhco.com/annotation.json",
+  "type": "object",
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-06/schema#",
+  "properties": {
+    "createdBy": {
+      "$id": "/properties/createdBy",
+      "type": "string",
+      "description": "The user who created this annotation, if different from the owner of the UDS record.",
+      "examples": [
+        "USER1"
+      ]
+    },
+    "createdAt": {
+      "$id": "/properties/createdAt",
+      "type": "integer",
+      "description": "The time this schema was created.",
+      "default": 0,
+      "examples": [
+        1516909116
+      ]
+    },
+    "locator": {
+      "$id": "/properties/locator",
+      "description": "A description of where the annotation exists.",
+      "type": "object"
+    },
+    "text": {
+      "$id": "/properties/text",
+      "type": "string",
+      "description": "The text of the annotation itself.",
+      "default": "",
+      "examples": [
+        "The annotation text itself."
+      ]
+    }
+  },
+  "required": [
+    "createdAt",
+    "text"
+  ]
+}
