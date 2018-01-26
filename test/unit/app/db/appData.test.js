@@ -258,7 +258,7 @@ describe('appData', () => {
       })
       .catch((err) => {
         delete err.detail;
-        expect(err.message).to.equal(errors.codes.ERROR_CODE_QUOTA_EXCEEDED);
+        expect(err).to.equal(errors.codes.ERROR_CODE_QUOTA_EXCEEDED);
         quota.getConsumedQuota.reset();
         done();
       });
@@ -519,7 +519,7 @@ describe('appData', () => {
       })
       .catch((err) => {
         delete err.detail;
-        expect(err.message).to.equal(errors.codes.ERROR_CODE_QUOTA_EXCEEDED);
+        expect(err).to.equal(errors.codes.ERROR_CODE_QUOTA_EXCEEDED);
         quota.getConsumedQuota.reset();
         done();
       });

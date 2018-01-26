@@ -10,7 +10,7 @@ const expect = chai.expect;
 describe('Swatch onException', () => {
   it('should rethrow a known internal error code', done => {
     mute.muteTest(() => {
-      const error = new Error(errors.codes.ERROR_CODE_WRONG_TOKEN_TYPE);
+      const error = errors.codes.ERROR_CODE_WRONG_TOKEN_TYPE;
       expect(() => onException(error)).to.throw(errors.codes.ERROR_CODE_WRONG_TOKEN_TYPE);
     }, done);
   });

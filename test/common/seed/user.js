@@ -21,7 +21,18 @@ function set(params, done) {
   http.sendSeedRequest(paths.DATA_USER_SET, params, done);
 }
 
+function unshare(params, done) {
+  if (!params.id || !params.user) {
+    throw new Error('id and user are require parameters');
+  }
+  params.requestor = params.user;
+  delete params.user;
+
+  http.sendSeedRequest(paths.DATA_USER_UNSHARE, params, done);
+}
+
 export default {
   set,
   unset,
+  unshare,
 };

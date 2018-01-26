@@ -24,7 +24,7 @@ async function getShared(params) {
 
   // Throw an error if nothing matches the unique share id
   if (!shareResult.Item) {
-    throw new Error(errors.codes.ERROR_CODE_SHARE_ID_NOT_FOUND);
+    throw errors.codes.ERROR_CODE_SHARE_ID_NOT_FOUND;
   }
 
   // Now run the correct authz check to verify access to data
@@ -43,7 +43,7 @@ async function getShared(params) {
 
   // Throw an error if no data matches the key in the share record
   if (!getResult.Item) {
-    throw new Error(errors.codes.ERROR_CODE_KEY_NOT_FOUND);
+    throw errors.codes.ERROR_CODE_KEY_NOT_FOUND;
   }
 
   return {
@@ -73,7 +73,7 @@ async function share(params) {
   // Verify requestor has access to owner's data.
   const allowed = await auth.ids.hasAccessTo(params.requestor, params.owner);
   if (!allowed) {
-    throw new Error(errors.codes.ERROR_CODE_AUTH_INVALID);
+    throw errors.codes.ERROR_CODE_AUTH_INVALID;
   }
 
   // Generate a unique share id and share in context of HMH app
@@ -111,7 +111,7 @@ async function unshare(params) {
   // Verify requestor has access to owner's data and is allowed to unshare
   const allowed = await auth.ids.hasAccessTo(params.requestor, params.owner);
   if (!allowed) {
-    throw new Error(errors.codes.ERROR_CODE_AUTH_INVALID);
+    throw errors.codes.ERROR_CODE_AUTH_INVALID;
   }
 
   // Query for item first and throw an error if share id does not exist
@@ -124,7 +124,7 @@ async function unshare(params) {
   });
 
   if (!getResult.Item) {
-    throw new Error(errors.codes.ERROR_CODE_SHARE_ID_NOT_FOUND);
+    throw errors.codes.ERROR_CODE_SHARE_ID_NOT_FOUND;
   }
 
   await dynamodbClient.instrumented('delete', {

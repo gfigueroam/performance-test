@@ -5,7 +5,7 @@ import errors from '../models/errors';
 function allow() { }
 
 function deny() {
-  throw new Error(errors.codes.ERROR_CODE_AUTHZ_ACCESS_DENIED);
+  throw errors.codes.ERROR_CODE_AUTHZ_ACCESS_DENIED;
 }
 
 module.exports = {

@@ -20,7 +20,7 @@ async function set(params) {
   // Verify requestor has access to owner's data.
   const allowed = await auth.ids.hasAccessTo(params.requestor, params.owner);
   if (!allowed) {
-    throw new Error(errors.codes.ERROR_CODE_AUTH_INVALID);
+    throw errors.codes.ERROR_CODE_AUTH_INVALID;
   }
 
   /* eslint-disable sort-keys */
@@ -51,7 +51,7 @@ async function unset(params) {
   // Verify requestor has access to owner's data.
   const allowed = await auth.ids.hasAccessTo(params.requestor, params.owner);
   if (!allowed) {
-    throw new Error(errors.codes.ERROR_CODE_AUTH_INVALID);
+    throw errors.codes.ERROR_CODE_AUTH_INVALID;
   }
 
   await dynamodbClient.instrumented('delete', {
@@ -79,7 +79,7 @@ async function get(params) {
   // Verify requestor has access to owner's data.
   const allowed = await auth.ids.hasAccessTo(params.requestor, params.owner);
   if (!allowed) {
-    throw new Error(errors.codes.ERROR_CODE_AUTH_INVALID);
+    throw errors.codes.ERROR_CODE_AUTH_INVALID;
   }
 
   /* eslint-disable sort-keys */
@@ -111,7 +111,7 @@ async function atomicUpdate(params) {
   // Verify requestor has access to owner's data.
   const allowed = await auth.ids.hasAccessTo(params.requestor, params.owner);
   if (!allowed) {
-    throw new Error(errors.codes.ERROR_CODE_AUTH_INVALID);
+    throw errors.codes.ERROR_CODE_AUTH_INVALID;
   }
 
   // Look up the current value that already exists.
@@ -153,7 +153,7 @@ async function atomicUpdate(params) {
     }
 
     // else
-    throw new Error(errors.codes.ERROR_CODE_INVALID_DATA_TYPE);
+    throw errors.codes.ERROR_CODE_INVALID_DATA_TYPE;
   } else {
     // There is not an existing value, so store the new value as though the previous value was 0.
     newValue = params.value;
@@ -192,7 +192,7 @@ async function merge(params) {
   // Verify requestor has access to owner's data.
   const allowed = await auth.ids.hasAccessTo(params.requestor, params.owner);
   if (!allowed) {
-    throw new Error(errors.codes.ERROR_CODE_AUTH_INVALID);
+    throw errors.codes.ERROR_CODE_AUTH_INVALID;
   }
 
   // Look up the current value that already exists.
@@ -238,7 +238,7 @@ async function merge(params) {
     }
 
     // Not an object value
-    throw new Error(errors.codes.ERROR_CODE_INVALID_DATA_TYPE);
+    throw errors.codes.ERROR_CODE_INVALID_DATA_TYPE;
   } else {
     // There is not an existing value, so store the new value as though the previous value was {}.
     newValue = params.data;

@@ -74,12 +74,12 @@ describe('authz', () => {
     }
   });
 
-  it('should throw if authorization header is in an invalid format', async () => {
+  it('should always deny access when using simple deny verifier', async () => {
     try {
       await authz.verify.call(mockCtx, shareId, { authz: 'uds_authz_deny' });
       return Promise.reject();
     } catch (err) {
-      expect(err.message).to.equal(errors.codes.ERROR_CODE_AUTHZ_ACCESS_DENIED);
+      expect(err).to.equal(errors.codes.ERROR_CODE_AUTHZ_ACCESS_DENIED);
       return Promise.resolve();
     }
   });

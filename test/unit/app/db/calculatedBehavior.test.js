@@ -94,7 +94,7 @@ describe('calculatedBehavior', () => {
           requestor,
         }]);
       } catch (err) {
-        expect(err.message).to.equal(errors.codes.ERROR_CODE_INVALID_DATA_TYPE);
+        expect(err).to.equal(errors.codes.ERROR_CODE_INVALID_DATA_TYPE);
         return Promise.resolve();
       }
 
@@ -270,7 +270,7 @@ describe('calculatedBehavior', () => {
           value: 1,
         }]);
       } catch (err) {
-        expect(err.message).to.equal(errors.codes.ERROR_CODE_INVALID_DATA_TYPE);
+        expect(err).to.equal(errors.codes.ERROR_CODE_INVALID_DATA_TYPE);
         return Promise.resolve();
       }
 

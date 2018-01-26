@@ -27,7 +27,7 @@ async function get(params) {
   // Verify requestor has access to owner's data.
   const allowed = await auth.ids.hasAccessTo(params.requestor, params.owner);
   if (!allowed) {
-    throw new Error(errors.codes.ERROR_CODE_AUTH_INVALID);
+    throw errors.codes.ERROR_CODE_AUTH_INVALID;
   }
 
   if (params.app !== constants.HMH_APP) {
@@ -68,7 +68,7 @@ async function set(params) {
   // Verify requestor has access to owner's data.
   const allowed = await auth.ids.hasAccessTo(params.requestor, params.owner);
   if (!allowed) {
-    throw new Error(errors.codes.ERROR_CODE_AUTH_INVALID);
+    throw errors.codes.ERROR_CODE_AUTH_INVALID;
   }
 
   if (params.app !== constants.HMH_APP) {
@@ -79,7 +79,7 @@ async function set(params) {
     // Enforce quota limits
     const consumedQuota = await quota.getConsumedQuota(params);
     if (consumedQuota + sizeof(params.data) > appInfo.quota) {
-      throw new Error(errors.codes.ERROR_CODE_QUOTA_EXCEEDED);
+      throw errors.codes.ERROR_CODE_QUOTA_EXCEEDED;
     }
   }
 
@@ -115,7 +115,7 @@ async function merge(params) {
   // Verify requestor has access to owner's data.
   const allowed = await auth.ids.hasAccessTo(params.requestor, params.owner);
   if (!allowed) {
-    throw new Error(errors.codes.ERROR_CODE_AUTH_INVALID);
+    throw errors.codes.ERROR_CODE_AUTH_INVALID;
   }
 
   if (params.app !== constants.HMH_APP) {
@@ -126,7 +126,7 @@ async function merge(params) {
     // Enforce quota limits
     const consumedQuota = await quota.getConsumedQuota(params);
     if (consumedQuota + sizeof(params.data) > appInfo.quota) {
-      throw new Error(errors.codes.ERROR_CODE_QUOTA_EXCEEDED);
+      throw errors.codes.ERROR_CODE_QUOTA_EXCEEDED;
     }
   }
 
@@ -175,7 +175,7 @@ async function merge(params) {
 
     // Not an object value - this should never happen.
     logger.error(`Found a non-object data type in app data for key ${params.key}, user ${params.owner}, app ${params.app}.`);
-    throw new Error(errors.codes.ERROR_CODE_INVALID_DATA_TYPE);
+    throw errors.codes.ERROR_CODE_INVALID_DATA_TYPE;
   } else {
     // There is not an existing value, so store the new value as though the previous value was {}.
     newValue = params.data;
@@ -217,7 +217,7 @@ async function unset(params) {
   // Verify requestor has access to owner's data.
   const allowed = await auth.ids.hasAccessTo(params.requestor, params.owner);
   if (!allowed) {
-    throw new Error(errors.codes.ERROR_CODE_AUTH_INVALID);
+    throw errors.codes.ERROR_CODE_AUTH_INVALID;
   }
 
   if (params.app !== constants.HMH_APP) {
@@ -238,7 +238,7 @@ async function unset(params) {
   });
 
   if (!getResult.Item) {
-    throw new Error(errors.codes.ERROR_CODE_KEY_NOT_FOUND);
+    throw errors.codes.ERROR_CODE_KEY_NOT_FOUND;
   }
 
   await dynamodbClient.instrumented('delete', {
@@ -266,7 +266,7 @@ async function list(params) {
   // Verify requestor has access to owner's data.
   const allowed = await auth.ids.hasAccessTo(params.requestor, params.owner);
   if (!allowed) {
-    throw new Error(errors.codes.ERROR_CODE_AUTH_INVALID);
+    throw errors.codes.ERROR_CODE_AUTH_INVALID;
   }
 
   if (params.app !== constants.HMH_APP) {

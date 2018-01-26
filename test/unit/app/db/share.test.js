@@ -59,7 +59,7 @@ describe('share', () => {
         await share.getShared.apply(swatchCtx, [{ id: testShareId }]);
         return Promise.reject();
       } catch (err) {
-        expect(err.message).to.equal(errors.codes.ERROR_CODE_SHARE_ID_NOT_FOUND);
+        expect(err).to.equal(errors.codes.ERROR_CODE_SHARE_ID_NOT_FOUND);
         return Promise.resolve();
       }
     });
@@ -85,7 +85,7 @@ describe('share', () => {
         await share.getShared.apply(swatchCtx, [{ id: testShareId }]);
         return Promise.reject();
       } catch (err) {
-        expect(err.message).to.equal(errors.codes.ERROR_CODE_AUTHZ_ACCESS_DENIED);
+        expect(err).to.equal(errors.codes.ERROR_CODE_AUTHZ_ACCESS_DENIED);
         return Promise.resolve();
       }
     });
@@ -123,7 +123,7 @@ describe('share', () => {
         await share.getShared.apply(swatchCtx, [{ id: testShareId }]);
         return Promise.reject();
       } catch (err) {
-        expect(err.message).to.equal(errors.codes.ERROR_CODE_KEY_NOT_FOUND);
+        expect(err).to.equal(errors.codes.ERROR_CODE_KEY_NOT_FOUND);
         return Promise.resolve();
       }
     });
@@ -233,7 +233,7 @@ describe('share', () => {
         }]);
         return Promise.reject();
       } catch (err) {
-        expect(err.message).to.equal(errors.codes.ERROR_CODE_AUTH_INVALID);
+        expect(err).to.equal(errors.codes.ERROR_CODE_AUTH_INVALID);
         return Promise.resolve();
       }
     });
@@ -301,7 +301,7 @@ describe('share', () => {
         }]);
         return Promise.reject();
       } catch (err) {
-        expect(err.message).to.equal(errors.codes.ERROR_CODE_AUTH_INVALID);
+        expect(err).to.equal(errors.codes.ERROR_CODE_AUTH_INVALID);
         return Promise.resolve();
       }
     });
@@ -320,7 +320,7 @@ describe('share', () => {
         }]);
         return Promise.reject();
       } catch (err) {
-        expect(err.message).to.equal(errors.codes.ERROR_CODE_SHARE_ID_NOT_FOUND);
+        expect(err).to.equal(errors.codes.ERROR_CODE_SHARE_ID_NOT_FOUND);
         return Promise.resolve();
       }
     });

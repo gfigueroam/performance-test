@@ -17,7 +17,7 @@ async function get(params) {
   // Verify requestor has access to owner's data.
   const allowed = await auth.ids.hasAccessTo(params.requestor, params.owner);
   if (!allowed) {
-    throw new Error(errors.codes.ERROR_CODE_AUTH_INVALID);
+    throw errors.codes.ERROR_CODE_AUTH_INVALID;
   }
 
   params.app = constants.HMH_APP;
@@ -44,7 +44,7 @@ async function set(params) {
   // Verify requestor has access to owner's data.
   const allowed = await auth.ids.hasAccessTo(params.requestor, params.owner);
   if (!allowed) {
-    throw new Error(errors.codes.ERROR_CODE_AUTH_INVALID);
+    throw errors.codes.ERROR_CODE_AUTH_INVALID;
   }
 
   params.app = constants.HMH_APP;
@@ -65,7 +65,7 @@ async function unset(params) {
   // Verify requestor has access to owner's data.
   const allowed = await auth.ids.hasAccessTo(params.requestor, params.owner);
   if (!allowed) {
-    throw new Error(errors.codes.ERROR_CODE_AUTH_INVALID);
+    throw errors.codes.ERROR_CODE_AUTH_INVALID;
   }
 
   params.app = constants.HMH_APP;
@@ -83,7 +83,7 @@ async function list(params) {
   // Verify requestor has access to owner's data.
   const allowed = await auth.ids.hasAccessTo(params.requestor, params.owner);
   if (!allowed) {
-    throw new Error(errors.codes.ERROR_CODE_AUTH_INVALID);
+    throw errors.codes.ERROR_CODE_AUTH_INVALID;
   }
 
   params.app = constants.HMH_APP;
