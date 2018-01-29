@@ -7,6 +7,7 @@ import decrementHandler from './decrement';
 import getHandler from './get';
 import incrementHandler from './increment';
 import mergeHandler from './merge';
+import queryHandler from './query';
 import setHandler from './set';
 import unsetHandler from './unset';
 
@@ -44,6 +45,34 @@ export default {
     args: [
       {
         name: 'key',
+        optional: false,
+        parse: parsers.strings.parseString,
+        validate: validators.strings.validateKey,
+      },
+      {
+        name: 'requestor',
+        optional: true,
+        parse: parsers.strings.parseOptionalString,
+        validate: validators.strings.validateOptionalUser,
+      },
+      {
+        name: 'owner',
+        optional: true,
+        parse: parsers.strings.parseOptionalString,
+        validate: validators.strings.validateOptionalUser,
+      },
+    ],
+    metadata: {
+      middleware: [
+        middleware.auth.requireUserTokenOrUserId,
+      ],
+    },
+  },
+  'data.cb.query': {
+    handler: queryHandler,
+    args: [
+      {
+        name: 'keyPrefix',
         optional: false,
         parse: parsers.strings.parseString,
         validate: validators.strings.validateKey,

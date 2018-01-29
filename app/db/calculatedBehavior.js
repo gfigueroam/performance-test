@@ -94,6 +94,42 @@ async function get(params) {
   });
 }
 
+async function query(params) {
+  if (!params.requestor) {
+    throw new Error('Parameter "requestor" is required.');
+  }
+  if (!params.keyPrefix) {
+    throw new Error('Parameter "keyPrefix" is required.');
+  }
+  // If owner is not specified, default to the requestor.
+  if (!params.owner) {
+    params.owner = params.requestor;
+  }
+  // Verify requestor has access to owner's data.
+  const allowed = await auth.ids.hasAccessTo(params.requestor, params.owner);
+  if (!allowed) {
+    throw errors.codes.ERROR_CODE_AUTH_INVALID;
+  }
+
+  // TODO: Paginate
+  const retVal = await dynamodbClient.instrumented('query', {
+    ConsistentRead: this.database && this.database.consistentRead,
+    KeyConditions: {
+      key: {
+        AttributeValueList: [params.keyPrefix],
+        ComparisonOperator: 'BEGINS_WITH',
+      },
+      user: {
+        AttributeValueList: [params.owner],
+        ComparisonOperator: 'EQ',
+      },
+    },
+    TableName: nconf.get('database').calculatedBehaviorTableName,
+  });
+
+  return retVal;
+}
+
 async function atomicUpdate(params) {
   if (!params.requestor) {
     throw new Error('Parameter "requestor" is required.');
@@ -264,6 +300,7 @@ module.exports = {
   atomicUpdate,
   get,
   merge,
+  query,
   set,
   unset,
 };
