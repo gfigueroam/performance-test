@@ -3,7 +3,6 @@ import parsers from '../../parsers';
 import validators from '../../validators';
 import middleware from '../../../middleware';
 
-import appendHandler from './append';
 import deleteHandler from './delete';
 import getHandler from './get';
 import getSharedHandler from './getShared';
@@ -13,46 +12,6 @@ import shareHandler from './share';
 import unshareHandler from './unshare';
 
 export default {
-  'data.user.append': {
-    handler: appendHandler,
-    args: [
-      {
-        name: 'key',
-        optional: false,
-        parse: parsers.strings.parseString,
-        validate: validators.strings.validateKey,
-      },
-      {
-        name: 'type',
-        optional: false,
-        parse: parsers.strings.parseString,
-        validate: validators.strings.validateType,
-      },
-      {
-        name: 'data',
-        optional: false,
-      },
-      {
-        name: 'requestor',
-        optional: true,
-        parse: parsers.strings.parseOptionalString,
-        validate: validators.strings.validateOptionalUser,
-      },
-      {
-        name: 'owner',
-        optional: true,
-        parse: parsers.strings.parseOptionalString,
-        validate: validators.strings.validateOptionalUser,
-      },
-    ],
-    metadata: {
-      middleware: [
-        // middleware.data.parseUserData, (Parse `data` based on `type`)
-        // middleware.data.validateUserData, (Validate `data` based on `type`)
-        middleware.database.ensureReadConsistency,
-      ],
-    },
-  },
   'data.user.get': {
     handler: getHandler,
     args: [

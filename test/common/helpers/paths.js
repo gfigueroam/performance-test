@@ -25,7 +25,6 @@ export default {
   DATA_CB_SET: 'api/v1/data.cb.set',
   DATA_CB_UNSET: 'api/v1/data.cb.unset',
 
-  DATA_USER_APPEND: 'api/v1/data.user.append',
   DATA_USER_DELETE: 'api/v1/data.user.delete',
   DATA_USER_GET: 'api/v1/data.user.get',
   DATA_USER_GET_SHARED: 'api/v1/data.user.getShared',
