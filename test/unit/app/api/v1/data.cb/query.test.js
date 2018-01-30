@@ -34,9 +34,7 @@ describe('data.cb.query', () => {
         requestor,
       });
 
-      return Promise.resolve({
-        Items: items,
-      });
+      return Promise.resolve(items);
     });
     queryHandler.apply(swatchCtx, [keyPrefix, requestor]).then(result => {
       expect(result).to.deep.equal(items);
@@ -46,7 +44,7 @@ describe('data.cb.query', () => {
     }).catch(done);
   });
 
-  it('returns undefined if there is no DynamoDB item', done => {
+  it('returns empty array if there is no DynamoDB items', done => {
     queryStub.callsFake((params) => {
       expect(params).to.deep.equal({
         keyPrefix,
@@ -54,10 +52,10 @@ describe('data.cb.query', () => {
         requestor,
       });
 
-      return Promise.resolve({});
+      return Promise.resolve([]);
     });
     queryHandler.apply(swatchCtx, [keyPrefix, requestor]).then(result => {
-      expect(result).to.equal(undefined);
+      expect(result).to.deep.equal([]);
       expect(calculatedBehavior.query.called).to.equal(true);
 
       done();

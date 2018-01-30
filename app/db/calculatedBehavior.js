@@ -113,23 +113,34 @@ async function query(params) {
     throw errors.codes.ERROR_CODE_AUTH_INVALID;
   }
 
-  // TODO: Paginate
-  const retVal = await dynamodbClient.instrumented('query', {
-    ConsistentRead: this.database && this.database.consistentRead,
-    KeyConditions: {
-      key: {
-        AttributeValueList: [params.keyPrefix],
-        ComparisonOperator: 'BEGINS_WITH',
+  let lastEvaluatedKey;
+  let items = [];
+  do {
+    const dynamoDBParams = {
+      ConsistentRead: this.database && this.database.consistentRead,
+      KeyConditions: {
+        key: {
+          AttributeValueList: [params.keyPrefix],
+          ComparisonOperator: 'BEGINS_WITH',
+        },
+        user: {
+          AttributeValueList: [params.owner],
+          ComparisonOperator: 'EQ',
+        },
       },
-      user: {
-        AttributeValueList: [params.owner],
-        ComparisonOperator: 'EQ',
-      },
-    },
-    TableName: nconf.get('database').calculatedBehaviorTableName,
-  });
+      TableName: nconf.get('database').calculatedBehaviorTableName,
+    };
 
-  return retVal;
+    if (lastEvaluatedKey) {
+      dynamoDBParams.ExclusiveStartKey = lastEvaluatedKey;
+    }
+    // eslint-disable-next-line no-await-in-loop
+    const iterationResult = await dynamodbClient.instrumented('query', dynamoDBParams);
+    items = items.concat(iterationResult.Items);
+    lastEvaluatedKey = iterationResult.LastEvaluatedKey;
+  } while (lastEvaluatedKey !== undefined);
+
+  return items;
 }
 
 async function atomicUpdate(params) {

@@ -275,20 +275,32 @@ async function list(params) {
     });
   }
 
-  // TODO: Paginate
+  let lastEvaluatedKey;
+  let items = [];
+  do {
+    const dynamoDBParams = {
+      ConsistentRead: this.database && this.database.consistentRead,
+      ExpressionAttributeNames: {
+        '#key': 'key',
+      },
+      ExpressionAttributeValues: {
+        ':appUser': `${params.app}${constants.DELIMITER}${params.owner}`,
+      },
+      KeyConditionExpression: 'appUser = :appUser',
+      ProjectionExpression: '#key', // Only return the data we are interested in
+      TableName: nconf.get('database').appDataJsonTableName,
+    };
 
-  const items = await dynamodbClient.instrumented('query', {
-    ConsistentRead: this.database && this.database.consistentRead,
-    ExpressionAttributeNames: {
-      '#key': 'key',
-    },
-    ExpressionAttributeValues: {
-      ':appUser': `${params.app}${constants.DELIMITER}${params.owner}`,
-    },
-    KeyConditionExpression: 'appUser = :appUser',
-    ProjectionExpression: '#key', // Only return the data we are interested in
-    TableName: nconf.get('database').appDataJsonTableName,
-  });
+    if (lastEvaluatedKey) {
+      dynamoDBParams.ExclusiveStartKey = lastEvaluatedKey;
+    }
+
+    // eslint-disable-next-line no-await-in-loop
+    const iterationResult = await dynamodbClient.instrumented('query', dynamoDBParams);
+
+    items = items.concat(iterationResult.Items);
+    lastEvaluatedKey = iterationResult.LastEvaluatedKey;
+  } while (lastEvaluatedKey !== undefined);
 
   return items;
 }

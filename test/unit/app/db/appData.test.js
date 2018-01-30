@@ -696,14 +696,75 @@ describe('appData', () => {
           'TableName',
         );
         return {
-          promise: () => (Promise.resolve()),
+          promise: () => (Promise.resolve({
+            Items: [],
+          })),
         };
       });
       appData.list.apply(swatchCtx, [{
         app,
         requestor,
       }])
-      .then(done)
+      .then((items) => {
+        expect(items).to.deep.equal([]);
+        done();
+      })
+      .catch(done);
+    });
+
+    it('calls dynamoDB.query and paginates appropriately', (done) => {
+      let callCount = 0;
+      documentClientStub.query.callsFake(params => {
+        callCount += 1;
+        expect(params.KeyConditionExpression).to.equal('appUser = :appUser');
+        if (callCount === 1) {
+          expect(params).to.have.all.keys('ConsistentRead',
+            'ExpressionAttributeNames',
+            'KeyConditionExpression',
+            'ExpressionAttributeValues',
+            'ProjectionExpression',
+            'TableName',
+          );
+          return {
+            promise: () => (Promise.resolve({
+              Items: [{
+                key,
+              }],
+              LastEvaluatedKey: 'some-key',
+            })),
+          };
+        } else if (callCount === 2) {
+          expect(params).to.have.all.keys('ConsistentRead',
+            'ExclusiveStartKey',
+            'ExpressionAttributeNames',
+            'KeyConditionExpression',
+            'ExpressionAttributeValues',
+            'ProjectionExpression',
+            'TableName',
+          );
+          return {
+            promise: () => (Promise.resolve({
+              Items: [{
+                key,
+              }],
+            })),
+          };
+        }
+
+        throw new Error(`Unexpected call number ${callCount} to spy.`);
+      });
+      appData.list.apply(swatchCtx, [{
+        app,
+        requestor,
+      }])
+      .then((items) => {
+        expect(items).to.deep.equal([{
+          key,
+        }, {
+          key,
+        }]);
+        done();
+      })
       .catch(done);
     });
   });

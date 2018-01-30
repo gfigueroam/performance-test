@@ -30,7 +30,9 @@ async function execute() {
       }).promise();
       // eslint-disable-next-line no-console
       console.log(`${dynamoDBTableName} Items: `, JSON.stringify(data));
-      // TODO: Detect if pagination is present and warn user of incomplete results
+      if (data.LastEvaluatedKey) {
+        console.log(`WARNING: Incomplete Results. Pagination required. LastEvaluatedKey: ${data.LastEvaluatedKey}`);
+      }
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error(`Error scanning ${dynamoDBTableName}`, err.code);

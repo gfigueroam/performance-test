@@ -559,14 +559,17 @@ describe('calculatedBehavior', () => {
           'ConsistentRead', 'KeyConditions', 'TableName',
         );
         return {
-          promise: () => (Promise.resolve()),
+          promise: () => (Promise.resolve({ Items: [] })),
         };
       });
       calculatedBehavior.query.apply(swatchCtx, [{
         keyPrefix,
         requestor,
       }])
-      .then(done)
+      .then((items) => {
+        expect(items).to.deep.equal([]);
+        done();
+      })
       .catch(done);
     });
   });
