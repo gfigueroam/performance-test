@@ -83,7 +83,8 @@ if (kafkaHost && kafkaTopic && groupId) {
     // Convert Kafka event into UDS payload for API request
     const udsPayload = {
       key: decodedMessage.key,
-      user: decodedMessage.user,
+      owner: decodedMessage.user,
+      requestor: decodedMessage.user,
     };
     if (decodedMessage.data) {
       udsPayload.data = decodedMessage.data;
