@@ -51,6 +51,8 @@ function commitMessages() {
 
 
 if (kafkaHost && kafkaTopic && groupId) {
+  logger.info(`Kafka consumer init! Host: ${kafkaHost}, Topic: ${kafkaTopic}, Group: ${groupId}`);
+
   const autoCommit = false;
   const encoding = 'buffer';
   const keyEncoding = 'utf8';
@@ -74,8 +76,9 @@ if (kafkaHost && kafkaTopic && groupId) {
   });
 
   consumer.on('message', message => {
+    logger.info('Kafka consumer: Received a message!');
     const decodedMessage = cbSchema.fromBuffer(message.value);
-    logger.info('Decoded value: ', decodedMessage);
+    logger.info('Kafka consumer: Decoded value: ', decodedMessage);
 
     // Convert Kafka event into UDS payload for API request
     const udsPayload = {

@@ -98,6 +98,53 @@ async function set(params) {
   return undefined;
 }
 
+async function query(params) {
+  if (!params.app) {
+    throw new Error('Parameter "app" is required.');
+  }
+  if (!params.keyPrefix) {
+    throw new Error('Parameter "keyPrefix" is required.');
+  }
+  if (!params.requestor) {
+    throw new Error('Parameter "requestor" is required.');
+  }
+
+  // If owner is not specified, default to the requestor.
+  if (!params.owner) {
+    params.owner = params.requestor;
+  }
+
+  // Verify requestor has access to owner's data.
+  const allowed = await auth.ids.hasAccessTo(params.requestor, params.owner);
+  if (!allowed) {
+    throw errors.codes.ERROR_CODE_AUTH_INVALID;
+  }
+
+  // Ensure the target app exists before running query
+  if (params.app !== constants.HMH_APP) {
+    await apps.info({
+      name: params.app,
+    });
+  }
+
+  // TODO: Paginate
+  const retVal = await dynamodbClient.instrumented('query', {
+    ConsistentRead: this.database && this.database.consistentRead,
+    KeyConditions: {
+      appUser: {
+        AttributeValueList: [`${params.app}${constants.DELIMITER}${params.owner}`],
+        ComparisonOperator: 'EQ',
+      },
+      key: {
+        AttributeValueList: [params.keyPrefix],
+        ComparisonOperator: 'BEGINS_WITH',
+      },
+    },
+    TableName: nconf.get('database').appDataJsonTableName,
+  });
+  return retVal;
+}
+
 async function merge(params) {
   if (!params.requestor) {
     throw new Error('Parameter "requestor" is required.');
@@ -355,6 +402,7 @@ module.exports = {
   getApps,
   list,
   merge,
+  query,
   set,
   unset,
 };

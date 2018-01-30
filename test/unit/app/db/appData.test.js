@@ -19,6 +19,7 @@ const documentClientStub = sinon.createStubInstance(AWS.DynamoDB.DocumentClient)
 
 const requestor = 'unittest.userData.user';
 const key = 'unittest.userData.key';
+const keyPrefix = 'unittest.userData.';
 const app = 'unittestapp';
 const data = 'unit test data';
 const swatchCtx = {
@@ -600,6 +601,166 @@ describe('appData', () => {
         requestor,
       }])
       .then(done)
+      .catch(done);
+    });
+  });
+
+  describe('query', () => {
+    it('throws an error if "keyPrefix" is not passed in the params', async () => {
+      try {
+        await appData.query.apply(swatchCtx, [{
+          app,
+          requestor,
+        }]);
+        return Promise.reject();
+      } catch (err) {
+        return Promise.resolve();
+      }
+    });
+
+    it('throws an error if "requestor" is not passed in the params', async () => {
+      try {
+        await appData.query.apply(swatchCtx, [{
+          app,
+          keyPrefix,
+        }]);
+        return Promise.reject();
+      } catch (err) {
+        return Promise.resolve();
+      }
+    });
+
+    it('throws an error if "app" is not passed in the params', async () => {
+      try {
+        await appData.query.apply(swatchCtx, [{
+          key,
+          requestor,
+        }]);
+        return Promise.reject();
+      } catch (err) {
+        return Promise.resolve();
+      }
+    });
+
+    it('throws an error when requestor does not match owner', async () => {
+      try {
+        await appData.query.apply(swatchCtx, [{
+          app,
+          keyPrefix,
+          owner: 'other-id',
+          requestor,
+        }]);
+        return Promise.reject();
+      } catch (err) {
+        expect(err).to.equal(errors.codes.ERROR_CODE_AUTH_INVALID);
+        return Promise.resolve();
+      }
+    });
+
+    it('throws an error if the app does not exist', async () => {
+      apps.info.callsFake(params => {
+        expect(params.name).to.equal(app);
+        throw errors.codes.ERROR_CODE_APP_NOT_FOUND;
+      });
+
+      try {
+        await appData.query.apply(swatchCtx, [{
+          app,
+          keyPrefix,
+          requestor,
+        }]);
+        return Promise.reject();
+      } catch (err) {
+        expect(err).to.equal(errors.codes.ERROR_CODE_APP_NOT_FOUND);
+        return Promise.resolve();
+      }
+    });
+
+    it('calls dynamoDB.get and returns a promisified empty list', (done) => {
+      apps.info.callsFake(params => {
+        expect(params.name).to.equal(app);
+        return Promise.resolve({
+          quota: 1024,
+        });
+      });
+
+      documentClientStub.query.callsFake(params => {
+        expect(params.KeyConditions).to.deep.equal({
+          appUser: {
+            AttributeValueList: [`${app}${constants.DELIMITER}${requestor}`],
+            ComparisonOperator: 'EQ',
+          },
+          key: {
+            AttributeValueList: [keyPrefix],
+            ComparisonOperator: 'BEGINS_WITH',
+          },
+        });
+        expect(params).to.have.all.keys(
+          'ConsistentRead', 'KeyConditions', 'TableName',
+        );
+        return {
+          promise: () => (Promise.resolve({})),
+        };
+      });
+
+      appData.query.apply(swatchCtx, [{
+        app,
+        keyPrefix,
+        requestor,
+      }])
+      .then(result => {
+        expect(result).to.deep.equal({});
+        done();
+      })
+      .catch(done);
+    });
+
+    it('calls dynamoDB.get and returns a promisified list of results', (done) => {
+      const expectedResult = {
+        Items: [{
+          appData: 'mock-app-data',
+          appUser: 'mock-app-user',
+          data: 'mock-data',
+          key: 'mock-key',
+          user: 'mock-user',
+        }],
+      };
+
+      apps.info.callsFake(params => {
+        expect(params.name).to.equal(app);
+        return Promise.resolve({
+          quota: 1024,
+        });
+      });
+
+      documentClientStub.query.callsFake(params => {
+        expect(params.KeyConditions).to.deep.equal({
+          appUser: {
+            AttributeValueList: [`${app}${constants.DELIMITER}${requestor}`],
+            ComparisonOperator: 'EQ',
+          },
+          key: {
+            AttributeValueList: [keyPrefix],
+            ComparisonOperator: 'BEGINS_WITH',
+          },
+        });
+        expect(params).to.have.all.keys(
+          'ConsistentRead', 'KeyConditions', 'TableName',
+        );
+        return {
+          promise: () => (Promise.resolve(expectedResult)),
+        };
+      });
+
+      appData.query.apply(swatchCtx, [{
+        app,
+        keyPrefix,
+        requestor,
+      }])
+      .then(result => {
+        expect(result).to.deep.equal(expectedResult);
+        done();
+      })
       .catch(done);
     });
   });

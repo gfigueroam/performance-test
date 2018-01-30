@@ -12,8 +12,8 @@ describe('All Routes', () => {
     expect(swatchRoutes[1].options.prefix).to.equal('uds/api/v1');
     expect(swatchRoutes[2].options.prefix).to.equal('');
 
-    expect(swatchRoutes[0].routes.length).to.equal(29);
-    expect(swatchRoutes[1].routes.length).to.equal(29);
+    expect(swatchRoutes[0].routes.length).to.equal(31);
+    expect(swatchRoutes[1].routes.length).to.equal(31);
     expect(swatchRoutes[2].routes.length).to.equal(1);
   });
 });

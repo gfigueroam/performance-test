@@ -24,6 +24,29 @@ async function get(params) {
   return appData.get.apply(this, [params]);
 }
 
+async function query(params) {
+  if (!params.keyPrefix) {
+    throw new Error('Parameter "keyPrefix" is required.');
+  }
+  if (!params.requestor) {
+    throw new Error('Parameter "requestor" is required.');
+  }
+
+  // If owner is not specified, default to the requestor.
+  if (!params.owner) {
+    params.owner = params.requestor;
+  }
+
+  // Verify requestor has access to owner's data.
+  const allowed = await auth.ids.hasAccessTo(params.requestor, params.owner);
+  if (!allowed) {
+    throw errors.codes.ERROR_CODE_AUTH_INVALID;
+  }
+
+  params.app = constants.HMH_APP;
+  return appData.query.apply(this, [params]);
+}
+
 async function set(params) {
   if (!params.key) {
     throw new Error('Parameter "key" is required.');
@@ -93,6 +116,7 @@ async function list(params) {
 module.exports = {
   get,
   list,
+  query,
   set,
   unset,
 };

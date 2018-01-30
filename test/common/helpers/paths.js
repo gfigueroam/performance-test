@@ -16,6 +16,7 @@ export default {
   DATA_APP_GET: 'api/v1/data.app.get',
   DATA_APP_LIST: 'api/v1/data.app.list',
   DATA_APP_MERGE: 'api/v1/data.app.merge',
+  DATA_APP_QUERY: 'api/v1/data.app.query',
   DATA_APP_SET: 'api/v1/data.app.set',
 
   DATA_CB_DECREMENT: 'api/v1/data.cb.decrement',
@@ -30,6 +31,7 @@ export default {
   DATA_USER_GET: 'api/v1/data.user.get',
   DATA_USER_GET_SHARED: 'api/v1/data.user.getShared',
   DATA_USER_LIST: 'api/v1/data.user.list',
+  DATA_USER_QUERY: 'api/v1/data.user.query',
   DATA_USER_SET: 'api/v1/data.user.set',
   DATA_USER_SHARE: 'api/v1/data.user.share',
   DATA_USER_UNSHARE: 'api/v1/data.user.unshare',

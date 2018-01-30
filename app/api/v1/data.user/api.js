@@ -7,6 +7,7 @@ import deleteHandler from './delete';
 import getHandler from './get';
 import getSharedHandler from './getShared';
 import listHandler from './list';
+import queryHandler from './query';
 import setHandler from './set';
 import shareHandler from './share';
 import unshareHandler from './unshare';
@@ -123,6 +124,35 @@ export default {
       middleware: [
         middleware.auth.requireUserTokenOrRequestorParameter,
         middleware.data.validateUserDataType,
+        middleware.database.ensureReadConsistency,
+      ],
+    },
+  },
+  'data.user.query': {
+    handler: queryHandler,
+    args: [
+      {
+        name: 'keyPrefix',
+        optional: false,
+        parse: parsers.strings.parseString,
+        validate: validators.strings.validateKey,
+      },
+      {
+        name: 'requestor',
+        optional: true,
+        parse: parsers.strings.parseOptionalString,
+        validate: validators.strings.validateOptionalUser,
+      },
+      {
+        name: 'owner',
+        optional: true,
+        parse: parsers.strings.parseOptionalString,
+        validate: validators.strings.validateOptionalUser,
+      },
+    ],
+    metadata: {
+      middleware: [
+        middleware.auth.requireUserTokenOrRequestorParameter,
         middleware.database.ensureReadConsistency,
       ],
     },

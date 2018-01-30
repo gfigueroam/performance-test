@@ -1,0 +1,53 @@
+FORMAT: 1A
+
+# data.user.query
+
+Retrieves all records for a given user that match a given key prefix
+
+See [Naming rules](common-names.html) for more information on names.
+
+:[](common-args.md url:"data.user.query" token:"Can be used with either a service token or a user token.")
+
+| Argument      | Example               | Required  | Description
+|:---           |:---                   |:---       |:---
+| `keyPrefix    | `key.prefix`          | Required  | The key prefix string to return all values whose keys start with that prefix.
+| `requestor`   | `user_345`            | Optional  | The user making the request. Required if token type is service token.
+| `owner`       | `user_789`            | Optional  | The user whose data is being accessed. Defaults to `requestor` if not specified.
+
+## Result
+The result is an array of data keys and values stored under any key that
+begins with the given `keyPrefix`,  for the user identified by the
+authentication token or `owner` parameter.
+
+```javascript
+{
+    "ok": true,
+    "result": [
+      {
+        "data": "some value",
+        "key": "key.prefix.1",
+        "type": "text",
+        "user": "user_789"
+      },
+      {
+        "data": 101010101,
+        "key": "key.prefix.2",
+        "type": "text",
+        "user": "user_789"
+      },
+    ]
+}
+```
+
+## Errors
+
+:[](common-errors.md)
+
+| Error                     | Description
+|:---                       |:---
+| `invalid_key`             | `keyPrefix` does not conform to the naming rules.
+| `invalid_user`            | `user` is not a valid user identifier.
+| `user_not_found`          | User specified in `user` or user token was not found.
+| `invalid_app`             | `app` does not conform to the naming rules.
+| `app_not_found`           | `app` does not name an existing app.
+| `forbidden`               | Token is a user token, and user was specified and did not match.
