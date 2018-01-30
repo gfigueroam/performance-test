@@ -16,6 +16,7 @@ const documentClientStub = sinon.createStubInstance(AWS.DynamoDB.DocumentClient)
 
 const requestor = 'unittest.calculatedBehavior.user';
 const key = 'unittest.calculatedBehavior.key';
+const keyPrefix = 'unittest.calculatedBehavior.keyPrefix';
 const swatchCtx = {
   database: {
     consistentRead: true,
@@ -498,6 +499,71 @@ describe('calculatedBehavior', () => {
       });
       calculatedBehavior.get.apply(swatchCtx, [{
         key,
+        requestor,
+      }])
+      .then(done)
+      .catch(done);
+    });
+  });
+
+  describe('query', () => {
+    it('throws an error if "keyPrefix" is not passed in the params', async () => {
+      try {
+        await calculatedBehavior.query.apply(swatchCtx, [{
+          requestor,
+        }]);
+        return Promise.reject();
+      } catch (err) {
+        return Promise.resolve();
+      }
+    });
+
+    it('throws an error if "requestor" is not passed in the params', async () => {
+      try {
+        await calculatedBehavior.query.apply(swatchCtx, [{
+          keyPrefix,
+        }]);
+        return Promise.reject();
+      } catch (err) {
+        return Promise.resolve();
+      }
+    });
+
+    it('throws an error when requestor does not match owner', async () => {
+      try {
+        await calculatedBehavior.query.apply(swatchCtx, [{
+          keyPrefix,
+          owner: 'other-owner',
+          requestor,
+        }]);
+        return Promise.reject();
+      } catch (err) {
+        expect(err).to.equal(errors.codes.ERROR_CODE_AUTH_INVALID);
+        return Promise.resolve();
+      }
+    });
+
+    it('calls dynamoDB.query and returns a promisified version', (done) => {
+      documentClientStub.query.callsFake(params => {
+        expect(params.KeyConditions).to.deep.equal({
+          key: {
+            AttributeValueList: [keyPrefix],
+            ComparisonOperator: 'BEGINS_WITH',
+          },
+          user: {
+            AttributeValueList: [requestor],
+            ComparisonOperator: 'EQ',
+          },
+        });
+        expect(params).to.have.all.keys(
+          'ConsistentRead', 'KeyConditions', 'TableName',
+        );
+        return {
+          promise: () => (Promise.resolve()),
+        };
+      });
+      calculatedBehavior.query.apply(swatchCtx, [{
+        keyPrefix,
         requestor,
       }])
       .then(done)

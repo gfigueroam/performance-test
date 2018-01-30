@@ -95,16 +95,18 @@ async function get(params) {
 }
 
 async function query(params) {
-  if (!params.requestor) {
-    throw new Error('Parameter "requestor" is required.');
-  }
   if (!params.keyPrefix) {
     throw new Error('Parameter "keyPrefix" is required.');
   }
+  if (!params.requestor) {
+    throw new Error('Parameter "requestor" is required.');
+  }
+
   // If owner is not specified, default to the requestor.
   if (!params.owner) {
     params.owner = params.requestor;
   }
+
   // Verify requestor has access to owner's data.
   const allowed = await auth.ids.hasAccessTo(params.requestor, params.owner);
   if (!allowed) {

@@ -22,6 +22,7 @@ export default {
   DATA_CB_GET: 'api/v1/data.cb.get',
   DATA_CB_INCREMENT: 'api/v1/data.cb.increment',
   DATA_CB_MERGE: 'api/v1/data.cb.merge',
+  DATA_CB_QUERY: 'api/v1/data.cb.query',
   DATA_CB_SET: 'api/v1/data.cb.set',
   DATA_CB_UNSET: 'api/v1/data.cb.unset',
 
