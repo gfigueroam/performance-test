@@ -4,11 +4,12 @@ FORMAT: 1A
 
 Retrieve data for a given user. This method is intended to access data stored by a _different_ user; accessing a user's data on behalf of the user that stored it should use [data.user.get](method-data.user.get.html) instead.
 
-:[](common-args.md url:"data.user.getShared" token:"Requires a user token.")
+:[](common-args.md url:"data.user.getShared" token:"Requires a user or service token.")
 
 | Argument      | Example           | Required  | Description
 |:---           |:---               |:---       |:---
 | `id`          | `z3Gh7pQ12z`      | Required  | A unique key to identify the data being stored.
+| `requestor`   | `userID`          | Optional  | The user requesting the data (required if a service token is used.)
 
 ## Result
 

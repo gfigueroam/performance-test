@@ -10,6 +10,7 @@ const expect = chai.expect;
 const swatchCtx = { logger };
 
 const shareId = 'test-share-id';
+const requestor = 'some-user-requesting';
 
 const mockDataItem = {
   data: 'some-data-value',
@@ -29,11 +30,14 @@ describe('data.user.getShared', () => {
 
   it('returns an the data value when an item is returned', done => {
     getSharedStub.callsFake((params) => {
-      expect(params).to.deep.equal({ id: shareId });
+      expect(params).to.deep.equal({
+        id: shareId,
+        requestor,
+      });
 
       return Promise.resolve(mockDataItem);
     });
-    getSharedHandler.apply(swatchCtx, [shareId]).then(result => {
+    getSharedHandler.apply(swatchCtx, [requestor, shareId]).then(result => {
       expect(result).to.deep.equal(mockDataItem);
       done();
     }).catch(done);

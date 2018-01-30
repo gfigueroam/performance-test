@@ -45,6 +45,12 @@ export default {
     handler: getSharedHandler,
     args: [
       {
+        name: 'requestor',
+        optional: true,
+        parse: parsers.strings.parseOptionalString,
+        validate: validators.strings.validateOptionalUser,
+      },
+      {
         name: 'id',
         optional: false,
         parse: parsers.strings.parseString,
@@ -53,7 +59,7 @@ export default {
     ],
     metadata: {
       middleware: [
-        // TODO: mbryc - middleware.auth.requireUserTokenOrRequestorParameter,
+        middleware.auth.requireUserTokenOrRequestorParameter,
         middleware.database.ensureReadConsistency,
       ],
     },

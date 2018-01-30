@@ -25,6 +25,7 @@ const mockCtx = {
 };
 
 const shareId = 'testshareid1';
+const requestor = 'user-id-requestor';
 
 // Define a fake authz configuration record in the DB
 const clientAuthzId = 'some-client-authz-id;';
@@ -49,7 +50,8 @@ const shareParams = {
 const expectedRestParams = {
   ctx: 'mock-ctx',
   key: 'mock-key',
-  user_id: 'mock-user',
+  owner: 'mock-user',
+  requestor,
 };
 
 describe('authz', () => {
@@ -67,7 +69,7 @@ describe('authz', () => {
 
   it('should always allow access when using simple allow verifier', async () => {
     try {
-      await authz.verify.call(mockCtx, shareId, { authz: 'uds_authz_allow' });
+      await authz.verify.call(mockCtx, shareId, requestor, { authz: 'uds_authz_allow' });
       return Promise.resolve();
     } catch (err) {
       return Promise.reject();
@@ -76,7 +78,7 @@ describe('authz', () => {
 
   it('should always deny access when using simple deny verifier', async () => {
     try {
-      await authz.verify.call(mockCtx, shareId, { authz: 'uds_authz_deny' });
+      await authz.verify.call(mockCtx, shareId, requestor, { authz: 'uds_authz_deny' });
       return Promise.reject();
     } catch (err) {
       expect(err).to.equal(errors.codes.ERROR_CODE_AUTHZ_ACCESS_DENIED);
@@ -105,7 +107,7 @@ describe('authz', () => {
     });
 
     try {
-      await authz.verify.call(mockCtx, shareId, shareParams);
+      await authz.verify.call(mockCtx, shareId, requestor, shareParams);
     } catch (err) {
       return Promise.reject(err);
     }
@@ -135,7 +137,7 @@ describe('authz', () => {
 
     try {
       mockCtx.database.consistentRead = true;
-      await authz.verify.call(mockCtx, shareId, shareParams);
+      await authz.verify.call(mockCtx, shareId, requestor, shareParams);
     } catch (err) {
       return Promise.reject(err);
     }

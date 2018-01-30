@@ -18,6 +18,7 @@ const data = 'authz.getShared.test.data';
 const authz = 'uds_authz_allow';
 const ctx = 'authz.getShared.test.ctx.1';
 const requestor = 'data.user.getShared.test.requestor.1';
+const shareRequestor = 'data.user.getShared.test.requestor.2';
 
 let allowShareId;
 let denyShareId;
@@ -50,13 +51,19 @@ describe('data.user.getShared', () => {
   });
 
   it('should return error when the share id is invalid', done => {
-    const params = { id: 'some.share.id.1' };
+    const params = {
+      id: 'some.share.id.1',
+      requestor: shareRequestor,
+    };
     const errorCode = errors.codes.ERROR_CODE_INVALID_SHARE_ID;
     http.sendPostRequestError(path, serviceToken, params, errorCode, done);
   });
 
   it('should return error when the share id does not exist', done => {
-    const params = { id: uuid.v4() };
+    const params = {
+      id: uuid.v4(),
+      requestor: shareRequestor,
+    };
     const errorCode = errors.codes.ERROR_CODE_SHARE_ID_NOT_FOUND;
     http.sendPostRequestError(path, serviceToken, params, errorCode, done);
   });
@@ -88,19 +95,28 @@ describe('data.user.getShared', () => {
   });
 
   it('should return error when the share id does not exist', done => {
-    const params = { id: uuid.v4() };
+    const params = {
+      id: uuid.v4(),
+      requestor: shareRequestor,
+    };
     const errorCode = errors.codes.ERROR_CODE_SHARE_ID_NOT_FOUND;
     http.sendPostRequestError(path, serviceToken, params, errorCode, done);
   });
 
   it('should return error when authz is denied', done => {
-    const params = { id: denyShareId };
+    const params = {
+      id: denyShareId,
+      requestor: shareRequestor,
+    };
     const errorCode = errors.codes.ERROR_CODE_AUTHZ_ACCESS_DENIED;
     http.sendPostRequestError(path, serviceToken, params, errorCode, done);
   });
 
   it('retrieves a shared piece of content by share id', (done) => {
-    const params = { id: allowShareId };
+    const params = {
+      id: allowShareId,
+      requestor: shareRequestor,
+    };
     http.sendPostRequest(path, serviceToken, params, (err, response) => {
       expect(err).to.equal(null);
       expect(response.body).to.deep.equal({
@@ -116,7 +132,10 @@ describe('data.user.getShared', () => {
       if (unsetError) {
         done(unsetError);
       } else {
-        const params = { id: allowShareId };
+        const params = {
+          id: allowShareId,
+          requestor: shareRequestor,
+        };
         const errorCode = errors.codes.ERROR_CODE_KEY_NOT_FOUND;
         http.sendPostRequestError(path, serviceToken, params, errorCode, done);
       }

@@ -22,7 +22,8 @@ parameters:
 |:---               |:---               |:---
 | `name`            | `shared_text`     | The name of the authorization mode
 | `ctx`             | `id_123`          | Some context passed as a parameter
-| `user_id`         | `user_abc`        | The ID of the user trying to access the data
+| `owner`           | `user_abc`        | The ID of the user who owns the data
+| `requestor`       | `user_def`        | The ID of the user who is attempting to access the data
 
 The result of the URL should be an HTTP 200, with a JSON boolean (`true` or
 `false`) describing the authorization status.

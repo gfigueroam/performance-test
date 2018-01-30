@@ -16,6 +16,7 @@ const documentClientStub = sinon.createStubInstance(
 
 const shareTableName = config.get('database').shareTableName;
 const appDataTableName = config.get('database').appDataJsonTableName;
+const requestor = 'some-user-requestor';
 
 const testShareId = '12341234-1234-1234-1234-123412341234';
 
@@ -56,7 +57,10 @@ describe('share', () => {
       });
 
       try {
-        await share.getShared.apply(swatchCtx, [{ id: testShareId }]);
+        await share.getShared.apply(swatchCtx, [{
+          id: testShareId,
+          requestor,
+        }]);
         return Promise.reject();
       } catch (err) {
         expect(err).to.equal(errors.codes.ERROR_CODE_SHARE_ID_NOT_FOUND);
@@ -82,7 +86,10 @@ describe('share', () => {
       });
 
       try {
-        await share.getShared.apply(swatchCtx, [{ id: testShareId }]);
+        await share.getShared.apply(swatchCtx, [{
+          id: testShareId,
+          requestor,
+        }]);
         return Promise.reject();
       } catch (err) {
         expect(err).to.equal(errors.codes.ERROR_CODE_AUTHZ_ACCESS_DENIED);
@@ -120,7 +127,10 @@ describe('share', () => {
         });
 
       try {
-        await share.getShared.apply(swatchCtx, [{ id: testShareId }]);
+        await share.getShared.apply(swatchCtx, [{
+          id: testShareId,
+          requestor,
+        }]);
         return Promise.reject();
       } catch (err) {
         expect(err).to.equal(errors.codes.ERROR_CODE_KEY_NOT_FOUND);
@@ -163,7 +173,10 @@ describe('share', () => {
         });
 
       try {
-        const result = await share.getShared.apply(swatchCtx, [{ id: testShareId }]);
+        const result = await share.getShared.apply(swatchCtx, [{
+          id: testShareId,
+          requestor,
+        }]);
         expect(result).to.deep.equal({
           data: 'mock-data',
           key: 'mock-key',

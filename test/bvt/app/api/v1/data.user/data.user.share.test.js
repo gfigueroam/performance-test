@@ -94,6 +94,7 @@ describe('data.user.share', () => {
   it('retrieves a shared piece of content by share id', (done) => {
     http.sendPostRequest(paths.DATA_USER_GET_SHARED, serviceToken, {
       id: shareId,
+      requestor,
     }, (err, response) => {
       expect(err).to.equal(null);
       expect(response.body).to.deep.equal({
@@ -121,6 +122,7 @@ describe('data.user.share', () => {
   it('should no longer find a piece of unshared content', (done) => {
     http.sendPostRequest(paths.DATA_USER_GET_SHARED, serviceToken, {
       id: shareId,
+      requestor,
     }, (err, response) => {
       expect(err).to.equal(null);
       expect(response.body).to.deep.equal({
@@ -152,6 +154,7 @@ describe('data.user.share', () => {
   it('should still be able to load the shared content by other share id', (done) => {
     http.sendPostRequest(paths.DATA_USER_GET_SHARED, serviceToken, {
       id: anotherShareId,
+      requestor,
     }, (err, response) => {
       expect(err).to.equal(null);
       expect(response.body).to.deep.equal({

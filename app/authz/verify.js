@@ -8,7 +8,7 @@ const defaultAuthz = {
   uds_authz_deny: simple.deny,
 };
 
-async function verify(shareId, shareItem) {
+async function verify(shareId, requestor, shareItem) {
   this.logger.info(`Authz module verifying item '${shareId}' with share metadata '${shareItem}'`);
 
   const authz = shareItem.authz;
@@ -26,7 +26,8 @@ async function verify(shareId, shareItem) {
   const authzParams = {
     ctx: shareItem.ctx,
     key: shareItem.dataKey,
-    user_id: shareItem.user,
+    owner: shareItem.user,
+    requestor,
   };
   await rest.get.call(this, authzVerifier.url, authzParams);
 

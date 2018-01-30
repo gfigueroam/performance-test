@@ -12,6 +12,9 @@ async function getShared(params) {
   if (!params.id) {
     throw new Error('Parameter "id" is required.');
   }
+  if (!params.requestor) {
+    throw new Error('Parameter "requestor" is required.');
+  }
 
   // First query the share table by share id to get metadata
   const shareResult = await dynamodbClient.instrumented('get', {
@@ -29,7 +32,7 @@ async function getShared(params) {
 
   // Now run the correct authz check to verify access to data
   //  Throws on error or any non-200 response from authz endpoint
-  await authz.verify.apply(this, [params.id, shareResult.Item]);
+  await authz.verify.apply(this, [params.id, params.requestor, shareResult.Item]);
 
   // Query for item data in app data table belonging to owner
   const getResult = await dynamodbClient.instrumented('get', {
