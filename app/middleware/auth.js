@@ -1,7 +1,21 @@
 import auth from '../auth';
 import errors from '../models/errors';
 
-async function requireUserTokenOrUserId(ctx, next) {
+async function requireServiceToken(ctx, next) {
+  if (!ctx || !ctx.swatchCtx || !ctx.swatchCtx.auth) {
+    throw errors.codes.ERROR_CODE_AUTH_NO_TOKEN;
+  }
+
+  if (ctx.swatchCtx.auth.tokenType !== auth.tokens.SERVICE_TOKEN) {
+    throw errors.codes.ERROR_CODE_WRONG_TOKEN_TYPE;
+  }
+
+  ctx.swatchCtx.logger.info(`Successfully authenticated service token: ${ctx.request.url}`);
+
+  await next();
+}
+
+async function requireUserTokenOrRequestorParameter(ctx, next) {
   if (!ctx || !ctx.swatchCtx || !ctx.swatchCtx.auth) {
     throw errors.codes.ERROR_CODE_AUTH_NO_TOKEN;
   }
@@ -23,5 +37,6 @@ async function requireUserTokenOrUserId(ctx, next) {
 }
 
 export default {
-  requireUserTokenOrUserId,
+  requireServiceToken,
+  requireUserTokenOrRequestorParameter,
 };

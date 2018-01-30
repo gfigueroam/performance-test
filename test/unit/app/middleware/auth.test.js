@@ -62,30 +62,30 @@ const mockInvalidServiceTokenCtx = {
 };
 
 describe('Auth Middleware', () => {
-  describe('requireUserTokenOrUserId', () => {
+  describe('requireUserTokenOrRequestorParameter', () => {
     it('should throw an error without auth ctx', done => {
-      middleware.auth.requireUserTokenOrUserId(undefined, noop).catch(error => {
+      middleware.auth.requireUserTokenOrRequestorParameter(undefined, noop).catch(error => {
         expect(error).to.equal(errors.codes.ERROR_CODE_AUTH_NO_TOKEN);
         done();
       });
     });
 
     it('should throw an error with an empty swatch ctx', done => {
-      middleware.auth.requireUserTokenOrUserId({}, noop).catch(error => {
+      middleware.auth.requireUserTokenOrRequestorParameter({}, noop).catch(error => {
         expect(error).to.equal(errors.codes.ERROR_CODE_AUTH_NO_TOKEN);
         done();
       });
     });
 
     it('should throw an error with swatch ctx but no auth ctx', done => {
-      middleware.auth.requireUserTokenOrUserId({ swatchCtx: {} }, noop).catch(error => {
+      middleware.auth.requireUserTokenOrRequestorParameter({ swatchCtx: {} }, noop).catch(error => {
         expect(error).to.equal(errors.codes.ERROR_CODE_AUTH_NO_TOKEN);
         done();
       });
     });
 
     it('should throw an error with no token type', done => {
-      middleware.auth.requireUserTokenOrUserId({
+      middleware.auth.requireUserTokenOrRequestorParameter({
         swatchCtx: mockEmptyCtx,
       }, noop).catch(error => {
         expect(error).to.equal(errors.codes.ERROR_CODE_AUTH_NO_TOKEN);
@@ -94,7 +94,7 @@ describe('Auth Middleware', () => {
     });
 
     it('should throw an error with an invalid token type', done => {
-      middleware.auth.requireUserTokenOrUserId({
+      middleware.auth.requireUserTokenOrRequestorParameter({
         swatchCtx: mockInvalidCtx,
       }, noop).catch(error => {
         expect(error).to.equal(errors.codes.ERROR_CODE_AUTH_NO_TOKEN);
@@ -103,14 +103,14 @@ describe('Auth Middleware', () => {
     });
 
     it('should call next function in chain after verifying user token', () => {
-      runner.syncRunMiddleware(middleware.auth.requireUserTokenOrUserId, {
+      runner.syncRunMiddleware(middleware.auth.requireUserTokenOrRequestorParameter, {
         request: mockRequest,
         swatchCtx: mockUserTokenCtx,
       });
     });
 
     it('should throw an error with a server token but no user param', done => {
-      middleware.auth.requireUserTokenOrUserId({
+      middleware.auth.requireUserTokenOrRequestorParameter({
         swatchCtx: mockInvalidServiceTokenCtx,
       }, noop).catch(error => {
         expect(error).to.equal(errors.codes.ERROR_CODE_USER_NOT_FOUND);
@@ -119,7 +119,64 @@ describe('Auth Middleware', () => {
     });
 
     it('should call next function in chain after verifying service token with user', () => {
-      runner.syncRunMiddleware(middleware.auth.requireUserTokenOrUserId, {
+      runner.syncRunMiddleware(middleware.auth.requireUserTokenOrRequestorParameter, {
+        request: mockRequest,
+        swatchCtx: mockServiceTokenCtx,
+      });
+    });
+  });
+
+  describe('requireServiceToken', () => {
+    it('should throw an error without auth ctx', done => {
+      middleware.auth.requireServiceToken(undefined, noop).catch(error => {
+        expect(error).to.equal(errors.codes.ERROR_CODE_AUTH_NO_TOKEN);
+        done();
+      });
+    });
+
+    it('should throw an error with an empty ctx', done => {
+      middleware.auth.requireServiceToken({}, noop).catch(error => {
+        expect(error).to.equal(errors.codes.ERROR_CODE_AUTH_NO_TOKEN);
+        done();
+      });
+    });
+
+    it('should throw an error with swatch ctx but no auth ctx', done => {
+      middleware.auth.requireServiceToken({ swatchCtx: {} }, noop).catch(error => {
+        expect(error).to.equal(errors.codes.ERROR_CODE_AUTH_NO_TOKEN);
+        done();
+      });
+    });
+
+    it('should throw an error with no token type', done => {
+      middleware.auth.requireServiceToken({
+        swatchCtx: mockEmptyCtx,
+      }, noop).catch(error => {
+        expect(error).to.equal(errors.codes.ERROR_CODE_WRONG_TOKEN_TYPE);
+        done();
+      });
+    });
+
+    it('should throw an error with an invalid token type', done => {
+      middleware.auth.requireServiceToken({
+        swatchCtx: mockInvalidCtx,
+      }, noop).catch(error => {
+        expect(error).to.equal(errors.codes.ERROR_CODE_WRONG_TOKEN_TYPE);
+        done();
+      });
+    });
+
+    it('should throw an error with user token type', done => {
+      middleware.auth.requireServiceToken({
+        swatchCtx: mockUserTokenCtx,
+      }, noop).catch(error => {
+        expect(error).to.equal(errors.codes.ERROR_CODE_WRONG_TOKEN_TYPE);
+        done();
+      });
+    });
+
+    it('should call next function in chain after verifying service token', () => {
+      runner.syncRunMiddleware(middleware.auth.requireServiceToken, {
         request: mockRequest,
         swatchCtx: mockServiceTokenCtx,
       });

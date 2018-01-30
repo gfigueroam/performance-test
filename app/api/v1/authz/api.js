@@ -27,7 +27,7 @@ export default {
     ],
     metadata: {
       middleware: [
-        // TODO: mbryc - middleware.auth.requireUserTokenOrUserId,
+        middleware.auth.requireServiceToken,
         middleware.database.ensureReadConsistency,
       ],
     },
@@ -44,7 +44,7 @@ export default {
     ],
     metadata: {
       middleware: [
-        // TODO: mbryc - middleware.auth.requireUserTokenOrUserId,
+        middleware.auth.requireServiceToken,
         middleware.database.ensureReadConsistency,
       ],
     },
@@ -53,7 +53,7 @@ export default {
     handler: listHandler,
     metadata: {
       middleware: [
-        // TODO: mbryc - middleware.auth.requireUserTokenOrUserId,
+        middleware.auth.requireServiceToken,
         middleware.database.ensureReadConsistency,
       ],
     },
@@ -70,7 +70,7 @@ export default {
     ],
     metadata: {
       middleware: [
-        // TODO: mbryc - middleware.auth.requireUserTokenOrUserId,
+        middleware.auth.requireServiceToken,
         middleware.database.ensureReadConsistency,
       ],
     },

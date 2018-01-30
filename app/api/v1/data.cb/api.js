@@ -36,7 +36,7 @@ export default {
     ],
     metadata: {
       middleware: [
-        middleware.auth.requireUserTokenOrUserId,
+        middleware.auth.requireUserTokenOrRequestorParameter,
       ],
     },
   },
@@ -64,7 +64,7 @@ export default {
     ],
     metadata: {
       middleware: [
-        middleware.auth.requireUserTokenOrUserId,
+        middleware.auth.requireUserTokenOrRequestorParameter,
       ],
     },
   },
@@ -92,7 +92,7 @@ export default {
     ],
     metadata: {
       middleware: [
-        middleware.auth.requireUserTokenOrUserId,
+        middleware.auth.requireUserTokenOrRequestorParameter,
       ],
     },
   },
@@ -120,7 +120,7 @@ export default {
     ],
     metadata: {
       middleware: [
-        middleware.auth.requireUserTokenOrUserId,
+        middleware.auth.requireUserTokenOrRequestorParameter,
       ],
     },
   },
@@ -153,7 +153,7 @@ export default {
     ],
     metadata: {
       middleware: [
-        middleware.auth.requireUserTokenOrUserId,
+        middleware.auth.requireUserTokenOrRequestorParameter,
       ],
     },
   },
@@ -186,7 +186,7 @@ export default {
     ],
     metadata: {
       middleware: [
-        middleware.auth.requireUserTokenOrUserId,
+        middleware.auth.requireUserTokenOrRequestorParameter,
       ],
     },
   },
@@ -214,7 +214,7 @@ export default {
     ],
     metadata: {
       middleware: [
-        middleware.auth.requireUserTokenOrUserId,
+        middleware.auth.requireUserTokenOrRequestorParameter,
       ],
     },
   },

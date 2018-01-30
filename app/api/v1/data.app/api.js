@@ -39,7 +39,7 @@ export default {
     ],
     metadata: {
       middleware: [
-        // TODO: mbryc - middleware.auth.requireUserTokenOrUserId,
+        middleware.auth.requireUserTokenOrRequestorParameter,
         middleware.database.ensureReadConsistency,
       ],
     },
@@ -78,7 +78,7 @@ export default {
     ],
     metadata: {
       middleware: [
-        // TODO: mbryc - middleware.auth.requireUserTokenOrUserId,
+        middleware.auth.requireUserTokenOrRequestorParameter,
         middleware.database.ensureReadConsistency,
       ],
     },
@@ -106,7 +106,7 @@ export default {
     ],
     metadata: {
       middleware: [
-        // TODO: mbryc - middleware.auth.requireUserTokenOrUserId,
+        middleware.auth.requireUserTokenOrRequestorParameter,
         middleware.database.ensureReadConsistency,
       ],
     },
@@ -140,7 +140,7 @@ export default {
     ],
     metadata: {
       middleware: [
-        // TODO: mbryc - middleware.auth.requireUserTokenOrUserId,
+        middleware.auth.requireUserTokenOrRequestorParameter,
         middleware.database.ensureReadConsistency,
       ],
     },
@@ -179,7 +179,7 @@ export default {
     ],
     metadata: {
       middleware: [
-        // TODO: mbryc - middleware.auth.requireUserTokenOrUserId,
+        middleware.auth.requireUserTokenOrRequestorParameter,
         middleware.database.ensureReadConsistency,
       ],
     },
