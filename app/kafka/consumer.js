@@ -32,15 +32,15 @@ const headers = { Authorization: serviceToken };
 // Periodically update consumer offset to commit processed messages
 function commitMessages() {
   if (commits.length > 0) {
-    logger.info('Committing successfully handled events: ', commits);
+    logger.info('Kafka consumer: Committing successfully handled events: ', commits);
 
     offset.commit(groupId, commits, (err, data) => {
       if (err) {
-        logger.error('Error committing offsets: ', err);
+        logger.error('Kafka consumer: Error committing offsets: ', err);
         return;
       }
 
-      logger.info('Commit of offsets was successful. Data = ', data);
+      logger.info('Kafka consumer: Commit of offsets was successful. Data = ', data);
 
       // Truncate the commits array.
       commits.length = 0;
@@ -72,7 +72,7 @@ if (kafkaHost && kafkaTopic && groupId) {
 
   consumer.on('offsetOutOfRange', err => {
     // TODO: Handle this properly, warn on missed events, ensure offset is updated
-    logger.warn('Warning! Offset out-of-range. Need to adjust client offset.', err);
+    logger.warn('Kafka consumer: Warning! Offset out-of-range. Need to adjust client offset.', err);
   });
 
   consumer.on('message', message => {
@@ -100,7 +100,7 @@ if (kafkaHost && kafkaTopic && groupId) {
     }).then(body => {
       if (body.ok) {
         // Push the offset into the commits array which periodically is commited
-        logger.info(`UDS call succeeded! Adding event to pending commit list: ${udsPayload}`);
+        logger.info(`Kafka consumer: UDS call succeeded! Adding event to pending commit list: ${udsPayload}`);
         commits.push({
           offset: message.offset + 1,
           partition: message.partition,
@@ -108,15 +108,15 @@ if (kafkaHost && kafkaTopic && groupId) {
         });
       } else {
         // TODO: Confirm Kafka will re-send the message after some visibility timeout
-        logger.error('UDS call returned an error result!', body);
+        logger.error('Kafka consumer: UDS call returned an error result!', body);
       }
     }).catch(err => {
       // TODO: Confirm Kafka will re-send the message after some visibility timeout
-      logger.error('UDS called failed!', err);
+      logger.error('Kafka consumer: UDS called failed!', err);
     });
   });
 } else {
-  logger.info('Kafka consumer skipping initialization...');
+  logger.info('Kafka consumer: Skipping initialization...');
 }
 /* eslint-enable promise/prefer-await-to-callbacks */
 /* eslint-enable promise/prefer-await-to-then */

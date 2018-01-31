@@ -31,6 +31,7 @@ async function execute() {
       // eslint-disable-next-line no-console
       console.log(`${dynamoDBTableName} Items: `, JSON.stringify(data));
       if (data.LastEvaluatedKey) {
+        // eslint-disable-next-line no-console
         console.log(`WARNING: Incomplete Results. Pagination required. LastEvaluatedKey: ${data.LastEvaluatedKey}`);
       }
     } catch (err) {
