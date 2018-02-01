@@ -7,8 +7,6 @@ export default {
   ERROR_CODE_AUTHZ_ACCESS_DENIED: 'authz_access_denied',
   ERROR_CODE_AUTHZ_NOT_FOUND: 'authz_not_found',
 
-  ERROR_CODE_FORBIDDEN: 'forbidden',
-
   ERROR_CODE_INTERNAL_ERROR: 'internal_error',
 
   ERROR_CODE_INVALID_APP: 'invalid_app',
@@ -22,15 +20,12 @@ export default {
   ERROR_CODE_INVALID_NAME: 'invalid_name',
   ERROR_CODE_INVALID_QUOTA: 'invalid_quota',
   ERROR_CODE_INVALID_SHARE_ID: 'invalid_share_id',
-  ERROR_CODE_INVALID_TYPE: 'invalid_type',
   ERROR_CODE_INVALID_URL: 'invalid_url',
   ERROR_CODE_INVALID_USER: 'invalid_user',
-  ERROR_CODE_INVALID_USER_REALM: 'invalid_user_realm',
 
   ERROR_CODE_KEY_NOT_FOUND: 'key_not_found',
   ERROR_CODE_MISSING_ARG: 'missing_arg',
   ERROR_CODE_NAME_IN_USE: 'name_in_use',
-  ERROR_CODE_NO_USER_DATA: 'no_user_data',
   ERROR_CODE_QUOTA_EXCEEDED: 'quota_exceeded',
   ERROR_CODE_SHARE_ID_NOT_FOUND: 'share_id_not_found',
   ERROR_CODE_USER_NOT_FOUND: 'user_not_found',

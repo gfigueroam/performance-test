@@ -25,6 +25,9 @@ async function getShared(params) {
     TableName: nconf.get('database').shareTableName,
   });
 
+  // TODOBT - Return undefined if share not found or key not found
+  //  Remove throw logic and return undefined like other query endpoints
+
   // Throw an error if nothing matches the unique share id
   if (!shareResult.Item) {
     throw errors.codes.ERROR_CODE_SHARE_ID_NOT_FOUND;
@@ -78,6 +81,9 @@ async function share(params) {
   if (!allowed) {
     throw errors.codes.ERROR_CODE_AUTH_INVALID;
   }
+
+  // TODOBT - Validate `key` exists or throw `key_not_found`
+  // TODOBT - Validate `authz` exists or throw `authz_not_found`
 
   // Generate a unique share id and share in context of HMH app
   params.id = uuid.v4();

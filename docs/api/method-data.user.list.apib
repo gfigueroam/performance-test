@@ -6,10 +6,10 @@ List data for a given user.
 
 :[](common-args.md url:"data.user.list" token:"Can be used with either a service token or a user token.")
 
-| Argument      | Example                   | Required  | Description
-|:---           |:---                       |:---       |:---
-| `requestor`   | `user_345`            | Optional  | The user making the request. Required if token type is service token.
-| `owner`       | `user_789`            | Optional  | The user whose data is being accessed. Defaults to `requestor` if not specified.
+| Argument      | Example           | Required  | Description
+|:---           |:---               |:---       |:---
+| `requestor`   | `user_345`        | Optional  | The user making the request. Required if token type is service token.
+| `owner`       | `user_789`        | Optional  | The user whose data is being accessed. Defaults to `requestor` if not specified.
 
 ## Result
 
@@ -35,6 +35,7 @@ List data for a given user.
 
 | Error             | Description
 |:---               |:---
-| `invalid_user`    | `user` is not a valid user identifier.
-| `user_not_found`  | User specified in `user` or user token was not found.
-| `forbidden`       | Token is a user token, and user was specified and did not match.
+| `not_authed`      | No authentication token provided.
+| `invalid_auth`    | `requestor` does not have access to `owner` content.
+| `invalid_user`    | `owner` or `requestor` is not a valid user identifier.
+| `user_not_found`  | User specified in `requestor` or user token was not found.

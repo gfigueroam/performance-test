@@ -19,8 +19,8 @@ See [Naming rules](common-names.html) for more information on names.
 |:---               |:---               |:---       |:---
 | `key`             | `achievements`    | Required  | The key whose stored value is to be updated.
 | `data`            | `{"achievementXYZ": true}`    | Required  | The object which is to be merged with the existing stored value.
-| `requestor`   | `user_345`            | Optional  | The user making the request. Required if token type is service token.
-| `owner`       | `user_789`            | Optional  | The user whose data is being accessed. Defaults to `requestor` if not specified.
+| `requestor`       | `user_345`        | Optional  | The user making the request. Required if token type is service token.
+| `owner`           | `user_789`        | Optional  | The user whose data is being accessed. Defaults to `requestor` if not specified.
 
 ## Result
 
@@ -36,10 +36,10 @@ See [Naming rules](common-names.html) for more information on names.
 
 | Error                     | Description
 |:---                       |:---
+| `not_authed`              | No authentication token provided.
+| `invalid_auth`            | `requestor` does not have access to `owner` content.
 | `invalid_key`             | `key` does not conform to the naming rules.
-| `key_not_found`           | `key` does not describe an existing key for user.
+| `invalid_user`            | `owner` or `requestor` is not a valid user identifier.
+| `user_not_found`          | User specified in `requestor` or user token was not found.
 | `invalid_data`            | `data` is missing or not a serialized JSON document.
-| `invalid_user`            | `user` is not a valid user identifier.
-| `user_not_found`          | User specified in `user` or user token was not found.
-| `invalid_type`            | The value identified by key is not an object and cannot be merged.
-| `forbidden`               | Token is a user token, and user was specified and did not match.
+| `invalid_data_type`       | `data` object failed to merge with existing data stored under `key`.

@@ -27,11 +27,11 @@ Delete a document for a given user.
 
 | Error                 | Description
 |:---                   |:---
+| `not_authed`          | No authentication token provided.
+| `invalid_auth`        | `requestor` does not have access to `owner` content.
 | `invalid_key`         | `key` does not conform to the naming rules.
 | `key_not_found`       | `key` does not describe an existing key for user.
 | `invalid_app`         | `app` does not conform to the naming rules.
 | `app_not_found`       | `app` does not name an existing app.
-| `invalid_user`        | `user` is not a valid user identifier.
-| `user_not_found`      | User specified in `user` or user token was not found.
-| `no_user_data`        | User does not have a matching JSON document saved.
-| `forbidden`           | Token is a user token, and user was specified and did not match.
+| `invalid_user`        | `owner` or `requestor` is not a valid user identifier.
+| `user_not_found`      | User specified in `requestor` or user token was not found.

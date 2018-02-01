@@ -43,13 +43,6 @@ function validateName(param) {
   );
 }
 
-function validateUserRealm(param) {
-  // Check that param matches a known whitelist of realms
-  if (!system.realms.users.includes(param)) {
-    throw errors.codes.ERROR_CODE_INVALID_USER_REALM;
-  }
-}
-
 function validateURL(param) {
   // TODOBT - Add some kind of URL validation regex
 
@@ -171,5 +164,4 @@ export default {
   validateType,
   validateURL,
   validateUser,
-  validateUserRealm,
 };

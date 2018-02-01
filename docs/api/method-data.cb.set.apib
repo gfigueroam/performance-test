@@ -15,8 +15,8 @@ See [Naming rules](common-names.html) for more information on names.
 |:---               |:---               |:---       |:---
 | `key`             | `loginCount`      | Required  | The key whose stored value is to be updated.
 | `data`            | `"any value"`     | Required  | Any value is permitted: a JSON object, an array, a number, a string, or a boolean.
-| `requestor`   | `user_345`            | Optional  | The user making the request. Required if token type is service token.
-| `owner`       | `user_789`            | Optional  | The user whose data is being accessed. Defaults to `requestor` if not specified.
+| `requestor`       | `user_345`        | Optional  | The user making the request. Required if token type is service token.
+| `owner`           | `user_789`        | Optional  | The user whose data is being accessed. Defaults to `requestor` if not specified.
 
 ## Result
 
@@ -32,9 +32,9 @@ See [Naming rules](common-names.html) for more information on names.
 
 | Error                     | Description
 |:---                       |:---
+| `not_authed`              | No authentication token provided.
+| `invalid_auth`            | `requestor` does not have access to `owner` content.
 | `invalid_key`             | `key` does not conform to the naming rules.
-| `key_not_found`           | `key` does not describe an existing key for user.
+| `invalid_user`            | `owner` or `requestor` is not a valid user identifier.
+| `user_not_found`          | User specified in `requestor` or user token was not found.
 | `invalid_data`            | `data` is missing or not a supported type.
-| `invalid_user`            | `user` is not a valid user identifier.
-| `user_not_found`          | User specified in `user` or user token was not found.
-| `forbidden`               | Token is a user token, and user was specified and did not match.

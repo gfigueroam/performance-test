@@ -7,6 +7,5 @@ export default async function setPerUserQuotaHandler(name, quota) {
     name,
     quota,
   }]);
-
   return undefined;
 }

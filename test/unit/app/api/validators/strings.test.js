@@ -49,32 +49,6 @@ describe('String Validators', () => {
     });
   });
 
-  describe('validateUserRealm', () => {
-    it('should allow valid user realms', () => {
-      [
-        'app',
-        'hmh',
-        'user',
-      ].forEach(realm => {
-        expect(() => stringValidators.validateUserRealm(realm)).not.to.throw();
-      });
-    });
-
-    it('should reject invalid user realms', () => {
-      function checkInvalidUserRealm(value) {
-        expect(() => stringValidators.validateUserRealm(value)).to.throw(
-          errors.codes.ERROR_CODE_INVALID_USER_REALM,
-        );
-      }
-
-      checkInvalidUserRealm();
-      checkInvalidUserRealm('');
-      checkInvalidUserRealm('other');
-      checkInvalidUserRealm('invalid');
-      invalidNames.forEach(checkInvalidUserRealm);
-    });
-  });
-
   describe('validateURL', () => {
     it('should allow valid URLs', () => {
       validNames.forEach(name => {

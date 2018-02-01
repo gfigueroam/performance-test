@@ -13,8 +13,8 @@ If the existing document is not found, it creates a new one.
 | `key`         | `settings`                | Required  | A unique key to identify the data being stored.
 | `data`        | `{"font-weight": "bold"}` | Required  | The serialized JSON document to store.
 | `app`         | `browser_client`          | Required  | The app storing data.
-| `requestor`   | `user_345`            | Optional  | The user making the request. Required if token type is service token.
-| `owner`       | `user_789`            | Optional  | The user whose data is being accessed. Defaults to `requestor` if not specified.
+| `requestor`   | `user_345`                | Optional  | The user making the request. Required if token type is service token.
+| `owner`       | `user_789`                | Optional  | The user whose data is being accessed. Defaults to `requestor` if not specified.
 
 ## Result
 
@@ -39,12 +39,13 @@ Returns the merged object.
 
 | Error                 | Description
 |:---                   |:---
+| `not_authed`          | No authentication token provided.
+| `invalid_auth`        | `requestor` does not have access to `owner` content.
 | `invalid_key`         | `key` does not conform to the naming rules.
-| `name_in_use`         | `key` is already in use.
-| `invalid_data`        | `data` is missing or not a serialized JSON document.
 | `invalid_app`         | `app` does not conform to the naming rules.
 | `app_not_found`       | `app` does not name an existing app.
-| `invalid_user`        | `user` is not a valid user identifier.
-| `user_not_found`      | User specified in `user` or user token was not found.
-| `forbidden`           | Token is a user token, and user was specified and did not match.
+| `invalid_user`        | `owner` or `requestor` is not a valid user identifier.
+| `user_not_found`      | User specified in `requestor` or user token was not found.
 | `quota_exceeded`      | The user does not have sufficient quota to store the data.
+| `invalid_data`        | `data` is missing or not a serialized JSON document.
+| `invalid_data_type`   | `data` object failed to merge with existing data stored under `key`.

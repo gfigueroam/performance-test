@@ -37,7 +37,7 @@ describe('data.user.getShared', () => {
 
       return Promise.resolve(mockDataItem);
     });
-    getSharedHandler.apply(swatchCtx, [requestor, shareId]).then(result => {
+    getSharedHandler.apply(swatchCtx, [shareId, requestor]).then(result => {
       expect(result).to.deep.equal(mockDataItem);
       done();
     }).catch(done);

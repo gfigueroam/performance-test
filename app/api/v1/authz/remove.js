@@ -6,6 +6,5 @@ export default async function removeHandler(name) {
   await db.remove.apply(this, [{
     name,
   }]);
-
   return undefined;
 }

@@ -8,11 +8,11 @@ See [Naming rules](common-names.html) for more information on names.
 
 :[](common-args.md url:"data.user.query" token:"Can be used with either a service token or a user token.")
 
-| Argument      | Example               | Required  | Description
-|:---           |:---                   |:---       |:---
-| `keyPrefix    | `key.prefix`          | Required  | The key prefix string to return all values whose keys start with that prefix.
-| `requestor`   | `user_345`            | Optional  | The user making the request. Required if token type is service token.
-| `owner`       | `user_789`            | Optional  | The user whose data is being accessed. Defaults to `requestor` if not specified.
+| Argument      | Example           | Required  | Description
+|:---           |:---               |:---       |:---
+| `keyPrefix    | `key.prefix`      | Required  | The key prefix string to return all values whose keys start with that prefix.
+| `requestor`   | `user_345`        | Optional  | The user making the request. Required if token type is service token.
+| `owner`       | `user_789`        | Optional  | The user whose data is being accessed. Defaults to `requestor` if not specified.
 
 ## Result
 The result is an array of data keys and values stored under any key that
@@ -45,9 +45,8 @@ authentication token or `owner` parameter.
 
 | Error                     | Description
 |:---                       |:---
+| `not_authed`              | No authentication token provided.
+| `invalid_auth`            | `requestor` does not have access to `owner` content.
 | `invalid_key`             | `keyPrefix` does not conform to the naming rules.
-| `invalid_user`            | `user` is not a valid user identifier.
-| `user_not_found`          | User specified in `user` or user token was not found.
-| `invalid_app`             | `app` does not conform to the naming rules.
-| `app_not_found`           | `app` does not name an existing app.
-| `forbidden`               | Token is a user token, and user was specified and did not match.
+| `invalid_user`            | `owner` or `requestor` is not a valid user identifier.
+| `user_not_found`          | User specified in `requestor` or user token was not found.

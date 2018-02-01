@@ -6,6 +6,5 @@ export default async function infoHandler(name) {
   const authz = await db.info.apply(this, [{
     name,
   }]);
-
   return authz;
 }

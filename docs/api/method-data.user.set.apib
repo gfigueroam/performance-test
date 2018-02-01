@@ -8,11 +8,11 @@ See [Naming rules](common-names.html) for more information on names.
 
 :[](common-args.md url:"data.user.set" token:"Can be used with either a service token or a user token.")
 
-| Argument      | Example                   | Required  | Description
-|:---           |:---                       |:---       |:---
-| `key`         | `annotation_id123`        | Required  | A unique key to identify the data being stored.
-| `type`        | `annotation`              | Required  | The type of data being stored. Must be one of the [known types](common-types.html).
-| `data`        | `data`                    | Required  | The data to store.
+| Argument      | Example               | Required  | Description
+|:---           |:---                   |:---       |:---
+| `key`         | `annotation_id123`    | Required  | A unique key to identify the data being stored.
+| `type`        | `annotation`          | Required  | The type of data being stored. Must be one of the [known types](common-types.html).
+| `data`        | `data`                | Required  | The data to store.
 | `requestor`   | `user_345`            | Optional  | The user making the request. Required if token type is service token.
 | `owner`       | `user_789`            | Optional  | The user whose data is being accessed. Defaults to `requestor` if not specified.
 
@@ -30,11 +30,10 @@ See [Naming rules](common-names.html) for more information on names.
 
 | Error               | Description
 |:---                 |:---
+| `not_authed`        | No authentication token provided.
+| `invalid_auth`      | `requestor` does not have access to `owner` content.
 | `invalid_key`       | `key` does not conform to the naming rules.
-| `name_in_use`       | `key` is already in use.
-| `invalid_data_type` | `type` is not a supported data type.
 | `invalid_data`      | `data` content does not match the given `type`.
-| `invalid_user`      | `user` is not a valid user identifier.
-| `user_not_found`    | User specified in `user` or user token was not found.
-| `forbidden`         | Token is a user token, and user was specified and did not match.
-| `quota_exceeded`    | The user does not have sufficient quota to store the data.
+| `invalid_data_type` | `type` is not a supported data type.
+| `invalid_user`      | `owner` or `requestor` is not a valid user identifier.
+| `user_not_found`    | User specified in `requestor` or user token was not found.

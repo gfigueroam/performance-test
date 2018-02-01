@@ -2,7 +2,7 @@ import db from '../../../db/apps';
 
 export default async function listHandler() {
   this.logger.info('apps.list');
-  const apps = await db.list.apply(this);
 
+  const apps = await db.list.apply(this);
   return apps;
 }

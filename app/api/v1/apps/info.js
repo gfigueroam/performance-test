@@ -6,6 +6,5 @@ export default async function infoHandler(name) {
   const app = await db.info.apply(this, [{
     name,
   }]);
-
   return app;
 }
