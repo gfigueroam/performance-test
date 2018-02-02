@@ -3,9 +3,11 @@ import uuid from 'uuid';
 import auth from '../auth';
 import authz from '../authz';
 import constants from '../utils/constants';
-import dynamodbClient from './dynamoDBClient';
 import errors from '../models/errors';
 import nconf from '../config';
+
+import dynamodbClient from './dynamoDBClient';
+import userDB from './userData';
 
 
 async function getShared(params) {
@@ -25,12 +27,9 @@ async function getShared(params) {
     TableName: nconf.get('database').shareTableName,
   });
 
-  // TODOBT - Return undefined if share not found or key not found
-  //  Remove throw logic and return undefined like other query endpoints
-
-  // Throw an error if nothing matches the unique share id
+  // Return undefined if the unique share id does not exist
   if (!shareResult.Item) {
-    throw errors.codes.ERROR_CODE_SHARE_ID_NOT_FOUND;
+    return undefined;
   }
 
   // Now run the correct authz check to verify access to data
@@ -47,9 +46,9 @@ async function getShared(params) {
     TableName: nconf.get('database').appDataJsonTableName,
   });
 
-  // Throw an error if no data matches the key in the share record
+  // Return undefined if the key in the share record does not exist
   if (!getResult.Item) {
-    throw errors.codes.ERROR_CODE_KEY_NOT_FOUND;
+    return undefined;
   }
 
   return {
@@ -82,8 +81,18 @@ async function share(params) {
     throw errors.codes.ERROR_CODE_AUTH_INVALID;
   }
 
-  // TODOBT - Validate `key` exists or throw `key_not_found`
-  // TODOBT - Validate `authz` exists or throw `authz_not_found`
+  // Throw an error if either the key or authz config doesnt exist
+  //  authz query will throw, user data query will return undefined
+  authz.exists.apply(this, [params.authz]);
+
+  const keyValue = await userDB.get({
+    key: params.key,
+    owner: params.owner,
+    requestor: params.requestor,
+  });
+  if (!keyValue) {
+    throw errors.codes.ERROR_CODE_KEY_NOT_FOUND;
+  }
 
   // Generate a unique share id and share in context of HMH app
   params.id = uuid.v4();

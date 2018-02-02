@@ -125,10 +125,7 @@ describe('data.user.share', () => {
       requestor,
     }, (err, response) => {
       expect(err).to.equal(null);
-      expect(response.body).to.deep.equal({
-        error: errors.codes.ERROR_CODE_SHARE_ID_NOT_FOUND,
-        ok: false,
-      });
+      expect(response.body).to.deep.equal({ ok: true });
       done();
     });
   });

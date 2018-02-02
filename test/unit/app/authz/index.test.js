@@ -1,21 +1,17 @@
-import AWS from 'aws-sdk';
 import chai from 'chai';
 import sinon from 'sinon';
 
 import authz from '../../../../app/authz';
-import config from '../../../../app/config';
 import errors from '../../../../app/models/errors';
 import logger from '../../../../app/monitoring/logger';
 import rest from '../../../../app/utils/rest';
 
-import dynamoDBClient from '../../../../app/db/dynamoDBClient';
+import dbAuthz from '../../../../app/db/authz';
 
 const expect = chai.expect;
 
 let restStub;
-const documentClientStub = sinon.createStubInstance(
-  AWS.DynamoDB.DocumentClient,
-);
+let authzStub;
 
 const mockCtx = {
   database: {
@@ -34,8 +30,6 @@ const mockAuthzResult = {
   name: clientAuthzId,
   url: clientAuthzUrl,
 };
-
-const authzTableName = config.get('database').authzTableName;
 
 // Define a fake set of authz parameters to be verified
 const shareParams = {
@@ -57,14 +51,37 @@ const expectedRestParams = {
 describe('authz', () => {
   before(() => {
     restStub = sinon.stub(rest, 'get');
-    sinon.stub(dynamoDBClient, 'instrumented').callsFake((method, params) => (
-      documentClientStub[method](params).promise()
-    ));
+    authzStub = sinon.stub(dbAuthz, 'info');
   });
 
   after(() => {
     rest.get.restore();
-    dynamoDBClient.instrumented.restore();
+    authzStub.restore();
+  });
+
+  it('should return true that a built in verifier exists', async () => {
+    try {
+      const result = await authz.exists.call(mockCtx, 'uds_authz_deny');
+      expect(result).to.equal(true);
+      return Promise.resolve();
+    } catch (err) {
+      return Promise.reject();
+    }
+  });
+
+  it('should throw if a verifier does not exist', async () => {
+    authzStub.callsFake(params => {
+      expect(params).to.deep.equal({ name: clientAuthzId });
+      throw errors.codes.ERROR_CODE_AUTHZ_NOT_FOUND;
+    });
+
+    try {
+      await authz.exists.call(mockCtx, clientAuthzId);
+      return Promise.reject();
+    } catch (err) {
+      expect(err).to.equal(errors.codes.ERROR_CODE_AUTHZ_NOT_FOUND);
+      return Promise.resolve();
+    }
   });
 
   it('should always allow access when using simple allow verifier', async () => {
@@ -87,17 +104,9 @@ describe('authz', () => {
   });
 
   it('should look up authz method and allow access when valid', async () => {
-    documentClientStub.get.callsFake(params => {
-      expect(params).to.have.all.keys('ConsistentRead', 'TableName', 'Key');
-      expect(params.ConsistentRead).to.equal(false);
-      expect(params.TableName).to.equal(authzTableName);
-      expect(params.Key).to.deep.equal({ name: clientAuthzId });
-
-      return {
-        promise: () => (Promise.resolve({
-          Item: mockAuthzResult,
-        })),
-      };
+    authzStub.callsFake(params => {
+      expect(params).to.deep.equal({ name: clientAuthzId });
+      return mockAuthzResult;
     });
 
     restStub.callsFake((url, params) => {
@@ -116,17 +125,9 @@ describe('authz', () => {
   });
 
   it('should look up authz method and allow access when valid using a consistent read', async () => {
-    documentClientStub.get.callsFake(params => {
-      expect(params).to.have.all.keys('ConsistentRead', 'TableName', 'Key');
-      expect(params.ConsistentRead).to.equal(true);
-      expect(params.TableName).to.equal(authzTableName);
-      expect(params.Key).to.deep.equal({ name: clientAuthzId });
-
-      return {
-        promise: () => (Promise.resolve({
-          Item: mockAuthzResult,
-        })),
-      };
+    authzStub.callsFake(params => {
+      expect(params).to.deep.equal({ name: clientAuthzId });
+      return mockAuthzResult;
     });
 
     restStub.callsFake((url, params) => {

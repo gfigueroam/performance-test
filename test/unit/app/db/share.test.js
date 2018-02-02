@@ -3,10 +3,13 @@ import chai from 'chai';
 import sinon from 'sinon';
 
 import config from '../../../../app/config';
-import dynamoDBClient from '../../../../app/db/dynamoDBClient';
 import errors from '../../../../app/models/errors';
 import logger from '../../../../app/monitoring/logger';
 import share from '../../../../app/db/share';
+
+import authz from '../../../../app/authz';
+import dynamoDBClient from '../../../../app/db/dynamoDBClient';
+import userDB from '../../../../app/db/userData';
 
 const expect = chai.expect;
 
@@ -16,8 +19,8 @@ const documentClientStub = sinon.createStubInstance(
 
 const shareTableName = config.get('database').shareTableName;
 const appDataTableName = config.get('database').appDataJsonTableName;
-const requestor = 'some-user-requestor';
 
+const requestor = 'some-user-requestor';
 const testShareId = '12341234-1234-1234-1234-123412341234';
 
 const swatchCtx = {
@@ -27,15 +30,24 @@ const swatchCtx = {
   logger,
 };
 
+let authzStub;
+let userDataStub;
+
 
 describe('share', () => {
   before(() => {
+    authzStub = sinon.stub(authz, 'exists');
+    userDataStub = sinon.stub(userDB, 'get');
+
     sinon.stub(dynamoDBClient, 'instrumented').callsFake((method, params) => (
       documentClientStub[method](params).promise()
     ));
   });
 
   after(() => {
+    authzStub.restore();
+    userDataStub.restore();
+
     dynamoDBClient.instrumented.restore();
   });
 
@@ -49,7 +61,7 @@ describe('share', () => {
       }
     });
 
-    it('throws an error when the share id doesnt exist', async () => {
+    it('returns undefined when the share id doesnt exist', async () => {
       documentClientStub.get.callsFake(params => {
         expect(params.TableName).to.equal(shareTableName);
         expect(params.Key.key).to.equal(testShareId);
@@ -57,14 +69,14 @@ describe('share', () => {
       });
 
       try {
-        await share.getShared.apply(swatchCtx, [{
+        const result = await share.getShared.apply(swatchCtx, [{
           id: testShareId,
           requestor,
         }]);
-        return Promise.reject();
-      } catch (err) {
-        expect(err).to.equal(errors.codes.ERROR_CODE_SHARE_ID_NOT_FOUND);
+        expect(result).to.equal(undefined);
         return Promise.resolve();
+      } catch (err) {
+        return Promise.reject();
       }
     });
 
@@ -97,7 +109,7 @@ describe('share', () => {
       }
     });
 
-    it('throws an error with content key is not found', async () => {
+    it('returns undefined with content key is not found', async () => {
       documentClientStub.get = sinon.stub()
         .onCall(0)
         .callsFake(params => {
@@ -127,14 +139,14 @@ describe('share', () => {
         });
 
       try {
-        await share.getShared.apply(swatchCtx, [{
+        const result = await share.getShared.apply(swatchCtx, [{
           id: testShareId,
           requestor,
         }]);
-        return Promise.reject();
-      } catch (err) {
-        expect(err).to.equal(errors.codes.ERROR_CODE_KEY_NOT_FOUND);
+        expect(result).to.equal(undefined);
         return Promise.resolve();
+      } catch (err) {
+        return Promise.reject();
       }
     });
 
@@ -251,6 +263,46 @@ describe('share', () => {
       }
     });
 
+    it('should throw an error if the authz does not exist', async () => {
+      // Mock the case where the authz name does not exist
+      authzStub.callsFake(() => {
+        throw errors.codes.ERROR_CODE_AUTHZ_NOT_FOUND;
+      });
+      userDataStub.callsFake(() => ({ key: 'key-whatever' }));
+
+      try {
+        await share.share.apply(swatchCtx, [{
+          authz: 'authz-whatever',
+          ctx: 'ctx-whatever',
+          key: 'key-whatever',
+          requestor: 'owner-id',
+        }]);
+        return Promise.reject();
+      } catch (err) {
+        expect(err).to.equal(errors.codes.ERROR_CODE_AUTHZ_NOT_FOUND);
+        return Promise.resolve();
+      }
+    });
+
+    it('should throw an error if the key is not found', async () => {
+      // Mock the case where the data key does not exist
+      authzStub.callsFake(() => (true));
+      userDataStub.callsFake(() => (undefined));
+
+      try {
+        await share.share.apply(swatchCtx, [{
+          authz: 'authz-whatever',
+          ctx: 'ctx-whatever',
+          key: 'key-whatever',
+          requestor: 'owner-id',
+        }]);
+        return Promise.reject();
+      } catch (err) {
+        expect(err).to.equal(errors.codes.ERROR_CODE_KEY_NOT_FOUND);
+        return Promise.resolve();
+      }
+    });
+
     it('should add a new share record after validating params', async () => {
       const shareParams = {
         authz: 'authz-whatever',
@@ -258,6 +310,20 @@ describe('share', () => {
         key: 'key-whatever',
         requestor: 'owner-id',
       };
+
+      authzStub.callsFake(params => {
+        expect(params).to.deep.equal('authz-whatever');
+        return true;
+      });
+
+      userDataStub.callsFake(params => {
+        expect(params).to.deep.equal({
+          key: 'key-whatever',
+          owner: 'owner-id',
+          requestor: 'owner-id',
+        });
+        return { key: 'key-whatever' };
+      });
 
       let shareId;
       documentClientStub.put.callsFake(params => {

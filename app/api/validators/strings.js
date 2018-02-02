@@ -44,7 +44,7 @@ function validateName(param) {
 }
 
 function validateURL(param) {
-  // TODOBT - Add some kind of URL validation regex
+  // TODO - Add some kind of URL validation regex
 
   // URL should just be a nonempty string for now
   validMaxLength(

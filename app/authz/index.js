@@ -1,5 +1,3 @@
-import verify from './verify';
+import authz from './authz';
 
-export default {
-  verify,
-};
+export default authz;

@@ -8,7 +8,10 @@ function deny() {
   throw errors.codes.ERROR_CODE_AUTHZ_ACCESS_DENIED;
 }
 
-module.exports = {
-  allow,
-  deny,
+// Export the built-in authz modes and function handlers
+const simpleAuthzModes = {
+  uds_authz_allow: allow,
+  uds_authz_deny: deny,
 };
+
+export default simpleAuthzModes;

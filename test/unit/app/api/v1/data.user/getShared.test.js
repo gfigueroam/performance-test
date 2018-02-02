@@ -28,7 +28,7 @@ describe('data.user.getShared', () => {
     share.getShared.restore();
   });
 
-  it('returns an the data value when an item is returned', done => {
+  it('returns the data value when an item is returned', done => {
     getSharedStub.callsFake((params) => {
       expect(params).to.deep.equal({
         id: shareId,

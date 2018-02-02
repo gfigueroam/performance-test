@@ -3,10 +3,21 @@ import rest from '../utils/rest';
 
 import simple from './simple';
 
-const defaultAuthz = {
-  uds_authz_allow: simple.allow,
-  uds_authz_deny: simple.deny,
-};
+
+async function exists(authz) {
+  this.logger.info(`Authz module checking whether authz config exists: ${authz}`);
+
+  // Return true if using a built-in authz mode
+  if (simple[authz]) {
+    return true;
+  }
+
+  // Query for the authz mode, or throw if not found
+  await dbAuthz.info.apply(this, [{ name: authz }]);
+
+  // Return true if the authz query did not throw
+  return true;
+}
 
 async function verify(shareId, requestor, shareItem) {
   this.logger.info(`Authz module verifying item '${shareId}' with share metadata '${shareItem}'`);
@@ -14,8 +25,8 @@ async function verify(shareId, requestor, shareItem) {
   const authz = shareItem.authz;
 
   // Check whether the authz key is a known internal type
-  if (defaultAuthz[authz]) {
-    await defaultAuthz[authz](shareId);
+  if (simple[authz]) {
+    await simple[authz](shareId);
     return undefined;
   }
 
@@ -34,4 +45,7 @@ async function verify(shareId, requestor, shareItem) {
   return undefined;
 }
 
-export default verify;
+export default {
+  exists,
+  verify,
+};

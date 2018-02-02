@@ -59,15 +59,6 @@ describe('data.user.getShared', () => {
     http.sendPostRequestError(path, serviceToken, params, errorCode, done);
   });
 
-  it('should return error when the share id does not exist', done => {
-    const params = {
-      id: uuid.v4(),
-      requestor: shareRequestor,
-    };
-    const errorCode = errors.codes.ERROR_CODE_SHARE_ID_NOT_FOUND;
-    http.sendPostRequestError(path, serviceToken, params, errorCode, done);
-  });
-
   it('shares an existing data value correctly with a unique id', (done) => {
     const params = { authz, ctx, key, requestor };
     http.sendPostRequest(paths.DATA_USER_SHARE, serviceToken, params, (err, response) => {
@@ -94,13 +85,17 @@ describe('data.user.getShared', () => {
     });
   });
 
-  it('should return error when the share id does not exist', done => {
+  it('should return undefined when the share id does not exist', done => {
     const params = {
       id: uuid.v4(),
       requestor: shareRequestor,
     };
-    const errorCode = errors.codes.ERROR_CODE_SHARE_ID_NOT_FOUND;
-    http.sendPostRequestError(path, serviceToken, params, errorCode, done);
+    http.sendPostRequest(path, serviceToken, params, (err, response) => {
+      expect(err).to.equal(null);
+      expect(response.body).to.deep.equal({ ok: true });
+
+      done();
+    });
   });
 
   it('should return error when authz is denied', done => {
@@ -136,8 +131,12 @@ describe('data.user.getShared', () => {
           id: allowShareId,
           requestor: shareRequestor,
         };
-        const errorCode = errors.codes.ERROR_CODE_KEY_NOT_FOUND;
-        http.sendPostRequestError(path, serviceToken, params, errorCode, done);
+        http.sendPostRequest(path, serviceToken, params, (err, response) => {
+          expect(err).to.equal(null);
+          expect(response.body).to.deep.equal({ ok: true });
+
+          done();
+        });
       }
     });
   });
