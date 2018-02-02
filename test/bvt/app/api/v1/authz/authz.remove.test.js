@@ -20,6 +20,13 @@ describe('authz.remove', () => {
     await seed.authz.addAuthz(mockAuthz);
   });
 
+  it('should return error when the request has a user token', done => {
+    const params = { name };
+    const userToken = tokens.userTokens.internal;
+    const errorCode = errors.codes.ERROR_CODE_WRONG_TOKEN_TYPE;
+    http.sendPostRequestError(path, userToken, params, errorCode, done);
+  });
+
   it('should throw an error for an invalid name', done => {
     const params = { name: 'invalid-fail*name' };
     const errorCode = errors.codes.ERROR_CODE_INVALID_NAME;

@@ -22,13 +22,11 @@ describe('authz.info', () => {
     http.sendPostRequestError(path, '', params, errorCode, done);
   });
 
-  /*
   it('should return error when the request has a user token', done => {
     const userToken = tokens.userTokens.internal;
     const errorCode = errors.codes.ERROR_CODE_WRONG_TOKEN_TYPE;
     http.sendPostRequestError(path, userToken, params, errorCode, done);
   });
-  */
 
   it('should return error when there is no authz configuration with the given name', done => {
     const errorCode = errors.codes.ERROR_CODE_AUTHZ_NOT_FOUND;

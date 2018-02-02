@@ -8,8 +8,9 @@ class AuthToken {
 }
 
 class UserToken extends AuthToken {
-  constructor(token) {
+  constructor(token, userId) {
     super(token);
+    this.userId = userId;
     this.tokenType = USER_TOKEN;
   }
 }

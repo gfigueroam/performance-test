@@ -15,16 +15,14 @@ function getAuthHeader(ctx) {
   return header;
 }
 
-function logValidUserToken(ctx, metadata) {
+function getTokenUserId(tokenMetadata) {
   // Add some logic to safely parse claims string and get unique user ID
-  const subClaim = metadata.sub || '';
+  const subClaim = tokenMetadata.sub || '';
   const subClaims = subClaim.split(',');
   const userIdClaims = subClaims.filter(claim => (
     claim.includes('uniqueIdentifier=')),
   ).map(claim => (claim.split('=')[1] || 'Unknown'));
-  const userId = userIdClaims[0] || 'Unknown';
-
-  ctx.swatchCtx.logger.info(`Successfully validated user token: ${userId}`);
+  return userIdClaims[0] || 'Unknown';
 }
 
 function deserializeHeader(ctx, header) {
@@ -73,9 +71,11 @@ function internalAuthAdapter(ctx) {
     const metadata = jwt.verify(tokenInfo.body, jwtSecret.jwt_secret);
 
     // Getting here means token was verified and did not throw
-    logValidUserToken(ctx, metadata);
+    const userId = getTokenUserId(metadata);
+    const userToken = new tokens.UserToken(token, userId);
+    ctx.swatchCtx.logger.info(`Successfully validated user token: ${userId}`);
 
-    return new tokens.UserToken(token);
+    return userToken;
   } catch (error) {
     // Token that failed JWT decoding must be a service token
     const serviceId = tokenInfo.body;
@@ -113,9 +113,11 @@ function linkerdAuthAdapter(ctx) {
   }
 
   // Log the user ID from the valid user token payload
-  logValidUserToken(ctx, tokenInfo.payload);
+  const userId = getTokenUserId(tokenInfo.payload);
+  const userToken = new tokens.UserToken(header, userId);
+  ctx.swatchCtx.logger.info(`Successfully validated user token: ${userId}`);
 
-  return new tokens.UserToken(header);
+  return userToken;
 }
 
 export default {

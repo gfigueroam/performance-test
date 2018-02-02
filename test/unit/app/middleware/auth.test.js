@@ -30,7 +30,7 @@ const mockInvalidCtx = {
   logger,
 };
 
-// User token context doesnt need a user param
+// User token context with no requestor param
 const mockUserTokenCtx = {
   auth: {
     token: 'test_user_token',
@@ -41,7 +41,21 @@ const mockUserTokenCtx = {
   params: {},
 };
 
-// Service token context with a valid user param
+// User token context with non-matching requestor param
+const mockWrongUserTokenCtx = {
+  auth: {
+    token: 'test_user_token',
+    tokenType: auth.tokens.USER_TOKEN,
+    userId: 'wrong_test_user_id',
+    useStubAuth: false,
+  },
+  logger,
+  params: {
+    requestor,
+  },
+};
+
+// Service token context with a valid requestor param
 const mockServiceTokenCtx = {
   auth: {
     tokenType: auth.tokens.SERVICE_TOKEN,
@@ -51,7 +65,7 @@ const mockServiceTokenCtx = {
   params: { requestor },
 };
 
-// Service token context with no user param
+// Service token context with no requestor param
 const mockInvalidServiceTokenCtx = {
   auth: {
     tokenType: auth.tokens.SERVICE_TOKEN,
@@ -102,10 +116,21 @@ describe('Auth Middleware', () => {
       });
     });
 
+    it('should throw an error when requestor doesnt match user from token', done => {
+      middleware.auth.requireUserTokenOrRequestorParameter({
+        swatchCtx: mockWrongUserTokenCtx,
+      }, noop).catch(error => {
+        expect(error).to.equal(errors.codes.ERROR_CODE_INVALID_USER);
+        done();
+      });
+    });
+
     it('should call next function in chain after verifying user token', () => {
-      runner.syncRunMiddleware(middleware.auth.requireUserTokenOrRequestorParameter, {
+      runner.asyncRunMiddleware(middleware.auth.requireUserTokenOrRequestorParameter, {
         request: mockRequest,
         swatchCtx: mockUserTokenCtx,
+      }, () => {
+        expect(mockUserTokenCtx.params.requestor).to.equal(mockUserTokenCtx.auth.userId);
       });
     });
 

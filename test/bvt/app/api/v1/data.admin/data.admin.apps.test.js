@@ -1,5 +1,7 @@
 import chai from 'chai';
 
+import errors from '../../../../../../app/models/errors';
+
 import http from '../../../../../common/helpers/http';
 import seed from '../../../../../common/seed';
 import paths from '../../../../../common/helpers/paths';
@@ -16,6 +18,8 @@ const data = {
   key3: [1, 2, 3],
 };
 const numApps = 10;
+
+const path = paths.DATA_ADMIN_APPS;
 
 describe('data.admin.apps', () => {
   before(async () => {
@@ -38,8 +42,15 @@ describe('data.admin.apps', () => {
     await seed.apps.removeApps(appsToRemove);
   });
 
+  it('should return error when the request has a user token', done => {
+    const params = { user };
+    const userToken = tokens.userTokens.internal;
+    const errorCode = errors.codes.ERROR_CODE_WRONG_TOKEN_TYPE;
+    http.sendPostRequestError(path, userToken, params, errorCode, done);
+  });
+
   it('returns an empty array when the user has no app data', (done) => {
-    http.sendPostRequest(paths.DATA_ADMIN_APPS, tokens.serviceToken, {
+    http.sendPostRequest(path, tokens.serviceToken, {
       user,
     }, (err, response) => {
       expect(err).to.equal(null);
@@ -58,7 +69,7 @@ describe('data.admin.apps', () => {
       type: 'text',
       user,
     }, () => {
-      http.sendPostRequest(paths.DATA_ADMIN_APPS, tokens.serviceToken, {
+      http.sendPostRequest(path, tokens.serviceToken, {
         user,
       }, (err, response) => {
         expect(err).to.equal(null);
@@ -79,7 +90,7 @@ describe('data.admin.apps', () => {
       key,
       user,
     }).then(() => {
-      http.sendPostRequest(paths.DATA_ADMIN_APPS, tokens.serviceToken, {
+      http.sendPostRequest(path, tokens.serviceToken, {
         user,
       }, (err, response) => {
         expect(err).to.equal(null);
@@ -100,7 +111,7 @@ describe('data.admin.apps', () => {
       key: `${key}2`,
       user,
     }).then(() => {
-      http.sendPostRequest(paths.DATA_ADMIN_APPS, tokens.serviceToken, {
+      http.sendPostRequest(path, tokens.serviceToken, {
         user,
       }, (err, response) => {
         expect(err).to.equal(null);
@@ -126,7 +137,7 @@ describe('data.admin.apps', () => {
       });
       // eslint-disable-next-line no-await-in-loop
       await new Promise((resolve, reject) => {
-        http.sendPostRequest(paths.DATA_ADMIN_APPS, tokens.serviceToken, {
+        http.sendPostRequest(path, tokens.serviceToken, {
           user,
         }, (err, response) => {
           if (err) {

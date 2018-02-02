@@ -38,6 +38,13 @@ describe('apps.register', () => {
     http.sendPostRequestError(path, serviceToken, params, errorCode, done);
   });
 
+  it('should return error when the request has a user token', done => {
+    const params = { name: getName(), quota };
+    const userToken = tokens.userTokens.internal;
+    const errorCode = errors.codes.ERROR_CODE_WRONG_TOKEN_TYPE;
+    http.sendPostRequestError(path, userToken, params, errorCode, done);
+  });
+
   it('should successfully register an app', done => {
     const name = getName();
     const params = {

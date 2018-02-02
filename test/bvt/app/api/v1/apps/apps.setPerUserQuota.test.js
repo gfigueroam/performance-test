@@ -9,6 +9,8 @@ const quota = 1024;
 const NEW_QUOTA = 2345;
 const name = `uds.bvt.apps.setPerUserQuota.test.${seed.buildNumber}`;
 
+const path = paths.APPS_SET_PER_USER_QUOTA;
+
 describe('apps.setPerUserQuota', () => {
   after((done) => {
     const params = {
@@ -20,7 +22,7 @@ describe('apps.setPerUserQuota', () => {
   });
 
   it('should return error when there is no app with the given name', done => {
-    http.sendPostRequestError(paths.APPS_SET_PER_USER_QUOTA, tokens.serviceToken, {
+    http.sendPostRequestError(path, tokens.serviceToken, {
       name,
       quota: 1111,
     }, errors.codes.ERROR_CODE_APP_NOT_FOUND, done);
@@ -35,7 +37,7 @@ describe('apps.setPerUserQuota', () => {
     .then(() => {
       params.quota = NEW_QUOTA;
       return new Promise((resolve, reject) => {
-        http.sendPostRequestSuccess(paths.APPS_SET_PER_USER_QUOTA,
+        http.sendPostRequestSuccess(path,
           tokens.serviceToken, params, {
             ok: true,
           }, (err) => {
@@ -61,13 +63,20 @@ describe('apps.setPerUserQuota', () => {
     .catch(done);
   });
 
+  it('should return error when the request has a user token', done => {
+    const params = { name, quota };
+    const userToken = tokens.userTokens.internal;
+    const errorCode = errors.codes.ERROR_CODE_WRONG_TOKEN_TYPE;
+    http.sendPostRequestError(path, userToken, params, errorCode, done);
+  });
+
   it('should fail to update quota if quota is too high', done => {
     const params = {
       name,
       quota,
     };
     params.quota = (1024 * 1024) + 1;
-    http.sendPostRequestError(paths.APPS_SET_PER_USER_QUOTA, tokens.serviceToken,
+    http.sendPostRequestError(path, tokens.serviceToken,
       params, errors.codes.ERROR_CODE_INVALID_QUOTA, () => (
         http.sendPostRequestSuccess(paths.APPS_INFO, tokens.serviceToken, {
           name,
