@@ -31,7 +31,7 @@ Throughout our ebooks we offer the ability for users to take notes directly in t
 ## Data Modeling
 Annotations are user data and therefore stored in `data.user`. Each annotation has a content ID, a locator, and the text of the annotation itself. In addition there is some annotation metadata such as the color to use for highlighting. Annotations need to be retrieved in batch for a given user by content ID to enable highlighting of all annotations within a given content ID.
 
-Annotations are stored in a hierarchy defined by key prefix. All annotations for a user will be stored under a UDS key beginning with `annotation-`, with subsequent parts of the key identifying the content and module and finally a unique id for the annotation. The final key will use the format `annotation-<contentID>-<moduleID>-<annotationID>`. This makes it easy to use the `data.user.query` API to retrieve all annotations within a given module ID or content ID, or retrieve all annotations for a user.
+Annotations are stored in a hierarchy defined by key prefix. All annotations for a user will be stored under a UDS key beginning with `annotation.`, with subsequent parts of the key identifying the content and module and finally a unique id for the annotation. The final key will use the format `annotation.<contentID>.<moduleID>.<annotationID>`. This makes it easy to use the `data.user.query` API to retrieve all annotations within a given module ID or content ID, or retrieve all annotations for a user.
 
 ## Data Definition
 Annotations are a [built-in data type](common-types.html) and there is no additional configuration necessary.
@@ -40,14 +40,14 @@ Annotations are a [built-in data type](common-types.html) and there is no additi
 ### Get existing annotations for module1 that's part of contentA
 ```
 data.user.query({
-  key: 'annotation-contentA-module1',
+  keyPrefix: 'annotation.contentA.module1',
 })
 
 Response:
 {
   "ok": true,
   "result": [{
-    key: "annotation-contentA-module1-annotation1"
+    key: "annotation.contentA.module1.annotation1"
     type: "annotation",
     data: {
       createdAt: 1516919976,
@@ -65,14 +65,14 @@ Response:
 ### Get annotations across all modules of contentA
 ```
 data.user.query({
-  key: 'annotation-contentA',
+  keyPrefix: 'annotation.contentA',
 })
 
 Response:
 {
   "ok": true,
   "result": [{
-    key: "annotation-contentA-module1-annotation1"
+    key: "annotation.contentA.module1.annotation1"
     type: "annotation",
     data: {
       createdAt: 1516919976,
@@ -84,7 +84,7 @@ Response:
       text: "I really liked the way the author explained this."
     }
   }, {
-    key: "annotation-contentA-module2-annotation2"
+    key: "annotation.contentA.module2.annotation2"
     type: "annotation",
     data: {
       createdAt: 1516919977,
@@ -96,7 +96,7 @@ Response:
       text: "This is exactly how the teacher explained it during fifth period."
     }
   }, {
-    key: "annotation-contentA-module5-annotation3"
+    key: "annotation.contentA.module5.annotation3"
     type: "annotation",
     data: {
       createdBy: 'TEACHER-USER-ID'
@@ -116,7 +116,7 @@ Response:
 Simply store the annotation using `data.user.set`; the annotation ID can be generated as a GUID while the remaining portion of the UDS key should comply with the annotation key standard described above.
 ```
 data.user.set({
-  key: 'annotation-contentA-module3-589624-12213-123123',
+  key: 'annotation.contentA.module3.589624.12213.123123',
   type: 'annotation',
   data: {
     createdAt: 1516919977,
@@ -140,7 +140,7 @@ Deleting an annotation is trivial using `data.user.delete`.
 
 ```
 data.user.delete({
-  key: 'annotation-contentA-module3-589624-12213-123123',
+  key: 'annotation.contentA.module3.589624.12213.123123',
 });
 
 Response:
