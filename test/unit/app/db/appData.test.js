@@ -867,7 +867,9 @@ describe('appData', () => {
         requestor,
       }])
       .then((items) => {
-        expect(items).to.deep.equal([]);
+        expect(items).to.deep.equal({
+          keys: [],
+        });
         done();
       })
       .catch(done);
@@ -919,11 +921,74 @@ describe('appData', () => {
         requestor,
       }])
       .then((items) => {
-        expect(items).to.deep.equal([{
-          key,
-        }, {
-          key,
-        }]);
+        expect(items).to.deep.equal({
+          keys: [key, key],
+        });
+        done();
+      })
+      .catch(done);
+    });
+
+    it('calls DynamoDB query for both the appData and shares tables when app is HMH_APP', (done) => {
+      let callCount = 0;
+      documentClientStub.query.callsFake(params => {
+        // We differentiate the query call to the shares GSI and the appData query
+        // by the presence of the IndexName parameter.
+        if (params.IndexName) {
+          callCount += 1;
+          expect(params.KeyConditionExpression).to.equal('#user = :user');
+          if (callCount === 1) {
+            expect(params).to.have.all.keys('ExpressionAttributeNames',
+              'IndexName',
+              'KeyConditionExpression',
+              'ExpressionAttributeValues',
+              'ProjectionExpression',
+              'TableName',
+            );
+            return {
+              promise: () => (Promise.resolve({
+                Items: [{
+                  key,
+                }],
+                LastEvaluatedKey: 'some-key',
+              })),
+            };
+          } else if (callCount === 2) {
+            expect(params).to.have.all.keys('ExclusiveStartKey',
+              'ExpressionAttributeNames',
+              'IndexName',
+              'KeyConditionExpression',
+              'ExpressionAttributeValues',
+              'ProjectionExpression',
+              'TableName',
+            );
+            return {
+              promise: () => (Promise.resolve({
+                Items: [{
+                  key,
+                }],
+              })),
+            };
+          }
+
+          throw new Error(`Unexpected call number ${callCount} to spy.`);
+        } else {
+          return {
+            promise: () => (Promise.resolve({
+              Items: [],
+            })),
+          };
+        }
+      });
+      appData.list.apply(swatchCtx, [{
+        app: constants.HMH_APP,
+        requestor,
+      }])
+      .then((items) => {
+        expect(items).to.deep.equal({
+          keys: [],
+          shared: [key, key],
+        });
         done();
       })
       .catch(done);

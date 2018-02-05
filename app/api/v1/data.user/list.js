@@ -7,7 +7,6 @@ export default async function listHandler(requestor, owner) {
     owner,
     requestor,
   }]);
-  return {
-    keys: items.map((item) => (item.key)),
-  };
+
+  return items;
 }

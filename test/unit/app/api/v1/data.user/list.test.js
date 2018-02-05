@@ -29,7 +29,9 @@ describe('data.user.list', () => {
         requestor,
       });
 
-      return Promise.resolve([]);
+      return Promise.resolve({
+        keys: [],
+      });
     });
 
     listHandler.apply(swatchCtx, [requestor]).then(result => {
@@ -47,9 +49,9 @@ describe('data.user.list', () => {
         requestor,
       });
 
-      return Promise.resolve([{
-        key,
-      }]);
+      return Promise.resolve({
+        keys: [key],
+      });
     });
 
     listHandler.apply(swatchCtx, [requestor]).then(result => {

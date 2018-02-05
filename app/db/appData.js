@@ -322,34 +322,90 @@ async function list(params) {
     });
   }
 
-  let lastEvaluatedKey;
-  let items = [];
-  do {
-    const dynamoDBParams = {
-      ConsistentRead: this.database && this.database.consistentRead,
-      ExpressionAttributeNames: {
-        '#key': 'key',
-      },
-      ExpressionAttributeValues: {
-        ':appUser': `${params.app}${constants.DELIMITER}${params.owner}`,
-      },
-      KeyConditionExpression: 'appUser = :appUser',
-      ProjectionExpression: '#key', // Only return the data we are interested in
-      TableName: nconf.get('database').appDataJsonTableName,
+  async function getUserDataKeys() {
+    let lastEvaluatedKey;
+    let items = [];
+    do {
+      const dynamoDBParams = {
+        ConsistentRead: this.database && this.database.consistentRead,
+        ExpressionAttributeNames: {
+          '#key': 'key',
+        },
+        ExpressionAttributeValues: {
+          ':appUser': `${params.app}${constants.DELIMITER}${params.owner}`,
+        },
+        KeyConditionExpression: 'appUser = :appUser',
+        ProjectionExpression: '#key', // Only return the data we are interested in
+        TableName: nconf.get('database').appDataJsonTableName,
+      };
+
+      if (lastEvaluatedKey) {
+        dynamoDBParams.ExclusiveStartKey = lastEvaluatedKey;
+      }
+
+      // eslint-disable-next-line no-await-in-loop
+      const iterationResult = await dynamodbClient.instrumented('query', dynamoDBParams);
+
+      items = items.concat(iterationResult.Items);
+      lastEvaluatedKey = iterationResult.LastEvaluatedKey;
+    } while (lastEvaluatedKey !== undefined);
+
+    return items.map((item) => (item.key));
+  }
+
+  async function getSharedIds() {
+    let lastEvaluatedKey;
+    let items = [];
+    do {
+      // Note: ConsistentRead cannot be set to true when querying an Index.
+      const dynamoDBParams = {
+        ExpressionAttributeNames: {
+          '#key': 'key',
+          '#user': 'user',
+        },
+        ExpressionAttributeValues: {
+          ':user': params.owner,
+        },
+        IndexName: 'uds-share-by-user-gsi',
+        KeyConditionExpression: '#user = :user',
+        ProjectionExpression: '#key', // Only return the data we are interested in
+        TableName: nconf.get('database').shareTableName,
+      };
+
+      if (lastEvaluatedKey) {
+        dynamoDBParams.ExclusiveStartKey = lastEvaluatedKey;
+      }
+
+      // eslint-disable-next-line no-await-in-loop
+      const iterationResult = await dynamodbClient.instrumented('query', dynamoDBParams);
+
+      items = items.concat(iterationResult.Items);
+      lastEvaluatedKey = iterationResult.LastEvaluatedKey;
+    } while (lastEvaluatedKey !== undefined);
+
+    return items.map((item) => (item.key));
+  }
+
+  // If we are querying for user data, we need to return shareIds. Otherwise we
+  // shouldn't query the share table at all, as it is throwaway work since app
+  // data cannot be shared.
+  if (params.app === constants.HMH_APP) {
+    // Wait for both functions running in parallel.
+    const userDataKeys = getUserDataKeys.apply(this);
+    const shareIds = getSharedIds.apply(this);
+
+    return {
+      keys: await userDataKeys,
+      shared: await shareIds,
     };
+    // eslint-disable-next-line no-else-return
+  } else {
+    const userDataKeys = getUserDataKeys.apply(this);
 
-    if (lastEvaluatedKey) {
-      dynamoDBParams.ExclusiveStartKey = lastEvaluatedKey;
-    }
-
-    // eslint-disable-next-line no-await-in-loop
-    const iterationResult = await dynamodbClient.instrumented('query', dynamoDBParams);
-
-    items = items.concat(iterationResult.Items);
-    lastEvaluatedKey = iterationResult.LastEvaluatedKey;
-  } while (lastEvaluatedKey !== undefined);
-
-  return items;
+    return {
+      keys: await userDataKeys,
+    };
+  }
 }
 
 async function getApps(params) {

@@ -22,10 +22,9 @@ describe('data.app.list', () => {
         owner: undefined,
         requestor,
       });
-      return Promise.resolve([
-        { key: 'data_1' },
-        { key: 'data_2' },
-      ]);
+      return Promise.resolve({
+        keys: ['data_1', 'data_2'],
+      });
     });
     listHandler.apply(swatchCtx, [app, requestor]).then(result => {
       expect(result).to.deep.equal({

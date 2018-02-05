@@ -11,6 +11,7 @@ const key1 = `uds.bvt.data.user.list.test.1.${seed.buildNumber}`;
 const key2 = `uds.bvt.data.user.list.test.2.${seed.buildNumber}`;
 const requestor = `data.user.test.requestor.${seed.buildNumber}`;
 const data = 'this is some data';
+let shareId;
 
 describe('data.user.list', () => {
   after((done) => {
@@ -21,7 +22,12 @@ describe('data.user.list', () => {
       seed.user.unset({
         key: key2,
         user: requestor,
-      }, done);
+      }, () => {
+        http.sendPostRequest(paths.DATA_USER_UNSHARE, tokens.serviceToken,
+        { id: shareId, requestor }, () => {
+          done();
+        });
+      });
     });
   });
 
@@ -33,6 +39,7 @@ describe('data.user.list', () => {
           ok: true,
           result: {
             keys: [],
+            shared: [],
           },
         });
         done();
@@ -53,6 +60,7 @@ describe('data.user.list', () => {
               ok: true,
               result: {
                 keys: [key1],
+                shared: [],
               },
             });
             done();
@@ -74,6 +82,34 @@ describe('data.user.list', () => {
               ok: true,
               result: {
                 keys: [key1, key2],
+                shared: [],
+              },
+            });
+            done();
+          });
+      });
+  });
+
+  it('returns shared items as well', (done) => {
+    // First share an item.
+    http.sendPostRequest(paths.DATA_USER_SHARE, tokens.serviceToken,
+      { authz: 'uds_authz_deny', ctx: 'bvt', key: key2, requestor }, (err2, response2) => {
+        expect(err2).to.equal(null);
+        shareId = response2.body.result.id;
+        expect(response2.body).to.deep.equal({
+          ok: true,
+          result: {
+            id: shareId,
+          },
+        });
+        http.sendPostRequest(paths.DATA_USER_LIST, tokens.serviceToken,
+          { requestor }, (err, response) => {
+            expect(err).to.equal(null);
+            expect(response.body).to.deep.equal({
+              ok: true,
+              result: {
+                keys: [key1, key2],
+                shared: [shareId],
               },
             });
             done();

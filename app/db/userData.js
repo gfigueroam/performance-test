@@ -110,7 +110,9 @@ async function list(params) {
   }
 
   params.app = constants.HMH_APP;
-  return appData.list.apply(this, [params]);
+  const appDataList = await appData.list.apply(this, [params]);
+
+  return appDataList;
 }
 
 module.exports = {
