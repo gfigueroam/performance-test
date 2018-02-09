@@ -10,7 +10,7 @@
   "scripts": {
     "start": "nodemon app/index --exec babel-node --presets es2015,stage-2 | bunyan",
     "start-transpiled": "node app/index",
-    "start-kafka-consumer": "node app/kafka/consumer",
+    "start-kafka-consumer": "node app/kafka/runner",
     "build:app": "./deploy/scripts/build_app.sh",
     "build:apidocs": "mkdir -p out/api/source && mkdir -p out/api/html && for f in docs/api/*.apib ; do hercule \"$f\" -o \"out/api/source/$(basename $f .apib).md\" && aglio -i \"out/api/source/$(basename $f .apib).md\" -o \"out/api/html/$(basename $f .apib).html\"; done",
     "build:jsdoc": "jsdoc app -r -c .jsdoc.conf -d out/jsdoc",

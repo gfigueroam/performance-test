@@ -8,7 +8,7 @@ import avro from 'avsc';
 //   operation: 'set',
 //   data: '["v1", "v2", "v3"]'
 // }
-const calculatedBehavior = avro.Type.forSchema({
+const cb = avro.Type.forSchema({
   namespace: 'com.hmhco.uds',
   doc: 'Represents a calculated behavior event to store for a user',
   type: 'record',
@@ -64,6 +64,6 @@ const calculatedBehavior = avro.Type.forSchema({
 });
 
 export default {
-  calculatedBehavior,
+  cb,
 };
 /* eslint-enable sort-keys */

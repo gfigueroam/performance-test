@@ -21,8 +21,8 @@ describe('schemas', () => {
     expect(event.data).to.equal(data);
 
     // Serializer and deserialize a sample event based on schema
-    const buffer = schemas.calculatedBehavior.toBuffer(event);
-    const finalEvent = schemas.calculatedBehavior.fromBuffer(buffer);
+    const buffer = schemas.cb.toBuffer(event);
+    const finalEvent = schemas.cb.fromBuffer(buffer);
 
     // Verify the final event properties match the original
     expect(event.key).to.equal(finalEvent.key);
