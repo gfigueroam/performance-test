@@ -176,4 +176,44 @@ describe('Auth Middleware', () => {
       runner.syncRunMiddleware(authFn, mockServiceTokenCtx);
     });
   });
+
+  describe('requireUserOrServiceToken', () => {
+    const authFn = middleware.auth.requireUserOrServiceToken;
+
+    it('should throw an error without auth ctx', done => {
+      authFn(undefined, noop).catch(error => {
+        expect(error).to.equal(errors.codes.ERROR_CODE_AUTH_NO_TOKEN);
+        done();
+      });
+    });
+
+    it('should throw an error with an empty swatch ctx', done => {
+      authFn({}, noop).catch(error => {
+        expect(error).to.equal(errors.codes.ERROR_CODE_AUTH_NO_TOKEN);
+        done();
+      });
+    });
+
+    it('should throw an error with no token type', done => {
+      authFn(mockEmptyCtx, noop).catch(error => {
+        expect(error).to.equal(errors.codes.ERROR_CODE_AUTH_NO_TOKEN);
+        done();
+      });
+    });
+
+    it('should throw an error with an invalid token type', done => {
+      authFn(mockInvalidCtx, noop).catch(error => {
+        expect(error).to.equal(errors.codes.ERROR_CODE_AUTH_NO_TOKEN);
+        done();
+      });
+    });
+
+    it('should call next function in chain after verifying user token', () => {
+      runner.syncRunMiddleware(authFn, mockUserTokenCtx);
+    });
+
+    it('should call next function in chain after verifying service token', () => {
+      runner.syncRunMiddleware(authFn, mockServiceTokenCtx);
+    });
+  });
 });

@@ -10,6 +10,8 @@ export default {
   AUTHZ_REGISTER: 'api/v1/authz.register',
   AUTHZ_REMOVE: 'api/v1/authz.remove',
 
+  BATCH_ENDPOINT: 'api/v1/batch',
+
   DATA_ADMIN_APPS: 'api/v1/data.admin.apps',
 
   DATA_APP_DELETE: 'api/v1/data.app.delete',

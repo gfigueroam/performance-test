@@ -1,27 +1,22 @@
 import auth from '../../auth';
 import logger from '../../monitoring/logger';
 
-import appsRoutes from './apps/api';
-import authzRoutes from './authz/api';
-import dataAdminRoutes from './data.admin/api';
-import dataAppRoutes from './data.app/api';
-import dataCBRoutes from './data.cb/api';
-import dataUserRoutes from './data.user/api';
+import batchConfig from './batch';
+import routesConfig from './config';
+
+const batchEndpoint = true;
 
 const routes = Object.assign(
   {},
-  appsRoutes,
-  authzRoutes,
-  dataAdminRoutes,
-  dataAppRoutes,
-  dataCBRoutes,
-  dataUserRoutes,
+  batchConfig,
+  routesConfig,
 );
 
 const internalPrefix = 'api/v1';
 const internalAuthAdapter = auth.adapter.internal;
 const internalConfig = {
   authAdapter: internalAuthAdapter,
+  batchEndpoint,
   prefix: internalPrefix,
   routes,
 };
@@ -32,6 +27,7 @@ const externalPrefix = 'uds/api/v1';
 const externalAuthAdapter = auth.adapter.external;
 const externalConfig = {
   authAdapter: externalAuthAdapter,
+  batchEndpoint,
   prefix: externalPrefix,
   routes,
 };

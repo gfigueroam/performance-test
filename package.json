@@ -193,6 +193,7 @@
     "request": "^2.83.0",
     "request-promise": "^4.2.2",
     "swatchjs": "^3.1.0",
+    "swatchjs-batch-koa": "0.0.2",
     "swatchjs-koa": "^2.1.0",
     "uuid": "^3.0.1"
   }

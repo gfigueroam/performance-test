@@ -15,6 +15,22 @@ async function requireServiceToken(swatchCtx, next) {
   await next();
 }
 
+async function requireUserOrServiceToken(swatchCtx, next) {
+  if (!swatchCtx || !swatchCtx.auth) {
+    throw errors.codes.ERROR_CODE_AUTH_NO_TOKEN;
+  }
+
+  if (swatchCtx.auth.tokenType === auth.tokens.USER_TOKEN) {
+    swatchCtx.logger.info(`Successfully authenticated user token: ${swatchCtx.req.url}`);
+  } else if (swatchCtx.auth.tokenType === auth.tokens.SERVICE_TOKEN) {
+    swatchCtx.logger.info(`Successfully authenticated service token: ${swatchCtx.req.url}`);
+  } else {
+    throw errors.codes.ERROR_CODE_AUTH_NO_TOKEN;
+  }
+
+  await next();
+}
+
 async function requireUserTokenOrRequestorParameter(swatchCtx, next) {
   if (!swatchCtx || !swatchCtx.auth) {
     throw errors.codes.ERROR_CODE_AUTH_NO_TOKEN;
@@ -48,5 +64,6 @@ async function requireUserTokenOrRequestorParameter(swatchCtx, next) {
 
 export default {
   requireServiceToken,
+  requireUserOrServiceToken,
   requireUserTokenOrRequestorParameter,
 };

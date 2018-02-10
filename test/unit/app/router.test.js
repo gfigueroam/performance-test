@@ -8,12 +8,14 @@ describe('All Routes', () => {
   it('should have expected number of routes declared', () => {
     expect(swatchRoutes.length).to.equal(3);
 
+    // Currently have internal endpoints for standard + batch requests
+    //  along with external endpoints under a different prefix w different auth
     expect(swatchRoutes[0].options.prefix).to.equal('api/v1');
     expect(swatchRoutes[1].options.prefix).to.equal('uds/api/v1');
     expect(swatchRoutes[2].options.prefix).to.equal('');
 
-    expect(swatchRoutes[0].routes.length).to.equal(31);
-    expect(swatchRoutes[1].routes.length).to.equal(31);
+    expect(swatchRoutes[0].routes.length).to.equal(32);
+    expect(swatchRoutes[1].routes.length).to.equal(32);
     expect(swatchRoutes[2].routes.length).to.equal(1);
   });
 });

@@ -10,9 +10,9 @@
         "app/**"
     ],
     "all": true,
-    "lines": 89.62,
-    "functions": 92.31,
-    "statements": 89.7,
-    "branch": 84.24,
+    "lines": 89.8,
+    "functions": 92.36,
+    "statements": 89.87,
+    "branch": 84.48,
     "check-coverage": true
 }

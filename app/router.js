@@ -1,13 +1,13 @@
 import swatchjs from 'swatchjs';
 
-import apiRoutes from './api/v1/routes';
-import metricsRoutes from './metrics/routes';
+import apiConfig from './api/v1/routes';
+import metricsConfig from './metrics/routes';
 
 import onException from './utils/swatch';
 
-const routeConfigs = apiRoutes.concat([metricsRoutes]);
+const allConfigs = apiConfig.concat([metricsConfig]);
 
-const swatchRoutes = routeConfigs.map(config => ({
+const allRoutes = allConfigs.map(config => ({
   options: {
     authAdapter: config.authAdapter,
     onException,
@@ -17,4 +17,5 @@ const swatchRoutes = routeConfigs.map(config => ({
   routes: swatchjs(config.routes),
 }));
 
-export default swatchRoutes;
+// Return all API and metrics endpoints for app router
+export default allRoutes;

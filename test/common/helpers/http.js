@@ -3,6 +3,7 @@ import util from 'util';
 
 import logger from '../../../app/monitoring/logger';
 import constants from '../../../app/utils/constants';
+import paths from './paths';
 import tokens from './tokens';
 
 const expect = chai.expect;
@@ -21,15 +22,7 @@ function verifyResponseOk(done) {
   };
 }
 
-function expectResponseSuccess(result, done) {
-  return (error, res) => {
-    expect(res).to.have.status(200);
-    expect(res.body).to.deep.equal(result);
-    done(error);
-  };
-}
-
-function expectResponseError(result, done) {
+function expectResponse(result, done) {
   return (error, res) => {
     expect(res).to.have.status(200);
     expect(res.body).to.deep.equal(result);
@@ -67,7 +60,7 @@ function sendSeedRequest(path, params, done) {
 
 // Helper to make a POST request and expect a success response
 function sendPostRequestSuccess(path, token, params, result, done) {
-  const onComplete = expectResponseSuccess(result, done);
+  const onComplete = expectResponse(result, done);
   sendPostRequest(path, token, params, onComplete);
 }
 
@@ -77,7 +70,7 @@ function sendPostRequestError(path, token, params, errorCode, done) {
     error: errorCode,
     ok: false,
   };
-  const onComplete = expectResponseError(result, done);
+  const onComplete = expectResponse(result, done);
   sendPostRequest(path, token, params, onComplete);
 }
 
@@ -88,11 +81,43 @@ function sendPostRequestErrorDetails(path, token, params, errorCode, details, do
     error: errorCode,
     ok: false,
   };
-  const onComplete = expectResponseError(result, done);
+  const onComplete = expectResponse(result, done);
+  sendPostRequest(path, token, params, onComplete);
+}
+
+// Helper to send batch request with an array of params
+function sendBatchRequest(token, params, results, done) {
+  const path = paths.BATCH_ENDPOINT;
+  const onComplete = expectResponse(results, done);
+  sendPostRequest(path, token, params, onComplete);
+}
+
+function sendBatchRequestError(token, params, errorCode, done) {
+  const path = paths.BATCH_ENDPOINT;
+  const result = {
+    error: errorCode,
+    ok: false,
+  };
+  const onComplete = expectResponse(result, done);
+  sendPostRequest(path, token, params, onComplete);
+}
+
+// Helper to send batch request with an array of params
+function sendBatchRequestErrorDetails(token, params, errorCode, details, done) {
+  const path = paths.BATCH_ENDPOINT;
+  const result = {
+    details,
+    error: errorCode,
+    ok: false,
+  };
+  const onComplete = expectResponse(result, done);
   sendPostRequest(path, token, params, onComplete);
 }
 
 export default {
+  sendBatchRequest,
+  sendBatchRequestError,
+  sendBatchRequestErrorDetails,
   sendGetRequest,
   sendPostRequest,
   sendPostRequestError,
