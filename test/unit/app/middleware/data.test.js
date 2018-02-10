@@ -9,17 +9,15 @@ const expect = chai.expect;
 
 const noop = () => {};
 
-function createMockCtx() {
+function createMockSwatchCtx() {
   return {
-    swatchCtx: {
-      params: {},
-    },
+    params: {},
   };
 }
 
 describe('Data Validation Middleware', () => {
   it('should throw an error if type param is missing', done => {
-    const mockCtx = createMockCtx();
+    const mockCtx = createMockSwatchCtx();
     middleware.data.validateUserDataType(mockCtx, noop).catch(error => {
       expect(error).to.equal(errors.codes.ERROR_CODE_INVALID_DATA_TYPE);
       done();
@@ -27,8 +25,8 @@ describe('Data Validation Middleware', () => {
   });
 
   it('should throw an error if type param is not known', done => {
-    const mockCtx = createMockCtx();
-    mockCtx.swatchCtx.params.type = 'unknown';
+    const mockCtx = createMockSwatchCtx();
+    mockCtx.params.type = 'unknown';
     middleware.data.validateUserDataType(mockCtx, noop).catch(error => {
       expect(error).to.equal(errors.codes.ERROR_CODE_INVALID_DATA_TYPE);
       done();
@@ -36,9 +34,9 @@ describe('Data Validation Middleware', () => {
   });
 
   it('should throw an error if data object does not match text type', done => {
-    const mockCtx = createMockCtx();
-    mockCtx.swatchCtx.params.type = 'text';
-    mockCtx.swatchCtx.params.data = { key: 'something' };
+    const mockCtx = createMockSwatchCtx();
+    mockCtx.params.type = 'text';
+    mockCtx.params.data = { key: 'something' };
     middleware.data.validateUserDataType(mockCtx, noop).catch(error => {
       expect(error).to.equal(errors.codes.ERROR_CODE_INVALID_DATA);
       done();
@@ -46,9 +44,9 @@ describe('Data Validation Middleware', () => {
   });
 
   it('should throw an error if data number does not match text type', done => {
-    const mockCtx = createMockCtx();
-    mockCtx.swatchCtx.params.data = 100;
-    mockCtx.swatchCtx.params.type = 'text';
+    const mockCtx = createMockSwatchCtx();
+    mockCtx.params.data = 100;
+    mockCtx.params.type = 'text';
     middleware.data.validateUserDataType(mockCtx, noop).catch(error => {
       expect(error).to.equal(errors.codes.ERROR_CODE_INVALID_DATA);
       done();
@@ -56,12 +54,12 @@ describe('Data Validation Middleware', () => {
   });
 
   it('should allow a valid text data value', done => {
-    const mockCtx = createMockCtx();
-    mockCtx.swatchCtx.params.data = '100';
-    mockCtx.swatchCtx.params.type = 'text';
+    const mockCtx = createMockSwatchCtx();
+    mockCtx.params.data = '100';
+    mockCtx.params.type = 'text';
 
     runner.asyncRunMiddleware(middleware.data.validateUserDataType, mockCtx, () => {
-      expect(mockCtx.swatchCtx.params.data).to.equal('100');
+      expect(mockCtx.params.data).to.equal('100');
       done();
     });
   });

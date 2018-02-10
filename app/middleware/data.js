@@ -1,9 +1,9 @@
 import errors from '../models/errors';
 import types from '../models/system/types';
 
-async function validateUserDataType(ctx, next) {
-  const data = ctx.swatchCtx.params.data;
-  const type = ctx.swatchCtx.params.type;
+async function validateUserDataType(swatchCtx, next) {
+  const data = swatchCtx.params.data;
+  const type = swatchCtx.params.type;
 
   // If there's no type specified, throw.
   if (!type) {

@@ -1,44 +1,44 @@
 import auth from '../auth';
 import errors from '../models/errors';
 
-async function requireServiceToken(ctx, next) {
-  if (!ctx || !ctx.swatchCtx || !ctx.swatchCtx.auth) {
+async function requireServiceToken(swatchCtx, next) {
+  if (!swatchCtx || !swatchCtx.auth) {
     throw errors.codes.ERROR_CODE_AUTH_NO_TOKEN;
   }
 
-  if (ctx.swatchCtx.auth.tokenType !== auth.tokens.SERVICE_TOKEN) {
+  if (swatchCtx.auth.tokenType !== auth.tokens.SERVICE_TOKEN) {
     throw errors.codes.ERROR_CODE_WRONG_TOKEN_TYPE;
   }
 
-  ctx.swatchCtx.logger.info(`Successfully authenticated service token: ${ctx.request.url}`);
+  swatchCtx.logger.info(`Successfully authenticated service token: ${swatchCtx.req.url}`);
 
   await next();
 }
 
-async function requireUserTokenOrRequestorParameter(ctx, next) {
-  if (!ctx || !ctx.swatchCtx || !ctx.swatchCtx.auth) {
+async function requireUserTokenOrRequestorParameter(swatchCtx, next) {
+  if (!swatchCtx || !swatchCtx.auth) {
     throw errors.codes.ERROR_CODE_AUTH_NO_TOKEN;
   }
 
-  const token = ctx.swatchCtx.auth;
+  const token = swatchCtx.auth;
   if (token.tokenType === auth.tokens.USER_TOKEN) {
-    const requestor = ctx.swatchCtx.params.requestor;
+    const requestor = swatchCtx.params.requestor;
     if (!requestor) {
-      ctx.swatchCtx.logger.info(`Missing requestor param set to token user: ${token.userId}`);
-      ctx.swatchCtx.params.requestor = token.userId;
+      swatchCtx.logger.info(`Missing requestor param set to token user: ${token.userId}`);
+      swatchCtx.params.requestor = token.userId;
     } else if (requestor !== token.userId) {
-      ctx.swatchCtx.logger.warn(`Existing requestor param does not match token user: ${token.userId}`);
+      swatchCtx.logger.warn(`Existing requestor param does not match token user: ${token.userId}`);
       throw errors.codes.ERROR_CODE_INVALID_USER;
     }
 
-    ctx.swatchCtx.logger.info(`Successfully authenticated user token: ${ctx.request.url}`);
+    swatchCtx.logger.info(`Successfully authenticated user token: ${swatchCtx.req.url}`);
   } else if (token.tokenType === auth.tokens.SERVICE_TOKEN) {
-    const requestor = ctx.swatchCtx.params.requestor;
+    const requestor = swatchCtx.params.requestor;
     if (!requestor) {
       throw errors.codes.ERROR_CODE_USER_NOT_FOUND;
     }
 
-    ctx.swatchCtx.logger.info(`Successfully authenticated service token with user ${requestor}: ${ctx.request.url}`);
+    swatchCtx.logger.info(`Successfully authenticated service token with user ${requestor}: ${swatchCtx.req.url}`);
   } else {
     throw errors.codes.ERROR_CODE_AUTH_NO_TOKEN;
   }

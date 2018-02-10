@@ -7,12 +7,11 @@ import runner from '../../../common/helpers/runner';
 
 const expect = chai.expect;
 
-function createMockCtx() {
+function createMockSwatchCtx() {
   return {
-    request: {
+    req: {
       headers: {},
     },
-    swatchCtx: {},
   };
 }
 
@@ -20,19 +19,19 @@ const dbFn = middleware.database.ensureReadConsistency;
 
 describe('Database Middleware', () => {
   it('should not set useMaster flag in standard requests', done => {
-    const mockCtx = createMockCtx();
+    const mockCtx = createMockSwatchCtx();
     runner.asyncRunMiddleware(dbFn, mockCtx, () => {
-      expect(mockCtx.swatchCtx.database.consistentRead).to.equal(false);
+      expect(mockCtx.database.consistentRead).to.equal(false);
       done();
     });
   });
 
   it('should set useMaster flag when header is present', done => {
-    const mockCtx = createMockCtx();
-    mockCtx.request.headers[constants.UDS_CONSISTENT_READ_HEADER] = 1;
+    const mockCtx = createMockSwatchCtx();
+    mockCtx.req.headers[constants.UDS_CONSISTENT_READ_HEADER] = 1;
 
     runner.asyncRunMiddleware(dbFn, mockCtx, () => {
-      expect(mockCtx.swatchCtx.database.consistentRead).to.equal(true);
+      expect(mockCtx.database.consistentRead).to.equal(true);
       done();
     });
   });
