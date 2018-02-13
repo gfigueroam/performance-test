@@ -1,0 +1,47 @@
+post:
+  summary: Share user data by id
+  description: |
+    Shares existing user data stored under a given key. [More](/docs/method-data.user.share.html)
+  tags:
+    - Data.User
+  security:
+    - UserServiceSIF: []
+  parameters:
+    - name: data
+      in: body
+      required: true
+      schema:
+        type: object
+        properties:
+          key:
+            type: string
+          authz:
+            type: string
+          ctx:
+            type: string
+          requestor:
+            type: string
+          owner:
+            type: string
+        required:
+          - key
+          - authz
+          - ctx
+  responses:
+    200:
+      description: Returns a unique share id for the shared user data item.
+      schema:
+        type: object
+        properties:
+          ok:
+            type: boolean
+          result:
+            type: object
+            properties:
+              id:
+                type: string
+            required:
+              - id
+        required:
+          - ok
+          - result

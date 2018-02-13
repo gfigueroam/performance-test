@@ -11,6 +11,6 @@ export default async function getHandler(key, requestor, owner) {
   return item.Item ? {
     data: item.Item.data,
     key,
-    user: requestor,
+    type: item.Item.type,
   } : undefined;
 }

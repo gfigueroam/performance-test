@@ -14,6 +14,7 @@
     "build:app": "./deploy/scripts/build_app.sh",
     "build:apidocs": "mkdir -p out/api/source && mkdir -p out/api/html && for f in docs/api/*.apib ; do hercule \"$f\" -o \"out/api/source/$(basename $f .apib).md\" && aglio -i \"out/api/source/$(basename $f .apib).md\" -o \"out/api/html/$(basename $f .apib).html\"; done",
     "build:jsdoc": "jsdoc app -r -c .jsdoc.conf -d out/jsdoc",
+    "build:swagger": "babel-node docs/swagger/build.js",
     "db:create:local": "better-npm-run db:create:local",
     "db:list:docker": "better-npm-run db:list:docker",
     "db:list:local": "better-npm-run db:list:local",
@@ -81,48 +82,42 @@
       "command": "mocha --opts test/bvt/mocha.opts 'test/bvt/**/*.test.js'",
       "env": {
         "NODE_ENV": "local",
-        "REPLICATION_DELAY_TOLERANCE": 50,
-        "ENDPOINT": "http://localhost:5200/"
+        "REPLICATION_DELAY_TOLERANCE": 50
       }
     },
     "bvt:docker": {
       "command": "mocha --opts test/bvt/mocha.opts 'test/bvt/**/*.test.js'",
       "env": {
         "NODE_ENV": "docker",
-        "REPLICATION_DELAY_TOLERANCE": 50,
-        "ENDPOINT": "http://uds:5200/"
+        "REPLICATION_DELAY_TOLERANCE": 50
       }
     },
     "bvt:dev": {
       "command": "mocha --opts test/bvt/mocha.opts 'test/bvt/**/*.test.js'",
       "env": {
         "NODE_ENV": "dev",
-        "REPLICATION_DELAY_TOLERANCE": 500,
-        "ENDPOINT": "http://uds.devel.hmheng-uds.brnp.internal/"
+        "REPLICATION_DELAY_TOLERANCE": 500
       }
     },
     "bvt:int": {
       "command": "mocha --opts test/bvt/mocha.opts 'test/bvt/**/*.test.js'",
       "env": {
         "NODE_ENV": "int",
-        "REPLICATION_DELAY_TOLERANCE": 1000,
-        "ENDPOINT": "http://uds.staging0.hmheng-uds.brnp.internal/"
+        "REPLICATION_DELAY_TOLERANCE": 1000
       }
     },
     "bvt:cert": {
       "command": "mocha --opts test/bvt/mocha.opts 'test/bvt/**/*.test.js'",
       "env": {
         "NODE_ENV": "cert",
-        "REPLICATION_DELAY_TOLERANCE": 1000,
-        "ENDPOINT": "http://uds.staging1.hmheng-uds.brnp.internal/"
+        "REPLICATION_DELAY_TOLERANCE": 1000
       }
     },
     "bvt:prod": {
       "command": "mocha --opts test/bvt/mocha.opts 'test/bvt/**/*.test.js'",
       "env": {
         "NODE_ENV": "prod",
-        "REPLICATION_DELAY_TOLERANCE": 1000,
-        "ENDPOINT": "http://uds.prod.hmheng-uds.brnp.internal/"
+        "REPLICATION_DELAY_TOLERANCE": 1000
       }
     }
   },
@@ -162,13 +157,16 @@
     "hercule": "^4.0.1",
     "jsdoc": "^3.4.3",
     "jsdoc-babel": "^0.3.0",
+    "json-refs": "^3.0.4",
+    "jsonfile": "^4.0.0",
     "mocha": "^3.4.2",
     "mocha-eslint": "^3.0.1",
     "mute": "^2.0.6",
     "nodemon": "^1.11.0",
     "nyc": "^11.0.1",
     "should": "^11.1.2",
-    "sinon": "^2.3.8"
+    "sinon": "^2.3.8",
+    "yaml-js": "^0.2.3"
   },
   "dependencies": {
     "aguid": "2.0.0",
@@ -192,6 +190,8 @@
     "prom-client": "^9.0.0",
     "request": "^2.83.0",
     "request-promise": "^4.2.2",
+    "swagger": "^0.7.5",
+    "swagger-koa": "^1.0.10",
     "swatchjs": "^3.1.0",
     "swatchjs-batch-koa": "0.0.2",
     "swatchjs-koa": "^2.1.0",

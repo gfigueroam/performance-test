@@ -1,0 +1,29 @@
+post:
+  summary: Remove an authz configuration
+  description: |
+    Removes an existing authz configuration. [More](/docs/method-authz.remove.html)
+  tags:
+    - Authz
+  security:
+    - ServiceSIF: []
+  parameters:
+    - name: authz
+      in: body
+      required: true
+      schema:
+        type: object
+        properties:
+          name:
+            type: string
+        required:
+          - name
+  responses:
+    200:
+      description: Returns true if the authz configuration was removed, or an error result.
+      schema:
+        type: object
+        properties:
+          ok:
+            type: boolean
+        required:
+          - ok

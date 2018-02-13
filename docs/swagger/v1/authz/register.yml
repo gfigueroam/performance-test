@@ -1,0 +1,32 @@
+post:
+  summary: Registers an authz configuration
+  description: |
+    Registers a new authz configuration with a given auth URL. [More](/docs/method-authz.register.html)
+  tags:
+    - Authz
+  security:
+    - ServiceSIF: []
+  parameters:
+    - name: authz
+      in: body
+      required: true
+      schema:
+        type: object
+        properties:
+          name:
+            type: string
+          url:
+            type: string
+        required:
+          - name
+          - url
+  responses:
+    200:
+      description: Returns true if the new authz was created, or an error result.
+      schema:
+        type: object
+        properties:
+          ok:
+            type: boolean
+        required:
+          - ok

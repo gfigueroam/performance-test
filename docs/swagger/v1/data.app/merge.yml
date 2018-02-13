@@ -1,0 +1,49 @@
+post:
+  summary: Merges application data by key
+  description: |
+    Merges an application data JSON document with existing data stored under a given key. [More](/docs/method-data.app.merge.html)
+  tags:
+    - Data.App
+  security:
+    - UserServiceSIF: []
+  parameters:
+    - name: data
+      in: body
+      required: true
+      schema:
+        type: object
+        properties:
+          key:
+            type: string
+          data:
+            type: object
+          app:
+            type: string
+          requestor:
+            type: string
+          owner:
+            type: string
+        required:
+          - key
+          - data
+          - app
+  responses:
+    200:
+      description: Returns the merged application data JSON document.
+      schema:
+        type: object
+        properties:
+          ok:
+            type: boolean
+          result:
+            type: object
+            properties:
+              key:
+                type: string
+              data:
+                type: object
+            required:
+              - key
+              - data
+        required:
+          - ok

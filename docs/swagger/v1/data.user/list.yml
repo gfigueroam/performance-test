@@ -1,0 +1,44 @@
+post:
+  summary: List user data keys and share ids
+  description: |
+    Get a list of all user data keys or share ids belonging to a user. [More](/docs/method-data.user.list.html)
+  tags:
+    - Data.User
+  security:
+    - UserServiceSIF: []
+  parameters:
+    - name: data
+      in: body
+      required: true
+      schema:
+        type: object
+        properties:
+          requestor:
+            type: string
+          owner:
+            type: string
+  responses:
+    200:
+      description: Returns an object with a list of user data keys and list of share ids.
+      schema:
+        type: object
+        properties:
+          ok:
+            type: boolean
+          result:
+            type: object
+            properties:
+              keys:
+                type: array
+                items:
+                  type: string
+              shared:
+                type: array
+                items:
+                  type: string
+            required:
+              - keys
+              - shared
+        required:
+          - ok
+          - result

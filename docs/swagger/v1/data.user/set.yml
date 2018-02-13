@@ -1,0 +1,39 @@
+post:
+  summary: Store user data by key
+  description: |
+    Stores user data for a user under a given key. [More](/docs/method-data.user.set.html)
+  tags:
+    - Data.User
+  security:
+    - UserServiceSIF: []
+  parameters:
+    - name: data
+      in: body
+      required: true
+      schema:
+        type: object
+        properties:
+          key:
+            type: string
+          type:
+            type: string
+          data:
+            type: string
+          requestor:
+            type: string
+          owner:
+            type: string
+        required:
+          - key
+          - type
+          - data
+  responses:
+    200:
+      description: Returns true if the user data was stored, or an error result.
+      schema:
+        type: object
+        properties:
+          ok:
+            type: boolean
+        required:
+          - ok

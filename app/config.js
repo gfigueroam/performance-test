@@ -26,5 +26,13 @@ const args = process.argv;
 const serverPortParam = parseArgv(args, 'port', 5200);
 nconf.set('server_port', serverPortParam.value);
 
+const externalEndpoint = nconf.get('uds:url:external');
+if (externalEndpoint) {
+  nconf.set('uds:url:primary', externalEndpoint);
+} else {
+  const internalEndpoint = nconf.get('uds:url:internal');
+  nconf.set('uds:url:primary', internalEndpoint);
+}
+
 
 export default nconf;

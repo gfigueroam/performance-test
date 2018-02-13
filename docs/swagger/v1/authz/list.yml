@@ -1,0 +1,31 @@
+post:
+  summary: List all authz configurations
+  description: |
+    Get a list of all authz names stored in UDS. [More](/docs/method-authz.list.html)
+  tags:
+    - Authz
+  security:
+    - ServiceSIF: []
+  responses:
+    200:
+      description: Returns a list of all authz configurations.
+      schema:
+        type: object
+        properties:
+          ok:
+            type: boolean
+          result:
+            type: array
+            items:
+              type: object
+              properties:
+                name:
+                  type: string
+                url:
+                  type: string
+              required:
+                - name
+                - url
+        required:
+          - ok
+          - result

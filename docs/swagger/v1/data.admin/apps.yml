@@ -1,0 +1,34 @@
+post:
+  summary: List all apps for a user
+  description: |
+    Get a list of all apps where a user has stored data. [More](/docs/method-data.admin.apps.html)
+  tags:
+    - Data.Admin
+  security:
+    - ServiceSIF: []
+  parameters:
+    - name: user
+      in: body
+      required: true
+      schema:
+        type: object
+        properties:
+          user:
+            type: string
+        required:
+          - user
+  responses:
+    200:
+      description: Returns a list of app names where given user has data stored in UDS.
+      schema:
+        type: object
+        properties:
+          ok:
+            type: boolean
+          result:
+            type: array
+            items:
+              type: string
+        required:
+          - ok
+          - result

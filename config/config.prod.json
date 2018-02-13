@@ -1,4 +1,10 @@
 {
+  "uds": {
+    "url": {
+      "internal": "http://uds.prod.hmheng-uds.brnp.internal/",
+      "external": "https://api.eng.hmhco.com/uds/"
+    }
+  },
   "logger": {
     "level": "info"
   },

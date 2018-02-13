@@ -31,7 +31,7 @@ describe('data.user.delete', () => {
           result: {
             data,
             key,
-            user: requestor,
+            type: 'text',
           },
         });
         // delete the value

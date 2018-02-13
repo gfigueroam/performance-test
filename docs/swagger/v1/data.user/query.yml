@@ -1,0 +1,51 @@
+post:
+  summary: Queries user data by key
+  description: |
+    Gets a list of user data stored under any key matching the query prefix. [More](/docs/method-data.user.query.html)
+  tags:
+    - Data.User
+  security:
+    - UserServiceSIF: []
+  parameters:
+    - name: data
+      in: body
+      required: true
+      schema:
+        type: object
+        properties:
+          keyPrefix:
+            type: string
+          requestor:
+            type: string
+          owner:
+            type: string
+        required:
+          - keyPrefix
+  responses:
+    200:
+      description: Returns a list of user data stored under keys that match the key query prefix.
+      schema:
+        type: object
+        properties:
+          ok:
+            type: boolean
+          result:
+            type: array
+            items:
+              type: object
+              properties:
+                key:
+                  type: string
+                data:
+                  type: string
+                type:
+                  type: string
+                user:
+                  type: string
+              required:
+                - key
+                - data
+                - type
+                - user
+        required:
+          - ok

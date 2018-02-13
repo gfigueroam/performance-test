@@ -1,0 +1,43 @@
+post:
+  summary: List all application data keys by user
+  description: |
+    Get a list of all keys with application data data for a given user. [More](/docs/method-data.app.list.html)
+  tags:
+    - Data.App
+  security:
+    - UserServiceSIF: []
+  parameters:
+    - name: data
+      in: body
+      required: true
+      schema:
+        type: object
+        properties:
+          app:
+            type: string
+          requestor:
+            type: string
+          owner:
+            type: string
+        required:
+          - app
+  responses:
+    200:
+      description: Returns a list of keys with application data stored in UDS.
+      schema:
+        type: object
+        properties:
+          ok:
+            type: boolean
+          result:
+            type: object
+            properties:
+              keys:
+                type: array
+                items:
+                  type: string
+            required:
+              - keys
+        required:
+          - ok
+          - result

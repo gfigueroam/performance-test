@@ -202,7 +202,7 @@ describe('uds.batch', () => {
           result: {
             data: appData1,
             key: appKey1,
-            user: requestor,
+            type: 'text',
           },
         },
         {
@@ -210,7 +210,7 @@ describe('uds.batch', () => {
           result: {
             data: appData2,
             key: appKey2,
-            user: requestor,
+            type: 'text',
           },
         },
       ],

@@ -3,6 +3,7 @@ import compress from 'koa-compress';
 import koaBunyanLogger from 'koa-bunyan-logger';
 import serve from 'koa-static-server';
 
+import swagger from 'swagger-koa';
 import swatchKoa from 'swatchjs-koa';
 import gridFramework from 'grid-framework';
 
@@ -22,8 +23,12 @@ const app = gridFramework({
   health,
   helmet: {
     csp: {
+      connectSrc: ["'self' file:", 'http://localhost:5100/*'],
       defaultSrc: ["'self'"],
+      fontSrc: ['*.gstatic.com'],
+      imgSrc: ["'self' data:", '*.swagger.io'],
       server_host: 'localhost',
+      styleSrc: ["'self'", "'unsafe-inline'", '*.googleapis.com'],
     },
   },
   validate_token: false, // Skip SIF token validation on all endpoints
@@ -67,11 +72,19 @@ app.use(serve({
   rootPath: '/docs',
 }));
 
-// UDS does not use Swagger, but we redirect from /swagger to our /docs
-//  endpoint to stay consistent with other HMH services using Swagger
-app.use(serve({
-  rootDir: 'static/swagger',
-  rootPath: '/swagger',
+const serverPort = config.get('server_port');
+const serverHostUrl = config.get('uds:url:primary');
+app.use(swagger.init({
+  apiVersion: '1.0',
+  basePath: `${serverHostUrl}:${serverPort}`,
+  info: {
+    description: 'Swagger + Koa = {swagger-koa}',
+    title: 'Swagger Docs for UDS API',
+  },
+  swaggerJSON: 'static/swagger/api-docs.json',
+  swaggerUI: 'static/swagger',
+  swaggerURL: '/swagger',
+  swaggerVersion: '2.0',
 }));
 
 logger.info('Initializing server...');
@@ -80,7 +93,6 @@ logger.info('Initializing server...');
 const server = http.createServer(app.callback());
 
 // Bind to port from input argument and listen
-const serverPort = config.get('server_port');
 server.listen(serverPort, () => {
   logger.info(`Server is now listening on port: ${serverPort}`);
 });

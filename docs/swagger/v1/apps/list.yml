@@ -1,0 +1,31 @@
+post:
+  summary: List all registered apps
+  description: |
+    Get a list of all registered apps in UDS. [More](/docs/method-apps.list.html)
+  tags:
+    - Apps
+  security:
+    - ServiceSIF: []
+  responses:
+    200:
+      description: Returns a list of app names and quotes registered in UDS.
+      schema:
+        type: object
+        properties:
+          ok:
+            type: boolean
+          result:
+            type: array
+            items:
+              type: object
+              properties:
+                name:
+                  type: string
+                quota:
+                  type: number
+              required:
+                - name
+                - quota
+        required:
+          - ok
+          - result

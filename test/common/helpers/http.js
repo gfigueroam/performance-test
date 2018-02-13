@@ -1,12 +1,16 @@
 import chai from 'chai';
 import util from 'util';
 
-import logger from '../../../app/monitoring/logger';
+import config from '../../../app/config';
 import constants from '../../../app/utils/constants';
+import logger from '../../../app/monitoring/logger';
+
 import paths from './paths';
 import tokens from './tokens';
 
 const expect = chai.expect;
+
+const endpoint = config.get('uds:url:internal');
 
 function verifyResponseOk(done) {
   return (error, res) => {
@@ -33,7 +37,7 @@ function expectResponse(result, done) {
 // Helper to make a GET request and execute a callback function
 //  Requests does not include a token for publicly available endpoints
 function sendGetRequest(path, onComplete) {
-  chai.request(process.env.ENDPOINT)
+  chai.request(endpoint)
     .get(path)
     .set(constants.UDS_BVT_REQUEST_HEADER, true)
     .set(constants.UDS_CONSISTENT_READ_HEADER, true)
@@ -42,7 +46,7 @@ function sendGetRequest(path, onComplete) {
 
 // Helper to make a POST request and execute a callback function
 function sendPostRequest(path, token, params, onComplete) {
-  chai.request(process.env.ENDPOINT)
+  chai.request(endpoint)
     .post(path)
     .set('Content-Type', 'application/json')
     .set('Authorization', token)

@@ -1,4 +1,10 @@
 {
+  "uds": {
+    "url": {
+      "internal": "http://uds.staging1.hmheng-uds.brnp.internal/",
+      "external": "https://api.cert.eng.hmhco.com/uds/"
+    }
+  },
   "logger": {
     "level": "debug"
   },

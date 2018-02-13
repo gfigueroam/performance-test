@@ -1,4 +1,9 @@
 {
+  "uds": {
+    "url": {
+      "internal": "http://uds.devel.hmheng-uds.brnp.internal/"
+    }
+  },
   "logger": {
     "level": "debug"
   },

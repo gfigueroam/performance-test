@@ -1,0 +1,32 @@
+post:
+  summary: Registers a new app
+  description: |
+    Registers a new app with a given user quota. [More](/docs/method-apps.register.html)
+  tags:
+    - Apps
+  security:
+    - ServiceSIF: []
+  parameters:
+    - name: app
+      in: body
+      required: true
+      schema:
+        type: object
+        properties:
+          name:
+            type: string
+          quota:
+            type: number
+        required:
+          - name
+          - quota
+  responses:
+    200:
+      description: Returns true if the new app was registered, or an error result.
+      schema:
+        type: object
+        properties:
+          ok:
+            type: boolean
+        required:
+          - ok

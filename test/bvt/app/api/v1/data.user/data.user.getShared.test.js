@@ -15,6 +15,7 @@ const serviceToken = tokens.serviceToken;
 
 const key = `uds.bvt.data.user.getShared.test.${seed.buildNumber}`;
 const data = 'authz.getShared.test.data';
+const type = 'text';
 const authz = 'uds_authz_allow';
 const ctx = 'authz.getShared.test.ctx.1';
 const requestor = 'data.user.getShared.test.requestor.1';
@@ -28,7 +29,7 @@ describe('data.user.getShared', () => {
     seed.user.set({
       data,
       key,
-      type: 'text',
+      type,
       user: requestor,
     }, done);
   });
@@ -116,7 +117,7 @@ describe('data.user.getShared', () => {
       expect(err).to.equal(null);
       expect(response.body).to.deep.equal({
         ok: true,
-        result: { data, key },
+        result: { data, key, type },
       });
       done();
     });

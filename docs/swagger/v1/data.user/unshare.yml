@@ -1,0 +1,33 @@
+post:
+  summary: Unshares a user data item by id
+  description: |
+    Unshares a user data item that was previously shared. [More](/docs/method-data.user.unshare.html)
+  tags:
+    - Data.User
+  security:
+    - UserServiceSIF: []
+  parameters:
+    - name: data
+      in: body
+      required: true
+      schema:
+        type: object
+        properties:
+          id:
+            type: string
+          requestor:
+            type: string
+          owner:
+            type: string
+        required:
+          - id
+  responses:
+    200:
+      description: Returns true if the user data was unshared, or an error result.
+      schema:
+        type: object
+        properties:
+          ok:
+            type: boolean
+        required:
+          - ok

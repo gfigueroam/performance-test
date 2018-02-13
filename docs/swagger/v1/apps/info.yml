@@ -1,0 +1,40 @@
+post:
+  summary: Get app info by name
+  description: |
+    Get the name and current quota for a registered app. [More](/docs/method-apps.info.html)
+  tags:
+    - Apps
+  security:
+    - ServiceSIF: []
+  parameters:
+    - name: app
+      in: body
+      required: true
+      schema:
+        type: object
+        properties:
+          name:
+            type: string
+        required:
+          - name
+  responses:
+    200:
+      description: Returns the name and current user quota for an app.
+      schema:
+        type: object
+        properties:
+          ok:
+            type: boolean
+          result:
+            type: object
+            properties:
+              name:
+                type: string
+              quota:
+                type: number
+            required:
+              - name
+              - quota
+        required:
+          - ok
+          - result

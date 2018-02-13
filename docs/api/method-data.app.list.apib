@@ -6,11 +6,11 @@ List data for a given user.
 
 :[](common-args.md url:"data.app.list" token:"Can be used with either a service token or a user token.")
 
-| Argument      | Example                   | Required  | Description
-|:---           |:---                       |:---       |:---
-| `app`         | `browser_client`          | Required  | The app storing data.
-| `requestor`   | `user_345`            | Optional  | The user making the request. Required if token type is service token.
-| `owner`       | `user_789`            | Optional  | The user whose data is being accessed. Defaults to `requestor` if not specified.
+| Argument      | Example             | Required  | Description
+|:---           |:---                 |:---       |:---
+| `app`         | `browser_client`    | Required  | The app storing data.
+| `requestor`   | `user_345`          | Optional  | The user making the request. Required if token type is service token.
+| `owner`       | `user_789`          | Optional  | The user whose data is being accessed. Defaults to `requestor` if not specified.
 
 ## Result
 
@@ -18,10 +18,10 @@ List data for a given user.
 {
     "ok": true,
     "result": {
-        "keys": [
-            "key1",
-            // ...
-        ]
+      keys: [
+        "key1",
+        // ...
+      ]
     }
 }
 ```

@@ -1,0 +1,315 @@
+swagger: '2.0'
+info:
+  title: UDS API
+  description: Swagger docs for UDS API
+  version: "1.0.0"
+basePath: /
+produces:
+  - application/json
+securityDefinitions:
+  ServiceSIF:
+    type: apiKey
+    name: Authorization
+    in: header
+    description: SIF Service Token
+  UserServiceSIF:
+    type: apiKey
+    name: Authorization
+    in: header
+    description: SIF Service Token or User Token
+
+paths:
+  /api/v1/apps.info:
+    $ref: ./docs/swagger/v1/apps/info.yml
+  /api/v1/apps.list:
+    $ref: ./docs/swagger/v1/apps/list.yml
+  /api/v1/apps.register:
+    $ref: ./docs/swagger/v1/apps/register.yml
+  /api/v1/apps.remove:
+    $ref: ./docs/swagger/v1/apps/remove.yml
+  /api/v1/apps.setPerUserQuota:
+    $ref: ./docs/swagger/v1/apps/setPerUserQuota.yml
+  /api/v1/authz.info:
+    $ref: ./docs/swagger/v1/authz/info.yml
+  /api/v1/authz.list:
+    $ref: ./docs/swagger/v1/authz/list.yml
+  /api/v1/authz.register:
+    $ref: ./docs/swagger/v1/authz/register.yml
+  /api/v1/authz.remove:
+    $ref: ./docs/swagger/v1/authz/remove.yml
+  /api/v1/data.admin.apps:
+    $ref: ./docs/swagger/v1/data.admin/apps.yml
+  /api/v1/data.app.delete:
+    $ref: ./docs/swagger/v1/data.app/delete.yml
+  /api/v1/data.app.get:
+    $ref: ./docs/swagger/v1/data.app/get.yml
+  /api/v1/data.app.list:
+    $ref: ./docs/swagger/v1/data.app/list.yml
+  /api/v1/data.app.merge:
+    $ref: ./docs/swagger/v1/data.app/merge.yml
+  /api/v1/data.app.query:
+    $ref: ./docs/swagger/v1/data.app/query.yml
+  /api/v1/data.app.set:
+    $ref: ./docs/swagger/v1/data.app/set.yml
+  /api/v1/data.cb.decrement:
+    $ref: ./docs/swagger/v1/data.cb/decrement.yml
+  /api/v1/data.cb.get:
+    $ref: ./docs/swagger/v1/data.cb/get.yml
+  /api/v1/data.cb.increment:
+    $ref: ./docs/swagger/v1/data.cb/increment.yml
+  /api/v1/data.cb.merge:
+    $ref: ./docs/swagger/v1/data.cb/merge.yml
+  /api/v1/data.cb.query:
+    $ref: ./docs/swagger/v1/data.cb/query.yml
+  /api/v1/data.cb.set:
+    $ref: ./docs/swagger/v1/data.cb/set.yml
+  /api/v1/data.cb.unset:
+    $ref: ./docs/swagger/v1/data.cb/unset.yml
+  /api/v1/data.user.delete:
+    $ref: ./docs/swagger/v1/data.user/delete.yml
+  /api/v1/data.user.get:
+    $ref: ./docs/swagger/v1/data.user/get.yml
+  /api/v1/data.user.getShared:
+    $ref: ./docs/swagger/v1/data.user/getShared.yml
+  /api/v1/data.user.list:
+    $ref: ./docs/swagger/v1/data.user/list.yml
+  /api/v1/data.user.query:
+    $ref: ./docs/swagger/v1/data.user/query.yml
+  /api/v1/data.user.set:
+    $ref: ./docs/swagger/v1/data.user/set.yml
+  /api/v1/data.user.share:
+    $ref: ./docs/swagger/v1/data.user/share.yml
+  /api/v1/data.user.unshare:
+    $ref: ./docs/swagger/v1/data.user/unshare.yml
+
+definitions:
+  successResult:
+    description: Response describing a successful request with no payload, where (ok = true)
+    type: object
+    properties:
+      ok:
+        type: boolean
+    required:
+      - ok
+  listStringResult:
+    description: Response describing a list of string names of apps, authz, or keys, where (ok = true)
+    type: object
+    properties:
+      ok:
+        type: boolean
+      result:
+        type: array
+        items:
+          type: string
+    required:
+      - ok
+      - result
+  appResult:
+    description: Response describing a registered app, where (ok = true)
+    type: object
+    properties:
+      ok:
+        type: boolean
+      result:
+        type: object
+        properties:
+          name:
+            type: string
+          quota:
+            type: number
+        required:
+          - name
+          - quota
+    required:
+      - ok
+      - result
+  authzResult:
+    description: Response describing a registered authz configuration, where (ok = true)
+    type: object
+    properties:
+      ok:
+        type: boolean
+      result:
+        type: object
+        properties:
+          name:
+            type: string
+          url:
+            type: string
+        required:
+          - name
+          - url
+    required:
+      - ok
+      - result
+  appDataResult:
+    description: Response describing an application data lookup result, where (ok = true)
+    type: object
+    properties:
+      ok:
+        type: boolean
+      result:
+        type: object
+        properties:
+          key:
+            type: string
+          data:
+            type: object
+        required:
+          - key
+          - data
+    required:
+      - ok
+      - result
+  appDataQueryResult:
+    description: Response describing an application data query result, where (ok = true)
+    type: object
+    properties:
+      ok:
+        type: boolean
+      result:
+        type: array
+        items:
+          type: object
+          properties:
+            key:
+              type: string
+            data:
+              type: object
+            app:
+              type: string
+            user:
+              type: string
+          required:
+            - key
+            - data
+            - app
+            - user
+    required:
+      - ok
+      - result
+  cbQueryResult:
+    description: Response describing a calculated behavior data query result, where (ok = true)
+    type: object
+    properties:
+      ok:
+        type: boolean
+      result:
+        type: array
+        items:
+          type: object
+          properties:
+            key:
+              type: string
+            data:
+              type: string, number, boolean, array, object
+            user:
+              type: string
+          required:
+            - key
+            - data
+            - user
+    required:
+      - ok
+      - result
+  userDataResult:
+    description: Response describing a user data lookup result, where (ok = true)
+    type: object
+    properties:
+      ok:
+        type: boolean
+      result:
+        type: object
+        properties:
+          key:
+            type: string
+          type:
+            type: string
+          data:
+            type: object
+        required:
+          - key
+          - type
+          - data
+    required:
+      - ok
+      - result
+  userDataQueryResult:
+    description: Response describing a user data query result, where (ok = true)
+    type: object
+    properties:
+      ok:
+        type: boolean
+      result:
+        type: array
+        items:
+          type: object
+          properties:
+            key:
+              type: string
+            data:
+              type: object
+            type:
+              type: string
+            user:
+              type: string
+          required:
+            - key
+            - data
+            - type
+            - user
+    required:
+      - ok
+      - result
+  shareResult:
+    description: Response describing a new shared user data item, where (ok = false)
+    type: object
+    properties:
+      ok:
+        type: boolean
+      result:
+        type: object
+        properties:
+          id:
+            type: string
+        required:
+          - id
+    required:
+      - ok
+      - result
+  userDataListResult:
+    description: Response describing user data keys and share ids, where (ok = false)
+    type: object
+    properties:
+      ok:
+        type: boolean
+      result:
+        type: object
+        properties:
+          keys:
+            type: array
+            items:
+              type: string
+          shared:
+            type: array
+            items:
+              type: string
+        required:
+          - keys
+          - shared
+    required:
+      - ok
+      - result
+  errorResult:
+    description: Response describing an error, required where (ok = false)
+    type: object
+    properties:
+      ok:
+        type: boolean
+      error:
+        type: string
+      details:
+        type: string
+    required:
+      - ok
+      - error

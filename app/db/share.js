@@ -54,6 +54,7 @@ async function getShared(params) {
   return {
     data: getResult.Item.data,
     key: getResult.Item.key,
+    type: getResult.Item.type,
   };
 }
 

@@ -20,3 +20,6 @@ node_modules
 
 # Build directory with deployable files
 app_deploy
+
+# Build API Swagger Doc JSON file
+static/swagger/api-docs.json

@@ -1,0 +1,40 @@
+post:
+  summary: Get authz configuration by name
+  description: |
+    Get the name and auth URL for an authz configuration. [More](/docs/method-authz.info.html)
+  tags:
+    - Authz
+  security:
+    - ServiceSIF: []
+  parameters:
+    - name: authz
+      in: body
+      required: true
+      schema:
+        type: object
+        properties:
+          name:
+            type: string
+        required:
+          - name
+  responses:
+    200:
+      description: Returns the name and auth URL for an authz configuration.
+      schema:
+        type: object
+        properties:
+          ok:
+            type: boolean
+          result:
+            type: object
+            properties:
+              name:
+                type: string
+              url:
+                type: string
+            required:
+              - name
+              - url
+        required:
+          - ok
+          - result

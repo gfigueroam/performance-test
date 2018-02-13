@@ -53,7 +53,7 @@ describe('data.user.get', () => {
         Item: {
           data,
           key,
-          user: requestor,
+          type: 'text',
         },
       });
     });
@@ -61,7 +61,7 @@ describe('data.user.get', () => {
       expect(result).to.deep.equal({
         data,
         key,
-        user: requestor,
+        type: 'text',
       });
       done();
     }).catch(done);

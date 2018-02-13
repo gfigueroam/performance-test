@@ -15,6 +15,7 @@ const requestor = 'some-user-requesting';
 const mockDataItem = {
   data: 'some-data-value',
   key: 'some-data-key',
+  type: 'text',
 };
 
 let getSharedStub;

@@ -1,0 +1,36 @@
+post:
+  summary: Merges calculated behavior data by key
+  description: |
+    Merges a calculated behavior value with existing data stored under a given key. [More](/docs/method-data.cb.merge.html)
+  tags:
+    - Data.CB
+  security:
+    - UserServiceSIF: []
+  parameters:
+    - name: cb
+      in: body
+      required: true
+      schema:
+        type: object
+        properties:
+          key:
+            type: string
+          data:
+            type: string, number, boolean, array, object
+          requestor:
+            type: string
+          owner:
+            type: string
+        required:
+          - key
+          - data
+  responses:
+    200:
+      description: Returns true if the data was merged, or an error result.
+      schema:
+        type: object
+        properties:
+          ok:
+            type: boolean
+        required:
+          - ok

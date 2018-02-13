@@ -29,7 +29,8 @@ cp -Rf out app_deploy/out
 echo Copying database config
 cp -Rf database app_deploy/database
 
-echo Copying static folder
+echo Building and copying Swagger docs
+npm run build:swagger
 cp -Rf static app_deploy/static
 
 echo Copying telegraf folder

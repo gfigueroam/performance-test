@@ -10,6 +10,11 @@ echo Removing API/JSDoc folders....
 rm -rf out
 echo Done
 
+# Delete the auto-generated Swagger doc file
+echo Removing Swagger doc JSON...
+rm -rf static/swagger/api-docs.json
+echo Done
+
 # Delete code coverage info from previous runs
 echo Removing code coverage folders....
 rm -rf coverage

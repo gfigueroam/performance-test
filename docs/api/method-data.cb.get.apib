@@ -17,8 +17,8 @@ See [Naming rules](common-names.html) for more information on names.
 ## Result
 The result is whatever value is stored at the specified `key` for the user
 identified by the authentication token or `owner` parameter. The result will
-be either a `number`, a `string`, or an `object`. If the key has not been
-set for the user, the result will be `null`.
+be either a `number`, a `string`, a `boolean`, an `object`, or an `array`.
+If the key has not been set for the user, the result will be `undefined`.
 
 ```javascript
 {

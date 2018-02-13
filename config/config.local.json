@@ -1,4 +1,9 @@
 {
+  "uds": {
+    "url": {
+      "internal": "http://localhost:5200/"
+    }
+  },
   "logger": {
     "level": "debug"
   }

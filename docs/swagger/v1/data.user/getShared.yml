@@ -1,0 +1,44 @@
+post:
+  summary: Get shared user data by id
+  description: |
+    Get user data shared with a given share id. [More](/docs/method-data.user.getShared.html)
+  tags:
+    - Data.User
+  security:
+    - UserServiceSIF: []
+  parameters:
+    - name: data
+      in: body
+      required: true
+      schema:
+        type: object
+        properties:
+          id:
+            type: string
+          requestor:
+            type: string
+        required:
+          - id
+  responses:
+    200:
+      description: Returns the shared user data if present, or undefined.
+      schema:
+        type: object
+        properties:
+          ok:
+            type: boolean
+          result:
+            type: object
+            properties:
+              key:
+                type: string
+              type:
+                type: string
+              data:
+                type: string
+            required:
+              - key
+              - type
+              - data
+        required:
+          - ok

@@ -83,7 +83,7 @@ describe('data.user.set', () => {
                   result: {
                     data,
                     key,
-                    user: requestor,
+                    type: 'text',
                   },
                 });
                 done();
@@ -126,7 +126,7 @@ describe('data.user.set', () => {
                   result: {
                     data: annotationData,
                     key: annotationKey,
-                    user: requestor,
+                    type: 'annotation',
                   },
                 });
                 done();

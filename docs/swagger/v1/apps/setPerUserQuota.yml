@@ -1,0 +1,32 @@
+post:
+  summary: Modifies user quota for an app
+  description: |
+    Modifies the user quota for a registered app. [More](/docs/method-apps.setPerUserQuota.html)
+  tags:
+    - Apps
+  security:
+    - ServiceSIF: []
+  parameters:
+    - name: app
+      in: body
+      required: true
+      schema:
+        type: object
+        properties:
+          name:
+            type: string
+          quota:
+            type: number
+        required:
+          - name
+          - quota
+  responses:
+    200:
+      description: Returns true if the quota was updated, or an error result.
+      schema:
+        type: object
+        properties:
+          ok:
+            type: boolean
+        required:
+          - ok

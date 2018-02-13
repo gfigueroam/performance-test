@@ -1,0 +1,29 @@
+post:
+  summary: Remove an existing app
+  description: |
+    Removes an existing app configuration from UDS. [More](/docs/method-apps.remove.html)
+  tags:
+    - Apps
+  security:
+    - ServiceSIF: []
+  parameters:
+    - name: app
+      in: body
+      required: true
+      schema:
+        type: object
+        properties:
+          name:
+            type: string
+        required:
+          - name
+  responses:
+    200:
+      description: Returns true if the app was removed, or an error result.
+      schema:
+        type: object
+        properties:
+          ok:
+            type: boolean
+        required:
+          - ok

@@ -53,7 +53,7 @@ describe('data.user.get', () => {
         result: {
           data,
           key,
-          user: requestor,
+          type: 'text',
         },
       });
       done();

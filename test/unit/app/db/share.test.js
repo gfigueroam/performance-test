@@ -167,6 +167,7 @@ describe('share', () => {
                 ctx: 'mock-ctx',
                 dataKey: 'mock-key',
                 key: testShareId,
+                type: 'text',
                 user: 'mock-user-id',
               },
             })),
@@ -182,6 +183,7 @@ describe('share', () => {
               Item: {
                 data: 'mock-data',
                 key: 'mock-key',
+                type: 'text',
               },
             })),
           };
@@ -195,6 +197,7 @@ describe('share', () => {
         expect(result).to.deep.equal({
           data: 'mock-data',
           key: 'mock-key',
+          type: 'text',
         });
         return Promise.resolve();
       } catch (err) {

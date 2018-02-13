@@ -96,6 +96,7 @@ describe('data.user.share', () => {
         result: {
           data,
           key,
+          type: 'text',
         },
       });
       done();
@@ -135,7 +136,7 @@ describe('data.user.share', () => {
         result: {
           data,
           key,
-          user: requestor,
+          type: 'text',
         },
       });
       done();
@@ -153,6 +154,7 @@ describe('data.user.share', () => {
         result: {
           data,
           key,
+          type: 'text',
         },
       });
       done();

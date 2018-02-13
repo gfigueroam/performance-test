@@ -7,6 +7,5 @@ export default async function listHandler(requestor, owner) {
     owner,
     requestor,
   }]);
-
   return items;
 }
