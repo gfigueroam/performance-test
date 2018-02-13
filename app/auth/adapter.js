@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import jwtSecret from 'grid-framework/lib/token_validator/secrets';
 import { hmhclients } from 'idm-nodejs-common';
 
+import constants from '../utils/constants';
 import errors from '../models/errors';
 import tokens from './tokens';
 
@@ -58,11 +59,8 @@ function getInternalTokenInfo(ctx) {
   };
 }
 
-// Internal authAdapter for environments where DMPS needs to manually validate token
-//  Assumes the token is unvalidated, checks for user token followed by service token
-//  This adapter should be used for local environments and Jenkins/docker scenarios
-//   where we don't have a LinkerD mesh layer handling requests and validating tokens
-function internalAuthAdapter(ctx) {
+// Internal authAdapter for environments where UDS needs to manually validate token
+function buildInternalAuthToken(ctx) {
   const tokenInfo = getInternalTokenInfo(ctx);
   const token = tokenInfo.token;
 
@@ -96,10 +94,8 @@ function internalAuthAdapter(ctx) {
   }
 }
 
-// LinkerD authAdapter for environments where DMPS can rely on LinkerD for validation
-//  This adapter should be used in dev/cert/int/prod where LinkerD will validate user
-//   tokens and pass along service tokens and we can just extract it from Auth header
-function linkerdAuthAdapter(ctx) {
+// External authAdapter for environments where UDS can rely on LinkerD for validation
+function buildExternalAuthToken(ctx) {
   const header = getAuthHeader(ctx);
   ctx.swatchCtx.logger.warn(`LinkerD auth adapter configured: ${header}`);
 
@@ -120,7 +116,31 @@ function linkerdAuthAdapter(ctx) {
   return userToken;
 }
 
+// Core logic to build auth token, then check for BVT-specific header
+function createAuthToken(ctx, builderFn) {
+  const authToken = builderFn(ctx);
+  authToken.setUseStubAuth(
+    !!ctx.request.headers[constants.UDS_BVT_REQUEST_HEADER],
+  );
+  return authToken;
+}
+
+// Internal authAdapter for environments where UDS needs to manually validate token
+//  This adapter should be used for local environments and Jenkins/docker scenarios
+//   where we don't have a LinkerD mesh layer handling requests and validating tokens
+//  Assumes the token is unvalidated, checks for user token followed by service token
+function internalAuthAdapter(ctx) {
+  return createAuthToken(ctx, buildInternalAuthToken);
+}
+
+// External authAdapter for environments where UDS can rely on LinkerD for validation
+//  This adapter should be used in dev/cert/int/prod where LinkerD will validate user
+//   tokens and pass along service tokens and we can just extract it from Auth header
+function externalAuthAdapter(ctx) {
+  return createAuthToken(ctx, buildExternalAuthToken);
+}
+
 export default {
-  external: linkerdAuthAdapter,
+  external: externalAuthAdapter,
   internal: internalAuthAdapter,
 };

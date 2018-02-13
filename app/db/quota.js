@@ -18,7 +18,7 @@ async function getConsumedQuota(params) {
     params.owner = params.requestor;
   }
   // Verify requestor has access to owner's data.
-  const allowed = await auth.ids.hasAccessTo(params.requestor, params.owner);
+  const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
   if (!allowed) {
     throw errors.codes.ERROR_CODE_AUTH_INVALID;
   }

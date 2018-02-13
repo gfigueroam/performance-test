@@ -2,6 +2,7 @@ import AWS from 'aws-sdk';
 import chai from 'chai';
 import sinon from 'sinon';
 
+import auth from '../../../../app/auth';
 import config from '../../../../app/config';
 import errors from '../../../../app/models/errors';
 import logger from '../../../../app/monitoring/logger';
@@ -39,6 +40,7 @@ describe('share', () => {
     authzStub = sinon.stub(authz, 'exists');
     userDataStub = sinon.stub(userDB, 'get');
 
+    sinon.stub(auth.ids, 'hasAccessTo').returns(true);
     sinon.stub(dynamoDBClient, 'instrumented').callsFake((method, params) => (
       documentClientStub[method](params).promise()
     ));
@@ -48,6 +50,7 @@ describe('share', () => {
     authzStub.restore();
     userDataStub.restore();
 
+    auth.ids.hasAccessTo.restore();
     dynamoDBClient.instrumented.restore();
   });
 
@@ -247,6 +250,8 @@ describe('share', () => {
     });
 
     it('throws an error when requestor does not match owner', async () => {
+      auth.ids.hasAccessTo.returns(false);
+
       try {
         await share.share.apply(swatchCtx, [{
           authz: 'authz-whatever',
@@ -264,6 +269,8 @@ describe('share', () => {
     });
 
     it('should throw an error if the authz does not exist', async () => {
+      auth.ids.hasAccessTo.returns(true);
+
       // Mock the case where the authz name does not exist
       authzStub.callsFake(() => {
         throw errors.codes.ERROR_CODE_AUTHZ_NOT_FOUND;
@@ -372,6 +379,8 @@ describe('share', () => {
     });
 
     it('throws an error when requestor does not match owner', async () => {
+      auth.ids.hasAccessTo.returns(false);
+
       try {
         await share.unshare.apply(swatchCtx, [{
           id: 'id-whatever',
@@ -386,6 +395,8 @@ describe('share', () => {
     });
 
     it('throws an error when the share id doesnt exist', async () => {
+      auth.ids.hasAccessTo.returns(true);
+
       documentClientStub.get.callsFake(params => {
         expect(params.TableName).to.equal(shareTableName);
         expect(params.Key.key).to.equal(testShareId);

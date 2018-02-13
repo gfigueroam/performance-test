@@ -35,6 +35,7 @@ function expectResponse(result, done) {
 function sendGetRequest(path, onComplete) {
   chai.request(process.env.ENDPOINT)
     .get(path)
+    .set(constants.UDS_BVT_REQUEST_HEADER, true)
     .set(constants.UDS_CONSISTENT_READ_HEADER, true)
     .end(onComplete);
 }
@@ -45,6 +46,7 @@ function sendPostRequest(path, token, params, onComplete) {
     .post(path)
     .set('Content-Type', 'application/json')
     .set('Authorization', token)
+    .set(constants.UDS_BVT_REQUEST_HEADER, true)
     .set(constants.UDS_CONSISTENT_READ_HEADER, true)
     .send(params)
     .end(onComplete);

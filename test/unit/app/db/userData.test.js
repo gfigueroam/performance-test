@@ -4,6 +4,7 @@ import sinon from 'sinon';
 import appData from '../../../../app/db/appData';
 import userData from '../../../../app/db/userData';
 
+import auth from '../../../../app/auth';
 import errors from '../../../../app/models/errors';
 
 const expect = chai.expect;
@@ -64,6 +65,8 @@ describe('userData', () => {
     });
 
     appDataQueryStub = sinon.stub(appData, 'query');
+
+    sinon.stub(auth.ids, 'hasAccessTo').returns(true);
   });
   after(() => {
     appDataQueryStub.restore();
@@ -72,6 +75,8 @@ describe('userData', () => {
     appData.set.restore();
     appData.unset.restore();
     appData.list.restore();
+
+    auth.ids.hasAccessTo.restore();
   });
 
   describe('set', () => {
@@ -225,6 +230,8 @@ describe('userData', () => {
     });
 
     it('throws an error when requestor does not match owner', async () => {
+      auth.ids.hasAccessTo.returns(false);
+
       try {
         await userData.query.apply(swatchCtx, [{
           keyPrefix,
@@ -239,6 +246,8 @@ describe('userData', () => {
     });
 
     it('calls appData.get with "hmh" as the app name and no results', (done) => {
+      auth.ids.hasAccessTo.returns(true);
+
       appDataQueryStub.callsFake(params => {
         expect(params).to.deep.equal({
           app: 'hmh',

@@ -74,16 +74,6 @@ describe('data.user.query', () => {
     http.sendPostRequestError(path, serviceToken, params, errorCode, done);
   });
 
-  it('fails if the "owner" parameter doesnt match "requestor" parameter', done => {
-    const params = {
-      keyPrefix,
-      owner: 'someone-else',
-      requestor,
-    };
-    const errorCode = errors.codes.ERROR_CODE_AUTH_INVALID;
-    http.sendPostRequestError(path, serviceToken, params, errorCode, done);
-  });
-
   it('returns an empty list when no values match keyPrefix', done => {
     const params = { keyPrefix: 'something.else', requestor };
     const result = { ok: true, result: [] };

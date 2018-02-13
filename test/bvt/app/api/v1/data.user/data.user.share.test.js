@@ -50,12 +50,6 @@ describe('data.user.share', () => {
     http.sendPostRequestError(path, serviceToken, params, errorCode, done);
   });
 
-  it('should return error when requestor does not have access', done => {
-    const params = { authz, ctx, key, owner: 'different.user.account', requestor };
-    const errorCode = errors.codes.ERROR_CODE_AUTH_INVALID;
-    http.sendPostRequestError(path, serviceToken, params, errorCode, done);
-  });
-
   it('shares an existing data value correctly with a unique id', (done) => {
     http.sendPostRequest(path, serviceToken, {
       authz,

@@ -2,6 +2,7 @@ import chai from 'chai';
 
 import auth from '../../../../app/auth';
 import config from '../../../../app/config';
+import constants from '../../../../app/utils/constants';
 import errors from '../../../../app/models/errors';
 import logger from '../../../../app/monitoring/logger';
 
@@ -10,11 +11,12 @@ import tokens from '../../../common/helpers/tokens';
 const expect = chai.expect;
 
 describe('authAdapter', () => {
-  function createMockCtx(authorization) {
+  function createMockCtx(authorization, bvtHeader) {
     return {
       request: {
         headers: {
           authorization,
+          [constants.UDS_BVT_REQUEST_HEADER]: bvtHeader,
         },
       },
       swatchCtx: {
@@ -62,6 +64,17 @@ describe('authAdapter', () => {
       const result = auth.adapter.internal(mockCtx);
       expect(result.tokenType).to.equal('service');
       expect(result.token).to.equal(testServiceToken);
+      expect(result.useStubAuth).to.equal(false);
+    });
+
+    it('should successfully validate a service token with bvt header', () => {
+      const testServiceToken = config.get('uds:service_token');
+      const mockCtx = createMockCtx(testServiceToken, 'test');
+
+      const result = auth.adapter.internal(mockCtx);
+      expect(result.tokenType).to.equal('service');
+      expect(result.token).to.equal(testServiceToken);
+      expect(result.useStubAuth).to.equal(true);
     });
 
     it('should successfully validate a user token', () => {

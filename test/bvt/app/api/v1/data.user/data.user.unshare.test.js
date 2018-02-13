@@ -73,12 +73,6 @@ describe('data.user.unshare', () => {
     });
   });
 
-  it('should return error when requestor does not have access', done => {
-    const params = { id: shareId, owner: 'different.user.account', requestor };
-    const errorCode = errors.codes.ERROR_CODE_AUTH_INVALID;
-    http.sendPostRequestError(path, serviceToken, params, errorCode, done);
-  });
-
   it('unshares a piece of content by share id', (done) => {
     const params = { id: shareId, requestor };
     http.sendPostRequest(path, serviceToken, params, (err, response) => {

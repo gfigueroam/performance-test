@@ -6,5 +6,8 @@
     "topic": "hmheng-uds.cert.calculated-behavior-events.schema.calculated.behavior",
     "group_id": "uds-calculated-behavior-group-cert"
   },
-  "iamRole": "arn:aws:iam::711638685743:role/uds/uds-iam-ddb-role-cert"
+  "iamRole": "arn:aws:iam::711638685743:role/uds/uds-iam-ddb-role-cert",
+  "ids": {
+    "api_host_name": "https://idm-ids-grid-api.cert.br.hmheng.io"
+  }
 }

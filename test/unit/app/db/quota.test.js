@@ -3,6 +3,7 @@ import chai from 'chai';
 import sinon from 'sinon';
 import sizeof from 'object-sizeof';
 
+import auth from '../../../../app/auth';
 import quota from '../../../../app/db/quota';
 import dynamoDBClient from '../../../../app/db/dynamoDBClient';
 
@@ -20,12 +21,14 @@ const swatchCtx = {
 
 describe('quota', () => {
   before(() => {
+    sinon.stub(auth.ids, 'hasAccessTo').returns(true);
     sinon.stub(dynamoDBClient, 'instrumented').callsFake((method, params) => (
       documentClientStub[method](params).promise()
     ));
   });
 
   after(() => {
+    auth.ids.hasAccessTo.restore();
     dynamoDBClient.instrumented.restore();
   });
 

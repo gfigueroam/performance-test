@@ -17,7 +17,7 @@ describe('Auth Middleware', () => {
   const noop = () => {};
 
   const mockRequest = {
-    url: 'https://hmh.dmps.test.com',
+    url: 'https://hmh.uds.test.com',
   };
 
   const mockEmptyCtx = {

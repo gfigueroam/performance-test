@@ -3,8 +3,8 @@ import chai from 'chai';
 import sinon from 'sinon';
 
 // We can import appData before we set the DocumentClient stub
-// because appData uses lazy initialization. See details within
-// appData.js
+// because appData uses lazy initialization. See details in appData.js
+import auth from '../../../../app/auth';
 import appData from '../../../../app/db/appData';
 import quota from '../../../../app/db/quota';
 import apps from '../../../../app/db/apps';
@@ -34,12 +34,14 @@ describe('appData', () => {
       documentClientStub[method](params).promise()
     ));
     sinon.stub(apps, 'info');
+    sinon.stub(auth.ids, 'hasAccessTo').returns(true);
     sinon.stub(quota, 'getConsumedQuota').returns(10);
   });
 
   after(() => {
     dynamoDBClient.instrumented.restore();
     apps.info.restore();
+    auth.ids.hasAccessTo.restore();
     quota.getConsumedQuota.restore();
   });
 
@@ -643,6 +645,8 @@ describe('appData', () => {
     });
 
     it('throws an error when requestor does not match owner', async () => {
+      auth.ids.hasAccessTo.returns(false);
+
       try {
         await appData.query.apply(swatchCtx, [{
           app,
@@ -658,6 +662,8 @@ describe('appData', () => {
     });
 
     it('throws an error if the app does not exist', async () => {
+      auth.ids.hasAccessTo.returns(true);
+
       apps.info.callsFake(params => {
         expect(params.name).to.equal(app);
         throw errors.codes.ERROR_CODE_APP_NOT_FOUND;

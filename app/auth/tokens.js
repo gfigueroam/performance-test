@@ -4,6 +4,11 @@ const USER_TOKEN = 'user';
 class AuthToken {
   constructor(token) {
     this.token = token;
+    this.useStubAuth = false;
+  }
+
+  setUseStubAuth(useStubAuth) {
+    this.useStubAuth = useStubAuth;
   }
 }
 

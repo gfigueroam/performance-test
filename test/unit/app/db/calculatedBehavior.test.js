@@ -8,6 +8,7 @@ import sinon from 'sinon';
 import calculatedBehavior from '../../../../app/db/calculatedBehavior';
 import dynamoDBClient from '../../../../app/db/dynamoDBClient';
 
+import auth from '../../../../app/auth';
 import errors from '../../../../app/models/errors';
 
 const expect = chai.expect;
@@ -28,9 +29,11 @@ describe('calculatedBehavior', () => {
     sinon.stub(dynamoDBClient, 'instrumented').callsFake((method, params) => (
       documentClientStub[method](params).promise()
     ));
+    sinon.stub(auth.ids, 'hasAccessTo').returns(true);
   });
 
   after(() => {
+    auth.ids.hasAccessTo.restore();
     dynamoDBClient.instrumented.restore();
   });
 
@@ -530,6 +533,8 @@ describe('calculatedBehavior', () => {
     });
 
     it('throws an error when requestor does not match owner', async () => {
+      auth.ids.hasAccessTo.returns(false);
+
       try {
         await calculatedBehavior.query.apply(swatchCtx, [{
           keyPrefix,
@@ -544,6 +549,8 @@ describe('calculatedBehavior', () => {
     });
 
     it('calls dynamoDB.query and returns a promisified version', (done) => {
+      auth.ids.hasAccessTo.returns(true);
+
       documentClientStub.query.callsFake(params => {
         expect(params.KeyConditions).to.deep.equal({
           key: {

@@ -2,5 +2,8 @@
   "logger": {
     "level": "info"
   },
-  "iamRole": "arn:aws:iam::711638685743:role/uds/uds-iam-ddb-role-prod"
+  "iamRole": "arn:aws:iam::711638685743:role/uds/uds-iam-ddb-role-prod",
+  "ids": {
+    "api_host_name": "https://idm-ids-grid-api.br.hmheng.io"
+  }
 }

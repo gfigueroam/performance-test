@@ -1,2 +1,5 @@
 {
+  "ids": {
+    "api_host_name": "http://idm-ids-grid-api.test"
+  }
 }

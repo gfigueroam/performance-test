@@ -76,7 +76,7 @@ async function share(params) {
   }
 
   // Verify requestor has access to owner's data.
-  const allowed = await auth.ids.hasAccessTo(params.requestor, params.owner);
+  const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
   if (!allowed) {
     throw errors.codes.ERROR_CODE_AUTH_INVALID;
   }
@@ -85,11 +85,11 @@ async function share(params) {
   //  authz query will throw, user data query will return undefined
   authz.exists.apply(this, [params.authz]);
 
-  const keyValue = await userDB.get({
+  const keyValue = await userDB.get.apply(this, [{
     key: params.key,
     owner: params.owner,
     requestor: params.requestor,
-  });
+  }]);
   if (!keyValue) {
     throw errors.codes.ERROR_CODE_KEY_NOT_FOUND;
   }
@@ -127,7 +127,7 @@ async function unshare(params) {
   }
 
   // Verify requestor has access to owner's data and is allowed to unshare
-  const allowed = await auth.ids.hasAccessTo(params.requestor, params.owner);
+  const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
   if (!allowed) {
     throw errors.codes.ERROR_CODE_AUTH_INVALID;
   }
