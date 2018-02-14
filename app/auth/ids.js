@@ -56,6 +56,8 @@ async function hasAccessTo(requestor, owner) {
     return true;
   }
 
+  this.logger.info(`IDS: Checking for teacher (${requestor}) / student (${owner}) relationship`);
+
   // IDS lookup checking whether `requestor` is teacher of `owner`
   // https://idm-ids-grid-api.br.hmheng.io/ids/v1/teachers/7c5a56ae-49f6-473f-83dc-090467b71995/students
   const url = `${idsGridApiHost}/ids/v1/teachers/${requestor}/students`;

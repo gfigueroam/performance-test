@@ -12,6 +12,7 @@ import dynamoDBClient from '../../../../app/db/dynamoDBClient';
 import nconf from '../../../../app/config';
 import constants from '../../../../app/utils/constants';
 import errors from '../../../../app/models/errors';
+import logger from '../../../../app/monitoring/logger';
 
 const expect = chai.expect;
 
@@ -26,6 +27,7 @@ const swatchCtx = {
   database: {
     consistentRead: true,
   },
+  logger,
 };
 
 describe('appData', () => {

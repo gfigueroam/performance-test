@@ -20,6 +20,7 @@ async function set(params) {
   // Verify requestor has access to owner's data.
   const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
   if (!allowed) {
+    this.logger.warn(`CB DB: Requestor (${params.requestor}) access denied to owner (${params.owner})`);
     throw errors.codes.ERROR_CODE_AUTH_INVALID;
   }
 
@@ -51,6 +52,7 @@ async function unset(params) {
   // Verify requestor has access to owner's data.
   const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
   if (!allowed) {
+    this.logger.warn(`CB DB: Requestor (${params.requestor}) access denied to owner (${params.owner})`);
     throw errors.codes.ERROR_CODE_AUTH_INVALID;
   }
 
@@ -79,6 +81,7 @@ async function get(params) {
   // Verify requestor has access to owner's data.
   const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
   if (!allowed) {
+    this.logger.warn(`CB DB: Requestor (${params.requestor}) access denied to owner (${params.owner})`);
     throw errors.codes.ERROR_CODE_AUTH_INVALID;
   }
 
@@ -110,6 +113,7 @@ async function query(params) {
   // Verify requestor has access to owner's data.
   const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
   if (!allowed) {
+    this.logger.warn(`CB DB: Requestor (${params.requestor}) access denied to owner (${params.owner})`);
     throw errors.codes.ERROR_CODE_AUTH_INVALID;
   }
 
@@ -160,6 +164,7 @@ async function atomicUpdate(params) {
   // Verify requestor has access to owner's data.
   const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
   if (!allowed) {
+    this.logger.warn(`CB DB: Requestor (${params.requestor}) access denied to owner (${params.owner})`);
     throw errors.codes.ERROR_CODE_AUTH_INVALID;
   }
 
@@ -177,6 +182,7 @@ async function atomicUpdate(params) {
   let conditionExpression;
   // Is there an existing item?
   if (currentValue.Item) {
+    this.logger.info(`CB DB: Running atomic update on existing data item (${params.key})`);
     // atomic update only works on numeric values
     if (Object.prototype.toString.call(currentValue.Item.data) === '[object Number]') {
       newValue = currentValue.Item.data + params.value;
@@ -202,8 +208,11 @@ async function atomicUpdate(params) {
     }
 
     // else
+    this.logger.error(`CB DB: Atomic update failed on non-numeric data: ${currentValue.Item.data}`);
     throw errors.codes.ERROR_CODE_INVALID_DATA_TYPE;
   } else {
+    this.logger.info(`CB DB: Atomic update creating new data item with key: ${params.key}`);
+
     // There is not an existing value, so store the new value as though the previous value was 0.
     newValue = params.value;
     conditionExpression = 'attribute_not_exists(#data)';
@@ -241,6 +250,7 @@ async function merge(params) {
   // Verify requestor has access to owner's data.
   const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
   if (!allowed) {
+    this.logger.warn(`CB DB: Requestor (${params.requestor}) access denied to owner (${params.owner})`);
     throw errors.codes.ERROR_CODE_AUTH_INVALID;
   }
 
@@ -257,6 +267,8 @@ async function merge(params) {
   let conditionExpression;
   // Is there an existing item?
   if (currentValue.Item) {
+    this.logger.info(`CB DB: Calculated behavior merge on existing data item: ${params.key}`);
+
     // merge only works on objects
     // This logic is based in part on underscore.js' implementation of isObject.
     // (underscore.js is MIT licensed.)
@@ -287,8 +299,11 @@ async function merge(params) {
     }
 
     // Not an object value
+    this.logger.error(`CB DB: Calculated behavior merge failed on non-object data: ${currentValue.Item.data}`);
     throw errors.codes.ERROR_CODE_INVALID_DATA_TYPE;
   } else {
+    this.logger.info(`CB DB: Calculated behavior merge creating new data item with key: ${params.key}`);
+
     // There is not an existing value, so store the new value as though the previous value was {}.
     newValue = params.data;
     conditionExpression = 'attribute_not_exists(#data)';

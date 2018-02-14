@@ -5,7 +5,6 @@ import dynamodbClient from './dynamoDBClient';
 import apps from './apps';
 import errors from '../models/errors';
 import constants from '../utils/constants';
-import logger from '../monitoring/logger';
 import quota from './quota';
 import auth from '../auth';
 
@@ -27,6 +26,7 @@ async function get(params) {
   // Verify requestor has access to owner's data.
   const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
   if (!allowed) {
+    this.logger.warn(`App DB: Requestor (${params.requestor}) access denied to owner (${params.owner})`);
     throw errors.codes.ERROR_CODE_AUTH_INVALID;
   }
 
@@ -68,6 +68,7 @@ async function set(params) {
   // Verify requestor has access to owner's data.
   const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
   if (!allowed) {
+    this.logger.warn(`App DB: Requestor (${params.requestor}) access denied to owner (${params.owner})`);
     throw errors.codes.ERROR_CODE_AUTH_INVALID;
   }
 
@@ -78,7 +79,9 @@ async function set(params) {
 
     // Enforce quota limits
     const consumedQuota = await quota.getConsumedQuota.apply(this, [params]);
-    if (consumedQuota + sizeof(params.data) > appInfo.quota) {
+    const newQuota = consumedQuota + sizeof(params.data);
+    if (newQuota > appInfo.quota) {
+      this.logger.warn(`App DB: Requested data (${newQuota}) would exceed quota limit (${appInfo.quota})`);
       throw errors.codes.ERROR_CODE_QUOTA_EXCEEDED;
     }
   }
@@ -117,6 +120,7 @@ async function query(params) {
   // Verify requestor has access to owner's data.
   const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
   if (!allowed) {
+    this.logger.warn(`App DB: Requestor (${params.requestor}) access denied to owner (${params.owner})`);
     throw errors.codes.ERROR_CODE_AUTH_INVALID;
   }
 
@@ -162,6 +166,7 @@ async function merge(params) {
   // Verify requestor has access to owner's data.
   const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
   if (!allowed) {
+    this.logger.warn(`App DB: Requestor (${params.requestor}) access denied to owner (${params.owner})`);
     throw errors.codes.ERROR_CODE_AUTH_INVALID;
   }
 
@@ -221,7 +226,7 @@ async function merge(params) {
     }
 
     // Not an object value - this should never happen.
-    logger.error(`Found a non-object data type in app data for key ${params.key}, user ${params.owner}, app ${params.app}.`);
+    this.logger.error(`Found a non-object data type in app data for key ${params.key}, user ${params.owner}, app ${params.app}.`);
     throw errors.codes.ERROR_CODE_INVALID_DATA_TYPE;
   } else {
     // There is not an existing value, so store the new value as though the previous value was {}.
@@ -264,6 +269,7 @@ async function unset(params) {
   // Verify requestor has access to owner's data.
   const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
   if (!allowed) {
+    this.logger.warn(`App DB: Requestor (${params.requestor}) access denied to owner (${params.owner})`);
     throw errors.codes.ERROR_CODE_AUTH_INVALID;
   }
 
@@ -313,6 +319,7 @@ async function list(params) {
   // Verify requestor has access to owner's data.
   const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
   if (!allowed) {
+    this.logger.warn(`App DB: Requestor (${params.requestor}) access denied to owner (${params.owner})`);
     throw errors.codes.ERROR_CODE_AUTH_INVALID;
   }
 

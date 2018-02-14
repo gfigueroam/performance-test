@@ -29,6 +29,7 @@ async function getShared(params) {
 
   // Return undefined if the unique share id does not exist
   if (!shareResult.Item) {
+    this.logger.info(`Share DB: GetShare call failed because Share ID does not exist: ${params.id}`);
     return undefined;
   }
 
@@ -48,6 +49,7 @@ async function getShared(params) {
 
   // Return undefined if the key in the share record does not exist
   if (!getResult.Item) {
+    this.logger.info(`Share DB: GetShare call failed because data key does not exist: ${shareResult.Item.dataKey}`);
     return undefined;
   }
 
@@ -79,6 +81,7 @@ async function share(params) {
   // Verify requestor has access to owner's data.
   const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
   if (!allowed) {
+    this.logger.warn(`Share DB: Requestor (${params.requestor}) access denied to owner (${params.owner})`);
     throw errors.codes.ERROR_CODE_AUTH_INVALID;
   }
 
@@ -130,6 +133,7 @@ async function unshare(params) {
   // Verify requestor has access to owner's data and is allowed to unshare
   const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
   if (!allowed) {
+    this.logger.warn(`Share DB: Requestor (${params.requestor}) access denied to owner (${params.owner})`);
     throw errors.codes.ERROR_CODE_AUTH_INVALID;
   }
 

@@ -17,6 +17,7 @@ async function get(params) {
   // Verify requestor has access to owner's data.
   const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
   if (!allowed) {
+    this.logger.warn(`User DB: Requestor (${params.requestor}) access denied to owner (${params.owner})`);
     throw errors.codes.ERROR_CODE_AUTH_INVALID;
   }
 
@@ -40,6 +41,7 @@ async function query(params) {
   // Verify requestor has access to owner's data.
   const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
   if (!allowed) {
+    this.logger.warn(`User DB: Requestor (${params.requestor}) access denied to owner (${params.owner})`);
     throw errors.codes.ERROR_CODE_AUTH_INVALID;
   }
 
@@ -67,6 +69,7 @@ async function set(params) {
   // Verify requestor has access to owner's data.
   const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
   if (!allowed) {
+    this.logger.warn(`User DB: Requestor (${params.requestor}) access denied to owner (${params.owner})`);
     throw errors.codes.ERROR_CODE_AUTH_INVALID;
   }
 
@@ -88,6 +91,7 @@ async function unset(params) {
   // Verify requestor has access to owner's data.
   const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
   if (!allowed) {
+    this.logger.warn(`User DB: Requestor (${params.requestor}) access denied to owner (${params.owner})`);
     throw errors.codes.ERROR_CODE_AUTH_INVALID;
   }
 
@@ -106,6 +110,7 @@ async function list(params) {
   // Verify requestor has access to owner's data.
   const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
   if (!allowed) {
+    this.logger.warn(`User DB: Requestor (${params.requestor}) access denied to owner (${params.owner})`);
     throw errors.codes.ERROR_CODE_AUTH_INVALID;
   }
 
