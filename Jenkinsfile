@@ -115,7 +115,7 @@ node {
       deploy_container(app_name, docker_tag, "cert")
       run_bvt("cert", dind_image_name, dind_cmd_line_params)
 
-      docker.image(generated_docker_image_name).inside("--link dmps-$docker_bvt_container_id:dmps $dind_cmd_line_params") {
+      docker.image(generated_docker_image_name).inside("--link uds-$docker_bvt_container_id:uds --link dynamodb-$docker_bvt_container_id:dynamodb $dind_cmd_line_params") {
         stage("Run Perf Test: cert") {
           sh "npm run perf:cert"
         }
