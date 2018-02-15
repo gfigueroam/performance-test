@@ -30,11 +30,8 @@ class UserDataGetSetSimulation extends Simulation {
     udsSimulation.inject(
       rampUsers(Config.NUM_USERS) over(Config.NUM_USERS seconds)
     )
-  ).protocols(http)
-  /*
   ).assertions(
     global.responseTime.mean.lt(500),
     global.successfulRequests.percent.is(100)
   ).protocols(http)
-  */
 }
