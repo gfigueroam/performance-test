@@ -33,7 +33,9 @@
     "bvt:dev": "better-npm-run bvt:dev",
     "bvt:int": "better-npm-run bvt:int",
     "bvt:cert": "better-npm-run bvt:cert",
-    "bvt:prod": "better-npm-run bvt:prod"
+    "bvt:prod": "better-npm-run bvt:prod",
+    "perf:local": "better-npm-run perf:local",
+    "perf:cert": "better-npm-run perf:cert"
   },
   "betterScripts": {
     "db:create:local": {
@@ -119,6 +121,18 @@
         "NODE_ENV": "prod",
         "REPLICATION_DELAY_TOLERANCE": 1000
       }
+    },
+    "perf:local": {
+      "command": "./scripts/perf/gatling_test.sh",
+      "env": {
+        "NODE_ENV": "local"
+      }
+    },
+    "perf:cert": {
+      "command": "./scripts/perf/gatling_test.sh",
+      "env": {
+        "NODE_ENV": "cert"
+      }
     }
   },
   "repository": {
@@ -183,7 +197,8 @@
     "koa-bunyan-logger": "^2.0.0",
     "koa-compress": "^2.0.0",
     "koa-helmet": "^3.2.0",
-    "koa-static-server": "1.0.0",
+    "koa-mount": "^2.0.0",
+    "koa-static": "^3.0.0",
     "nconf": "^0.8.4",
     "object-sizeof": "^1.2.0",
     "pidusage": "^1.1.5",

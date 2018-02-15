@@ -8,7 +8,7 @@ import tokens from '../../../../../common/helpers/tokens';
 const expect = chai.expect;
 
 const baseAuthzName = `uds.bvt.authz.list.test.${seed.buildNumber}`;
-const baseUrl = 'http://localhost:5100/authz';
+const baseUrl = 'http://localhost:5200/authz';
 
 const oneAuthz = {
   name: `${baseAuthzName}.1`,

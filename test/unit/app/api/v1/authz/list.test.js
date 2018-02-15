@@ -9,10 +9,10 @@ const expect = chai.expect;
 
 const mockAuthzResults = [{
   name: 'testAuthz1',
-  url: 'http://localhost:5100/authz/one',
+  url: 'http://localhost:5200/authz/one',
 }, {
   name: 'testAuthz2',
-  url: 'http://localhost:5100/authz/two',
+  url: 'http://localhost:5200/authz/two',
 }];
 const swatchCtx = { logger };
 

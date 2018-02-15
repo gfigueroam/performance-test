@@ -23,3 +23,7 @@ app_deploy
 
 # Build API Swagger Doc JSON file
 static/swagger/api-docs.json
+
+# Ignore Scala target folders in Gatling tests
+test/perf/target
+test/perf/**/target

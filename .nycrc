@@ -9,10 +9,13 @@
     "include": [
         "app/**"
     ],
+    "exclude": [
+        "**/static/**"
+    ],
     "all": true,
-    "lines": 88.42,
+    "lines": 88.23,
     "functions": 92.72,
-    "statements": 88.49,
+    "statements": 88.3,
     "branch": 84.3,
     "check-coverage": true
 }

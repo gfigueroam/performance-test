@@ -16,7 +16,7 @@ const documentClientStub = sinon.createStubInstance(
 );
 
 const name = 'unittest.authz.authzname';
-const url = 'http://localhost:5100/authz';
+const url = 'http://localhost:5200/authz';
 const swatchCtx = {
   database: {
     consistentRead: true,

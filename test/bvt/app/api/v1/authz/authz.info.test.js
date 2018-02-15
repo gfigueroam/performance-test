@@ -7,7 +7,7 @@ import tokens from '../../../../../common/helpers/tokens';
 const path = paths.AUTHZ_INFO;
 
 const name = `uds.bvt.authz.info.test.${seed.buildNumber}`;
-const url = 'http://localhost:5100/authz';
+const url = 'http://localhost:5200/authz';
 
 const serviceToken = tokens.serviceToken;
 

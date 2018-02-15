@@ -41,3 +41,7 @@ echo Transpiling source folders
 
 echo Transpiling test folders
 ./node_modules/.bin/babel test --out-dir app_deploy/test
+
+echo Copying perf test folder
+rm -rf test/perf/target
+cp -Rf test/perf app_deploy/test

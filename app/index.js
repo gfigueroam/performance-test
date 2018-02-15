@@ -1,7 +1,8 @@
 import bodyParser from 'koa-bodyparser';
 import compress from 'koa-compress';
 import koaBunyanLogger from 'koa-bunyan-logger';
-import serve from 'koa-static-server';
+import mount from 'koa-mount';
+import serve from 'koa-static';
 
 import swagger from 'swagger-koa';
 import swatchKoa from 'swatchjs-koa';
@@ -23,7 +24,7 @@ const app = gridFramework({
   health,
   helmet: {
     csp: {
-      connectSrc: ["'self' file:", 'http://localhost:5100/*'],
+      connectSrc: ["'self' file:", 'http://localhost:5200/*'],
       defaultSrc: ["'self'"],
       fontSrc: ['*.gstatic.com'],
       imgSrc: ["'self' data:", '*.swagger.io'],
@@ -67,10 +68,7 @@ routes.forEach(route => {
 
 // Set up static path to serve API documentation
 //  API docs are available at: /docs/api.html
-app.use(serve({
-  rootDir: 'out/api/html',
-  rootPath: '/docs',
-}));
+app.use(mount('/docs', serve('out/api/html')));
 
 const serverPort = config.get('server_port');
 const serverHostUrl = config.get('uds:url:primary');
