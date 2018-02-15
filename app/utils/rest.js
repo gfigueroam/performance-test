@@ -7,9 +7,11 @@ async function get(url, params) {
   this.logger.info(`HTTP library making request: ${uri}`);
 
   const options = {
+    encoding: 'utf8',
     headers: {
       Authorization: this.auth.token,
     },
+    json: true,
   };
 
   try {
