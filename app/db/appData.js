@@ -90,6 +90,7 @@ async function set(params) {
     Item: {
       appKey: `${params.app}${constants.DELIMITER}${params.key}`,
       appUser: `${params.app}${constants.DELIMITER}${params.owner}`,
+      createdBy: params.requestor,
       data: params.data,
       key: params.key,
       type: params.type,
@@ -212,6 +213,7 @@ async function merge(params) {
         },
         ExpressionAttributeValues: {
           ':oldval': currentValue.Item.data,
+          ':requestor': params.requestor,
           ':value': newValue,
         },
         Key: {
@@ -219,7 +221,7 @@ async function merge(params) {
           key: params.key,
         },
         TableName: nconf.get('database').appDataJsonTableName,
-        UpdateExpression: 'SET #data = :value',
+        UpdateExpression: 'SET #data = :value, updatedBy = :requestor',
       });
 
       return newValue;
@@ -240,7 +242,8 @@ async function merge(params) {
       Item: {
         appKey: `${params.app}${constants.DELIMITER}${params.key}`,
         appUser: `${params.app}${constants.DELIMITER}${params.owner}`,
-        data: params.data,
+        createdBy: params.requestor,
+        data: newValue,
         key: params.key,
         type: params.type,
         user: params.owner,

@@ -51,17 +51,21 @@ describe('data.user.get', () => {
 
       return Promise.resolve({
         Item: {
+          createdBy: requestor,
           data,
           key,
           type: 'text',
+          updatedBy: requestor,
         },
       });
     });
     getHandler.apply(swatchCtx, [key, requestor]).then(result => {
       expect(result).to.deep.equal({
+        createdBy: requestor,
         data,
         key,
         type: 'text',
+        updatedBy: requestor,
       });
       done();
     }).catch(done);

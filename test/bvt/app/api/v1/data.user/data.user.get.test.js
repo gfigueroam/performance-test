@@ -51,6 +51,7 @@ describe('data.user.get', () => {
       expect(response.body).to.deep.equal({
         ok: true,
         result: {
+          createdBy: requestor,
           data,
           key,
           type: 'text',
@@ -59,9 +60,4 @@ describe('data.user.get', () => {
       done();
     });
   });
-
-  /* TODO
-  it('retrieves image data correctly')
-  it('retrieves video data correctly')
-  */
 });

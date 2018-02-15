@@ -20,18 +20,25 @@ The result is an array of data keys and values stored under any key that
 begins with the given `keyPrefix`, for the target `app` and the user
 identified by the authentication token or `owner` parameter.
 
+The `createdBy` field will always be returned to identify the user who created the item.
+`updatedBy` will be present only on items which have undergone a `merge` operation and
+will reflect the most recent user to have performed a `merge` on the item.
+
 ```javascript
 {
     "ok": true,
     "result": [
       {
         "app": "browser_client",
+        "createdBy": "user_789",
         "data": "some value",
         "key": "key.prefix.1",
+        "updatedBy": "user_789",
         "user": "user_789"
       },
       {
         "app": "browser_client",
+        "createdBy": "user_789",
         "data": 101010101,
         "key": "key.prefix.2",
         "user": "user_789"

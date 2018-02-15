@@ -37,15 +37,20 @@ post:
             items:
               type: object
               properties:
+                createdBy:
+                  type: string
                 key:
                   type: string
                 data:
                   type: string
                 app:
                   type: string
+                updatedBy:
+                  type: string
                 user:
                   type: string
               required:
+                - createdBy
                 - key
                 - data
                 - app

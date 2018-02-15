@@ -8,9 +8,12 @@ export default async function getHandler(key, requestor, owner) {
     owner,
     requestor,
   }]);
+
   return item.Item ? {
+    createdBy: item.Item.createdBy,
     data: item.Item.data,
     key,
     type: item.Item.type,
+    updatedBy: item.Item.updatedBy,
   } : undefined;
 }

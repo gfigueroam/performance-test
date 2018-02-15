@@ -32,6 +32,8 @@ post:
           result:
             type: object
             properties:
+              createdBy:
+                type: string
               key:
                 type: string
               type:
@@ -39,6 +41,7 @@ post:
               data:
                 type: string
             required:
+              - createdBy
               - key
               - data
               - type

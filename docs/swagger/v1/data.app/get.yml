@@ -35,11 +35,16 @@ post:
           result:
             type: object
             properties:
+              createdBy:
+                type: string
               key:
                 type: string
               data:
                 type: object
+              updatedBy:
+                type: string
             required:
+              - createdBy
               - key
               - data
         required:

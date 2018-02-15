@@ -25,8 +25,13 @@ describe('data.app.query', () => {
 
   it('returns a list of items matching query', done => {
     const items = [
-      { app, data: true, key: 'k1', user: requestor },
-      { app, data: 'value', key: 'k2', user: requestor },
+      { app, createdBy: requestor, data: true, key: 'k1', user: requestor },
+      { app, createdBy: requestor, data: 'value', key: 'k2', user: requestor },
+    ];
+
+    const expected = [
+      { app, createdBy: requestor, data: true, key: 'k1', updatedBy: undefined, user: requestor },
+      { app, createdBy: requestor, data: 'value', key: 'k2', updatedBy: undefined, user: requestor },
     ];
     queryStub.callsFake((params) => {
       expect(params).to.deep.equal({
@@ -41,7 +46,7 @@ describe('data.app.query', () => {
       });
     });
     queryHandler.apply(swatchCtx, [keyPrefix, app, requestor]).then(result => {
-      expect(result).to.deep.equal(items);
+      expect(result).to.deep.equal(expected);
       expect(appData.query.called).to.equal(true);
 
       done();

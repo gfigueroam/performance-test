@@ -24,8 +24,8 @@ describe('data.user.query', () => {
 
   it('returns a list of items matching query', done => {
     const items = [
-      { data: 'true', key: 'k1', type: 'text', user: requestor },
-      { data: 'value', key: 'k2', type: 'text', user: requestor },
+      { createdBy: requestor, data: 'true', key: 'k1', type: 'text', updatedBy: requestor, user: requestor },
+      { createdBy: requestor, data: 'value', key: 'k2', type: 'text', updatedBy: requestor, user: requestor },
     ];
     queryStub.callsFake((params) => {
       expect(params).to.deep.equal({

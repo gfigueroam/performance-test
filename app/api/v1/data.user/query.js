@@ -9,9 +9,11 @@ export default async function queryHandler(keyPrefix, requestor, owner) {
     requestor,
   }]);
   return retVal.Items ? retVal.Items.map(item => ({
+    createdBy: item.createdBy,
     data: item.data,
     key: item.key,
     type: item.type,
+    updatedBy: item.updatedBy,
     user: item.user,
   })) : undefined;
 }

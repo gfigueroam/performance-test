@@ -117,6 +117,7 @@ describe('data.app.query', () => {
       result: [
         {
           app: app1,
+          createdBy: requestor,
           data: { data: 'value' },
           key: key2,
           user: requestor,
@@ -133,6 +134,7 @@ describe('data.app.query', () => {
       result: [
         {
           app: app2,
+          createdBy: requestor,
           data: { data: 100 },
           key: key3,
           user: requestor,

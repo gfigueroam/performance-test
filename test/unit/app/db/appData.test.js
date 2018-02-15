@@ -212,6 +212,7 @@ describe('appData', () => {
         expect(params.Item).to.deep.equal({
           appKey: `${app}${constants.DELIMITER}${key}`,
           appUser: `${app}${constants.DELIMITER}${requestor}`,
+          createdBy: `${requestor}`,
           data,
           key,
           type: undefined,
@@ -332,6 +333,7 @@ describe('appData', () => {
         expect(params.Key).to.deep.equal({
           appUser: `${app}${constants.DELIMITER}${requestor}`,
           key,
+          updatedBy: `${requestor}`,
         });
         expect(params).to.have.all.keys('ConsistentRead', 'Key', 'TableName');
 
@@ -375,17 +377,19 @@ describe('appData', () => {
             ':oldval': {
               existingKey: 'existingValue',
             },
+            ':requestor': requestor,
             ':value': {
               existingKey: 'existingValue',
               newKey: 'newValue',
             },
+
           },
           Key: {
             appUser: `${app}${constants.DELIMITER}${requestor}`,
             key,
           },
           TableName: nconf.get('database').appDataJsonTableName,
-          UpdateExpression: 'SET #data = :value',
+          UpdateExpression: 'SET #data = :value, updatedBy = :requestor',
         });
 
         return {
@@ -446,6 +450,7 @@ describe('appData', () => {
           Item: {
             appKey: `${app}${constants.DELIMITER}${key}`,
             appUser: `${app}${constants.DELIMITER}${requestor}`,
+            createdBy: `${requestor}`,
             data: {
               newKey: 'newValue',
             },

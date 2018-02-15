@@ -106,6 +106,7 @@ describe('data.app.set', () => {
         expect(response2.body).to.deep.equal({
           ok: true,
           result: {
+            createdBy: requestor,
             data,
             key,
           },

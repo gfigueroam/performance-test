@@ -81,6 +81,7 @@ describe('data.user.set', () => {
                 expect(response3.body).to.deep.equal({
                   ok: true,
                   result: {
+                    createdBy: requestor,
                     data,
                     key,
                     type: 'text',
@@ -124,6 +125,7 @@ describe('data.user.set', () => {
                 expect(response3.body).to.deep.equal({
                   ok: true,
                   result: {
+                    createdBy: requestor,
                     data: annotationData,
                     key: annotationKey,
                     type: 'annotation',

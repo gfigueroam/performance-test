@@ -110,6 +110,7 @@ describe('data.app.merge', () => {
         expect(response2.body).to.deep.equal({
           ok: true,
           result: {
+            createdBy: requestor,
             data,
             key,
           },
@@ -155,6 +156,7 @@ describe('data.app.merge', () => {
         expect(response2.body).to.deep.equal({
           ok: true,
           result: {
+            createdBy: requestor,
             data: {
               key1: data.key1,
               key2: data.key2,
@@ -164,6 +166,7 @@ describe('data.app.merge', () => {
               },
             },
             key,
+            updatedBy: requestor,
           },
         });
         done();
@@ -207,6 +210,7 @@ describe('data.app.merge', () => {
         expect(response2.body).to.deep.equal({
           ok: true,
           result: {
+            createdBy: requestor,
             data: {
               key1: data.key1,
               key2: data.key2,
@@ -216,6 +220,7 @@ describe('data.app.merge', () => {
               },
             },
             key,
+            updatedBy: requestor,
           },
         });
         done();
@@ -261,6 +266,7 @@ describe('data.app.merge', () => {
         expect(response2.body).to.deep.equal({
           ok: true,
           result: {
+            createdBy: requestor,
             data: {
               key1: data.key1,
               key2: data.key2,
@@ -271,6 +277,7 @@ describe('data.app.merge', () => {
               key5: 'whatever',
             },
             key,
+            updatedBy: requestor,
           },
         });
         done();

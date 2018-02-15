@@ -14,11 +14,14 @@ Retrieve a document for a given user.
 | `owner`       | `user_789`         | Optional  | The user whose data is being accessed. Defaults to `requestor` if not specified.
 
 ## Result
-
+The `createdBy` field will always be returned to identify the user who created the item.
+`updatedBy` will be present only on items which have undergone a `merge` operation and
+will reflect the most recent user to have performed a `merge` on the item.
 ```javascript
 {
     "ok": true,
     "result": {
+        "createdBy": "user_789",
         "key":  "settings",
         "data": {"font-size": "12pt"}
     }

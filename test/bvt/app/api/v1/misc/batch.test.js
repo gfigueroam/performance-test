@@ -200,6 +200,7 @@ describe('uds.batch', () => {
         {
           ok: true,
           result: {
+            createdBy: requestor,
             data: appData1,
             key: appKey1,
             type: 'text',
@@ -208,6 +209,7 @@ describe('uds.batch', () => {
         {
           ok: true,
           result: {
+            createdBy: requestor,
             data: appData2,
             key: appKey2,
             type: 'text',
