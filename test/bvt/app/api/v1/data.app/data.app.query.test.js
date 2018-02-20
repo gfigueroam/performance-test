@@ -120,7 +120,6 @@ describe('data.app.query', () => {
           createdBy: requestor,
           data: { data: 'value' },
           key: key2,
-          user: requestor,
         },
       ],
     };
@@ -137,7 +136,6 @@ describe('data.app.query', () => {
           createdBy: requestor,
           data: { data: 100 },
           key: key3,
-          user: requestor,
         },
       ],
     };

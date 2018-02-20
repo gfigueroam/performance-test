@@ -712,7 +712,9 @@ describe('appData', () => {
           'ConsistentRead', 'KeyConditions', 'TableName',
         );
         return {
-          promise: () => (Promise.resolve({})),
+          promise: () => (Promise.resolve({
+            Items: [],
+          })),
         };
       });
 
@@ -722,22 +724,20 @@ describe('appData', () => {
         requestor,
       }])
       .then(result => {
-        expect(result).to.deep.equal({});
+        expect(result).to.deep.equal([]);
         done();
       })
       .catch(done);
     });
 
     it('calls dynamoDB.get and returns a promisified list of results', (done) => {
-      const expectedResult = {
-        Items: [{
-          appData: 'mock-app-data',
-          appUser: 'mock-app-user',
-          data: 'mock-data',
-          key: 'mock-key',
-          user: 'mock-user',
-        }],
-      };
+      const expectedResult = [{
+        appData: 'mock-app-data',
+        appUser: 'mock-app-user',
+        data: 'mock-data',
+        key: 'mock-key',
+        user: 'mock-user',
+      }];
 
       apps.info.callsFake(params => {
         expect(params.name).to.equal(app);
@@ -761,7 +761,9 @@ describe('appData', () => {
           'ConsistentRead', 'KeyConditions', 'TableName',
         );
         return {
-          promise: () => (Promise.resolve(expectedResult)),
+          promise: () => (Promise.resolve({
+            Items: expectedResult,
+          })),
         };
       });
 

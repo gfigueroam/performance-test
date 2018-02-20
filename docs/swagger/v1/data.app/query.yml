@@ -47,14 +47,11 @@ post:
                   type: string
                 updatedBy:
                   type: string
-                user:
-                  type: string
               required:
                 - createdBy
                 - key
                 - data
                 - app
-                - user
         required:
           - ok
           - result

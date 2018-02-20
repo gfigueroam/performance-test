@@ -42,13 +42,10 @@ post:
                   type: string
                 type:
                   type: string
-                user:
-                  type: string
               required:
                 - createdBy
                 - key
                 - data
                 - type
-                - user
         required:
           - ok

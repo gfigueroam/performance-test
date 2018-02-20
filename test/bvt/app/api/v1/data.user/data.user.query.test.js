@@ -90,14 +90,12 @@ describe('data.user.query', () => {
           data: 'value 1',
           key: key1,
           type: 'text',
-          user: requestor,
         },
         {
           createdBy: requestor,
           data: 'value 3',
           key: key3,
           type: 'text',
-          user: requestor,
         },
       ],
     };

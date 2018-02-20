@@ -27,6 +27,8 @@ describe('data.user.query', () => {
       { createdBy: requestor, data: 'true', key: 'k1', type: 'text', updatedBy: requestor, user: requestor },
       { createdBy: requestor, data: 'value', key: 'k2', type: 'text', updatedBy: requestor, user: requestor },
     ];
+
+    const expected = items.map((item) => { delete item.user; return item; });
     queryStub.callsFake((params) => {
       expect(params).to.deep.equal({
         keyPrefix,
@@ -34,12 +36,10 @@ describe('data.user.query', () => {
         requestor,
       });
 
-      return Promise.resolve({
-        Items: items,
-      });
+      return Promise.resolve(items);
     });
     queryHandler.apply(swatchCtx, [keyPrefix, requestor]).then(result => {
-      expect(result).to.deep.equal(items);
+      expect(result).to.deep.equal(expected);
       expect(userData.query.called).to.equal(true);
 
       done();
@@ -54,7 +54,7 @@ describe('data.user.query', () => {
         requestor,
       });
 
-      return Promise.resolve({});
+      return Promise.resolve();
     });
     queryHandler.apply(swatchCtx, [keyPrefix, requestor]).then(result => {
       expect(result).to.equal(undefined);

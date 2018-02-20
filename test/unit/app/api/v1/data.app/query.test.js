@@ -30,8 +30,8 @@ describe('data.app.query', () => {
     ];
 
     const expected = [
-      { app, createdBy: requestor, data: true, key: 'k1', updatedBy: undefined, user: requestor },
-      { app, createdBy: requestor, data: 'value', key: 'k2', updatedBy: undefined, user: requestor },
+      { app, createdBy: requestor, data: true, key: 'k1', updatedBy: undefined },
+      { app, createdBy: requestor, data: 'value', key: 'k2', updatedBy: undefined },
     ];
     queryStub.callsFake((params) => {
       expect(params).to.deep.equal({
@@ -41,9 +41,7 @@ describe('data.app.query', () => {
         requestor,
       });
 
-      return Promise.resolve({
-        Items: items,
-      });
+      return Promise.resolve(items);
     });
     queryHandler.apply(swatchCtx, [keyPrefix, app, requestor]).then(result => {
       expect(result).to.deep.equal(expected);
@@ -62,7 +60,7 @@ describe('data.app.query', () => {
         requestor,
       });
 
-      return Promise.resolve({});
+      return Promise.resolve(undefined);
     });
     queryHandler.apply(swatchCtx, [keyPrefix, app, requestor]).then(result => {
       expect(result).to.equal(undefined);
