@@ -10,9 +10,6 @@ import dbAuthz from '../../../../app/db/authz';
 
 const expect = chai.expect;
 
-let restStub;
-let authzStub;
-
 const mockCtx = {
   database: {
     consistentRead: false,
@@ -50,13 +47,13 @@ const expectedRestParams = {
 
 describe('authz', () => {
   before(() => {
-    restStub = sinon.stub(rest, 'get');
-    authzStub = sinon.stub(dbAuthz, 'info');
+    sinon.stub(rest, 'get');
+    sinon.stub(dbAuthz, 'info');
   });
 
   after(() => {
     rest.get.restore();
-    authzStub.restore();
+    dbAuthz.info.restore();
   });
 
   it('should return true that a built in verifier exists', async () => {
@@ -70,7 +67,7 @@ describe('authz', () => {
   });
 
   it('should throw if a verifier does not exist', async () => {
-    authzStub.callsFake(params => {
+    dbAuthz.info.callsFake(params => {
       expect(params).to.deep.equal({ name: clientAuthzId });
       throw errors.codes.ERROR_CODE_AUTHZ_NOT_FOUND;
     });
@@ -104,14 +101,17 @@ describe('authz', () => {
   });
 
   it('should look up authz method and allow access when valid', async () => {
-    authzStub.callsFake(params => {
+    dbAuthz.info.callsFake(params => {
       expect(params).to.deep.equal({ name: clientAuthzId });
       return mockAuthzResult;
     });
 
-    restStub.callsFake((url, params) => {
+    const mockBody = {};
+    const mockResponse = { statusCode: 200 };
+    rest.get.callsFake((url, params, transform) => {
       expect(url).to.equal(clientAuthzUrl);
       expect(params).to.deep.equal(expectedRestParams);
+      expect(transform(mockBody, mockResponse)).to.deep.equal(mockBody);
       return undefined;
     });
 
@@ -125,16 +125,8 @@ describe('authz', () => {
   });
 
   it('should look up authz method and allow access when valid using a consistent read', async () => {
-    authzStub.callsFake(params => {
-      expect(params).to.deep.equal({ name: clientAuthzId });
-      return mockAuthzResult;
-    });
-
-    restStub.callsFake((url, params) => {
-      expect(url).to.equal(clientAuthzUrl);
-      expect(params).to.deep.equal(expectedRestParams);
-      return undefined;
-    });
+    dbAuthz.info.callsFake(() => (mockAuthzResult));
+    rest.get.callsFake(() => (undefined));
 
     try {
       mockCtx.database.consistentRead = true;
@@ -144,5 +136,42 @@ describe('authz', () => {
     }
 
     return Promise.resolve();
+  });
+
+  it('should look up authz method but deny access when response is valid', async () => {
+    dbAuthz.info.callsFake(() => (mockAuthzResult));
+
+    // Mock the case where rest call to authz endpoint returns nothing
+    rest.get.callsFake(() => {
+      throw new Error('401 Unauthorized');
+    });
+
+    try {
+      await authz.verify.call(mockCtx, shareId, requestor, shareParams);
+      return Promise.reject();
+    } catch (err) {
+      expect(err).to.equal(errors.codes.ERROR_CODE_AUTHZ_ACCESS_DENIED);
+      return Promise.resolve();
+    }
+  });
+
+  it('should look up authz method but deny access for any non-200 response', async () => {
+    dbAuthz.info.callsFake(() => (mockAuthzResult));
+
+    const mockBody = {};
+    const mockResponse = { statusCode: 301 };
+    rest.get.callsFake((url, params, transform) => {
+      expect(url).to.equal(clientAuthzUrl);
+      expect(params).to.deep.equal(expectedRestParams);
+      transform(mockBody, mockResponse); // Should throw exception
+    });
+
+    try {
+      await authz.verify.call(mockCtx, shareId, requestor, shareParams);
+      return Promise.reject();
+    } catch (err) {
+      expect(err).to.equal(errors.codes.ERROR_CODE_AUTHZ_ACCESS_DENIED);
+      return Promise.resolve();
+    }
   });
 });

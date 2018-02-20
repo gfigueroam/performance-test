@@ -1,4 +1,5 @@
 import dbAuthz from '../db/authz';
+import errors from '../models/errors';
 import rest from '../utils/rest';
 
 import simple from './simple';
@@ -40,7 +41,22 @@ async function verify(shareId, requestor, shareItem) {
     owner: shareItem.user,
     requestor,
   };
-  await rest.get.call(this, authzVerifier.url, authzParams);
+
+  try {
+    // Implement custom transform function that checks the response status code
+    //  Throw an exception for any non-200 response code to reject the authz check
+    const transform = (body, response) => {
+      if (response.statusCode !== 200) {
+        this.logger.warn(`Authz request status code denied: ${response.statusCode}`);
+        throw errors.codes.ERROR_CODE_AUTHZ_ACCESS_DENIED;
+      }
+      return body;
+    };
+    await rest.get.call(this, authzVerifier.url, authzParams, transform);
+  } catch (error) {
+    this.logger.warn(`Authz service threw an error checking for access. Denied: ${error}`);
+    throw errors.codes.ERROR_CODE_AUTHZ_ACCESS_DENIED;
+  }
 
   return undefined;
 }

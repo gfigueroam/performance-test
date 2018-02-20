@@ -25,16 +25,7 @@ parameters:
 | `owner`           | `user_abc`        | The ID of the user who owns the data
 | `requestor`       | `user_def`        | The ID of the user who is attempting to access the data
 
-The result of the URL should be an HTTP 200, with a JSON boolean (`true` or
-`false`) describing the authorization status.
-
-## Result
-
-```javascript
-{
-    "ok": true
-}
-```
+The response must be an HTTP 200 when access is allowed, or HTTP 401 when access is denied.
 
 ## Errors
 

@@ -1,17 +1,19 @@
 import querystring from 'querystring';
 import request from 'request-promise';
 
-async function get(url, params) {
+async function get(url, params, transform) {
   const uri = params ? `${url}?${querystring.stringify(params)}` : url;
 
   this.logger.info(`HTTP library making request: ${uri}`);
 
   const options = {
     encoding: 'utf8',
+    followRedirect: false,
     headers: {
       Authorization: this.auth.token,
     },
     json: true,
+    transform,
   };
 
   try {
