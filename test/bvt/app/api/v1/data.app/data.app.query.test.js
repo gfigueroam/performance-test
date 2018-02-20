@@ -94,6 +94,17 @@ describe('data.app.query', () => {
     http.sendPostRequestErrorDetails(path, serviceToken, params, errorCode, errorDetails, done);
   });
 
+  it('fails if the "owner" parameter doesnt match "requestor" parameter', done => {
+    const params = {
+      app: app2,
+      keyPrefix,
+      owner: 'someone-else',
+      requestor,
+    };
+    const errorCode = errors.codes.ERROR_CODE_AUTH_INVALID;
+    http.sendPostRequestError(path, serviceToken, params, errorCode, done);
+  });
+
   it('fails if the "app" does not exist', done => {
     const params = { app: 'none', keyPrefix, requestor };
     const errorCode = errors.codes.ERROR_CODE_APP_NOT_FOUND;

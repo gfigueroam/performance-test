@@ -1,5 +1,7 @@
 import Prometheus from 'prom-client';
 
+import mockIds from '../../test/common/helpers/ids';
+
 import config from '../config';
 import errors from '../models/errors';
 import labels from '../metrics/labels';
@@ -44,16 +46,16 @@ async function apiAccessRequest(url) {
 }
 
 async function hasAccessTo(requestor, owner) {
-  if (this.auth.useStubAuth) {
-    // Check the auth ctx for a known HMH header that tells UDS
-    //  to use stubbed IDS data instead of live external requests
-    // For those cases, we assume the access request is allowed
-    this.logger.warn('WARN: IDS access request is being bypassed from BVT header');
+  if (requestor === owner) {
     return true;
   }
 
-  if (requestor === owner) {
-    return true;
+  if (this.auth.useStubAuth) {
+    // Check the auth ctx for a known HMH header that tells UDS
+    //  to use stubbed IDS data instead of live external requests
+    // For those cases, use mock IDS check with hard coded user ids
+    this.logger.warn('WARN: IDS access request is being bypassed from BVT header');
+    return mockIds.hasAccessTo(requestor, owner);
   }
 
   this.logger.info(`IDS: Checking for teacher (${requestor}) / student (${owner}) relationship`);

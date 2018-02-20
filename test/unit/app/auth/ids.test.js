@@ -1,6 +1,8 @@
 import chai from 'chai';
 import sinon from 'sinon';
 
+import mockIds from '../../../common/helpers/ids';
+
 import auth from '../../../../app/auth';
 import config from '../../../../app/config';
 import errors from '../../../../app/models/errors';
@@ -29,9 +31,18 @@ describe('ids', () => {
     rest.get.restore();
   });
 
-  it('should return true if header uses stub auth', async () => {
+  it('should return false if header uses stub auth with wrong ids', async () => {
     swatchCtx.auth.useStubAuth = true;
     const result = await auth.ids.hasAccessTo.apply(swatchCtx, [requestor, owner]);
+    expect(result).to.equal(false);
+  });
+
+  it('should return true if header uses stub auth with mock ids', async () => {
+    swatchCtx.auth.useStubAuth = true;
+    const result = await auth.ids.hasAccessTo.apply(
+      swatchCtx,
+      [mockIds.mockTeacherId, mockIds.mockStudentId],
+    );
     expect(result).to.equal(true);
   });
 

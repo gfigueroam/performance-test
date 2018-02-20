@@ -80,6 +80,16 @@ describe('data.user.query', () => {
     http.sendPostRequestSuccess(path, serviceToken, params, result, done);
   });
 
+  it('fails if the "owner" parameter doesnt match "requestor" parameter', done => {
+    const params = {
+      keyPrefix,
+      owner: 'someone-else',
+      requestor,
+    };
+    const errorCode = errors.codes.ERROR_CODE_AUTH_INVALID;
+    http.sendPostRequestError(path, serviceToken, params, errorCode, done);
+  });
+
   it('returns a list of results that match keyPrefix', done => {
     const params = { keyPrefix, requestor };
     const result = {

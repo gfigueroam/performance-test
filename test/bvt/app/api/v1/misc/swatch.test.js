@@ -3,7 +3,7 @@ import seed from '../../../../../common/seed';
 import paths from '../../../../../common/helpers/paths';
 import tokens from '../../../../../common/helpers/tokens';
 
-const key = `uds.bvt.data.cb.increment.test.${seed.buildNumber}`;
+const key = `uds.bvt.swatch.bvt.test.${seed.buildNumber}`;
 const user = `data.admin.test.user.${seed.buildNumber}`;
 
 describe('uds.swatchjs', () => {

@@ -83,6 +83,21 @@ describe('data.cb.query', () => {
     }, errors.codes.ERROR_CODE_USER_NOT_FOUND, done);
   });
 
+  it('fails if the "owner" parameter doesnt match "requestor" parameter', done => {
+    const params = {
+      keyPrefix,
+      owner: 'someone-else',
+      requestor,
+    };
+    http.sendPostRequestError(
+      paths.DATA_CB_QUERY,
+      tokens.serviceToken,
+      params,
+      errors.codes.ERROR_CODE_AUTH_INVALID,
+      done,
+    );
+  });
+
   it('returns an empty list when no values match keyPrefix', done => {
     store(key1, true)
     .then(() => (store(key2, false)))
