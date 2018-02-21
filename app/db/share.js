@@ -8,15 +8,12 @@ import nconf from '../config';
 
 import dynamodbClient from './dynamoDBClient';
 import userDB from './userData';
+import utils from './utils';
 
 
 async function getShared(params) {
-  if (!params.id) {
-    throw new Error('Parameter "id" is required.');
-  }
-  if (!params.requestor) {
-    throw new Error('Parameter "requestor" is required.');
-  }
+  // Validate required params
+  utils.validateParams(params, ['id', 'requestor']);
 
   // First query the share table by share id to get metadata
   const shareResult = await dynamodbClient.instrumented('get', {
@@ -24,6 +21,7 @@ async function getShared(params) {
     Key: {
       key: params.id,
     },
+    ReturnConsumedCapacity: 'TOTAL',
     TableName: nconf.get('database').shareTableName,
   });
 
@@ -44,6 +42,7 @@ async function getShared(params) {
       appUser: shareResult.Item.appUser,
       key: shareResult.Item.dataKey,
     },
+    ReturnConsumedCapacity: 'TOTAL',
     TableName: nconf.get('database').appDataJsonTableName,
   });
 
@@ -61,22 +60,9 @@ async function getShared(params) {
 }
 
 async function share(params) {
-  if (!params.key) {
-    throw new Error('Parameter "key" is required.');
-  }
-  if (!params.authz) {
-    throw new Error('Parameter "authz" is required.');
-  }
-  if (!params.ctx) {
-    throw new Error('Parameter "ctx" is required.');
-  }
-  if (!params.requestor) {
-    throw new Error('Parameter "requestor" is required.');
-  }
-  // If owner is not specified, default to the requestor.
-  if (!params.owner) {
-    params.owner = params.requestor;
-  }
+  // Validate required params and updates owner/requestor value
+  utils.validateParams(params, ['key', 'authz', 'ctx', 'requestor']);
+  utils.ensureOwnerParam(params);
 
   // Verify requestor has access to owner's data.
   const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
@@ -112,6 +98,7 @@ async function share(params) {
       key: params.id,
       user: params.owner,
     },
+    ReturnConsumedCapacity: 'TOTAL',
     TableName: nconf.get('database').shareTableName,
   });
 
@@ -119,16 +106,9 @@ async function share(params) {
 }
 
 async function unshare(params) {
-  if (!params.id) {
-    throw new Error('Parameter "id" is required.');
-  }
-  if (!params.requestor) {
-    throw new Error('Parameter "requestor" is required.');
-  }
-  // If owner is not specified, default to the requestor.
-  if (!params.owner) {
-    params.owner = params.requestor;
-  }
+  // Validate required params and updates owner/requestor value
+  utils.validateParams(params, ['id', 'requestor']);
+  utils.ensureOwnerParam(params);
 
   // Verify requestor has access to owner's data and is allowed to unshare
   const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
@@ -143,6 +123,7 @@ async function unshare(params) {
     Key: {
       key: params.id,
     },
+    ReturnConsumedCapacity: 'TOTAL',
     TableName: nconf.get('database').shareTableName,
   });
 
@@ -154,6 +135,7 @@ async function unshare(params) {
     Key: {
       key: params.id,
     },
+    ReturnConsumedCapacity: 'TOTAL',
     TableName: nconf.get('database').shareTableName,
   });
 

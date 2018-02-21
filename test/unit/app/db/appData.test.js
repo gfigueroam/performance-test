@@ -66,11 +66,13 @@ describe('appData', () => {
         expect(params.KeyConditionExpression).to.equal('#user = :user');
         expect(params.ProjectionExpression).to.equal('appKey');
         expect(params.IndexName).to.equal('uds-app-data-json-gsi');
-        expect(params).to.have.all.keys('ExpressionAttributeNames',
+        expect(params).to.have.all.keys(
+          'ExpressionAttributeNames',
           'KeyConditionExpression',
           'ExpressionAttributeValues',
           'IndexName',
           'ProjectionExpression',
+          'ReturnConsumedCapacity',
           'TableName',
         );
         return {
@@ -219,7 +221,7 @@ describe('appData', () => {
           user: requestor,
         });
 
-        expect(params).to.have.all.keys('Item', 'TableName');
+        expect(params).to.have.all.keys('Item', 'ReturnConsumedCapacity', 'TableName');
         return {
           promise: () => (Promise.resolve()),
         };
@@ -329,27 +331,13 @@ describe('appData', () => {
     });
 
     it('throws an error if an unexpected type is returned', async () => {
-      documentClientStub.get.callsFake(params => {
-        expect(params.Key).to.deep.equal({
-          appUser: `${app}${constants.DELIMITER}${requestor}`,
-          key,
-          updatedBy: `${requestor}`,
-        });
-        expect(params).to.have.all.keys('ConsistentRead', 'Key', 'TableName');
+      documentClientStub.get.callsFake(() => ({
+        promise: () => (Promise.resolve({
+          Item: 'not-an-object',
+        })),
+      }));
 
-        return {
-          promise: () => (Promise.resolve({
-            Item: 'not-an-object',
-          })),
-        };
-      });
-
-      apps.info.callsFake(params => {
-        expect(params.name).to.equal(app);
-        return Promise.resolve({
-          quota: 1024,
-        });
-      });
+      apps.info.callsFake(() => ({ quota: 1024 }));
 
       try {
         await appData.merge({
@@ -388,6 +376,7 @@ describe('appData', () => {
             appUser: `${app}${constants.DELIMITER}${requestor}`,
             key,
           },
+          ReturnConsumedCapacity: 'TOTAL',
           TableName: nconf.get('database').appDataJsonTableName,
           UpdateExpression: 'SET #data = :value, updatedBy = :requestor',
         });
@@ -402,7 +391,7 @@ describe('appData', () => {
           appUser: `${app}${constants.DELIMITER}${requestor}`,
           key,
         });
-        expect(params).to.have.all.keys('ConsistentRead', 'Key', 'TableName');
+        expect(params).to.have.all.keys('ConsistentRead', 'Key', 'ReturnConsumedCapacity', 'TableName');
 
         return {
           promise: () => (Promise.resolve({
@@ -458,6 +447,7 @@ describe('appData', () => {
             type: undefined,
             user: requestor,
           },
+          ReturnConsumedCapacity: 'TOTAL',
           TableName: nconf.get('database').appDataJsonTableName,
         });
 
@@ -471,7 +461,7 @@ describe('appData', () => {
           appUser: `${app}${constants.DELIMITER}${requestor}`,
           key,
         });
-        expect(params).to.have.all.keys('ConsistentRead', 'Key', 'TableName');
+        expect(params).to.have.all.keys('ConsistentRead', 'Key', 'ReturnConsumedCapacity', 'TableName');
 
         return {
           promise: () => (Promise.resolve({
@@ -579,7 +569,7 @@ describe('appData', () => {
           appUser: `${app}${constants.DELIMITER}${requestor}`,
           key,
         });
-        expect(params).to.have.all.keys('Key', 'TableName');
+        expect(params).to.have.all.keys('Key', 'ReturnConsumedCapacity', 'TableName');
         return {
           promise: () => (Promise.resolve()),
         };
@@ -597,7 +587,7 @@ describe('appData', () => {
           appUser: `${app}${constants.DELIMITER}${requestor}`,
           key,
         });
-        expect(params).to.have.all.keys('ConsistentRead', 'Key', 'TableName');
+        expect(params).to.have.all.keys('ConsistentRead', 'Key', 'ReturnConsumedCapacity', 'TableName');
         return {
           promise: () => (Promise.resolve({
             Item: {},
@@ -709,7 +699,7 @@ describe('appData', () => {
           },
         });
         expect(params).to.have.all.keys(
-          'ConsistentRead', 'KeyConditions', 'TableName',
+          'ConsistentRead', 'KeyConditions', 'ReturnConsumedCapacity', 'TableName',
         );
         return {
           promise: () => (Promise.resolve({
@@ -758,7 +748,7 @@ describe('appData', () => {
           },
         });
         expect(params).to.have.all.keys(
-          'ConsistentRead', 'KeyConditions', 'TableName',
+          'ConsistentRead', 'KeyConditions', 'ReturnConsumedCapacity', 'TableName',
         );
         return {
           promise: () => (Promise.resolve({
@@ -823,7 +813,7 @@ describe('appData', () => {
           appUser: `${app}${constants.DELIMITER}${requestor}`,
           key,
         });
-        expect(params).to.have.all.keys('ConsistentRead', 'Key', 'TableName');
+        expect(params).to.have.all.keys('ConsistentRead', 'Key', 'ReturnConsumedCapacity', 'TableName');
         return {
           promise: () => (Promise.resolve()),
         };
@@ -864,11 +854,13 @@ describe('appData', () => {
     it('calls dynamoDB.query and returns a promisified version', (done) => {
       documentClientStub.query.callsFake(params => {
         expect(params.KeyConditionExpression).to.equal('appUser = :appUser');
-        expect(params).to.have.all.keys('ConsistentRead',
+        expect(params).to.have.all.keys(
+          'ConsistentRead',
           'ExpressionAttributeNames',
           'KeyConditionExpression',
           'ExpressionAttributeValues',
           'ProjectionExpression',
+          'ReturnConsumedCapacity',
           'TableName',
         );
         return {
@@ -896,11 +888,13 @@ describe('appData', () => {
         callCount += 1;
         expect(params.KeyConditionExpression).to.equal('appUser = :appUser');
         if (callCount === 1) {
-          expect(params).to.have.all.keys('ConsistentRead',
+          expect(params).to.have.all.keys(
+            'ConsistentRead',
             'ExpressionAttributeNames',
             'KeyConditionExpression',
             'ExpressionAttributeValues',
             'ProjectionExpression',
+            'ReturnConsumedCapacity',
             'TableName',
           );
           return {
@@ -912,12 +906,14 @@ describe('appData', () => {
             })),
           };
         } else if (callCount === 2) {
-          expect(params).to.have.all.keys('ConsistentRead',
+          expect(params).to.have.all.keys(
+            'ConsistentRead',
             'ExclusiveStartKey',
             'ExpressionAttributeNames',
             'KeyConditionExpression',
             'ExpressionAttributeValues',
             'ProjectionExpression',
+            'ReturnConsumedCapacity',
             'TableName',
           );
           return {
@@ -953,10 +949,12 @@ describe('appData', () => {
           callCount += 1;
           expect(params.KeyConditionExpression).to.equal('#user = :user');
           if (callCount === 1) {
-            expect(params).to.have.all.keys('ExpressionAttributeNames',
+            expect(params).to.have.all.keys(
+              'ExpressionAttributeNames',
               'IndexName',
               'KeyConditionExpression',
               'ExpressionAttributeValues',
+              'ReturnConsumedCapacity',
               'ProjectionExpression',
               'TableName',
             );
@@ -969,12 +967,14 @@ describe('appData', () => {
               })),
             };
           } else if (callCount === 2) {
-            expect(params).to.have.all.keys('ExclusiveStartKey',
+            expect(params).to.have.all.keys(
+              'ExclusiveStartKey',
               'ExpressionAttributeNames',
               'IndexName',
               'KeyConditionExpression',
               'ExpressionAttributeValues',
               'ProjectionExpression',
+              'ReturnConsumedCapacity',
               'TableName',
             );
             return {

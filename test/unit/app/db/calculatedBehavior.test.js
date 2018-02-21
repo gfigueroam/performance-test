@@ -78,20 +78,13 @@ describe('calculatedBehavior', () => {
 
     it('calls throws an error if there is an existing non-object value', async () => {
       // dynamodb.get is called to check the existing value
-      documentClientStub.get.callsFake(params => {
-        expect(params.Key).to.deep.equal({
-          key,
-          user: requestor,
-        });
-        expect(params).to.have.all.keys('Key', 'TableName');
-        return {
-          promise: () => (Promise.resolve({
-            Item: {
-              data: true,
-            },
-          })),
-        };
-      });
+      documentClientStub.get.callsFake(() => ({
+        promise: () => (Promise.resolve({
+          Item: {
+            data: true,
+          },
+        })),
+      }));
 
       try {
         await calculatedBehavior.merge.apply(swatchCtx, [{
@@ -117,7 +110,7 @@ describe('calculatedBehavior', () => {
           key,
           user: requestor,
         });
-        expect(params).to.have.all.keys('Key', 'TableName');
+        expect(params).to.have.all.keys('Key', 'ReturnConsumedCapacity', 'TableName');
         return {
           promise: () => (Promise.resolve({})),
         };
@@ -125,7 +118,7 @@ describe('calculatedBehavior', () => {
 
       documentClientStub.put.callsFake(params => {
         expect(params).to.have.all.keys('ConditionExpression',
-          'ExpressionAttributeNames', 'Item', 'TableName');
+          'ExpressionAttributeNames', 'Item', 'ReturnConsumedCapacity', 'TableName');
 
         expect(params.Item).to.deep.equal({
           data,
@@ -161,7 +154,7 @@ describe('calculatedBehavior', () => {
           key,
           user: requestor,
         });
-        expect(params).to.have.all.keys('Key', 'TableName');
+        expect(params).to.have.all.keys('Key', 'ReturnConsumedCapacity', 'TableName');
         return {
           promise: () => (Promise.resolve({
             Item: {
@@ -177,7 +170,7 @@ describe('calculatedBehavior', () => {
       documentClientStub.update.callsFake(params => {
         expect(params).to.have.all.keys('ConditionExpression',
           'ExpressionAttributeNames', 'ExpressionAttributeValues',
-          'Key', 'TableName', 'UpdateExpression');
+          'Key', 'ReturnConsumedCapacity', 'TableName', 'UpdateExpression');
 
         expect(params.Key).to.deep.equal({
           key,
@@ -254,20 +247,13 @@ describe('calculatedBehavior', () => {
 
     it('calls throws an error if there is an existing non-numeric value', async () => {
       // dynamodb.get is called to check the existing value
-      documentClientStub.get.callsFake(params => {
-        expect(params.Key).to.deep.equal({
-          key,
-          user: requestor,
-        });
-        expect(params).to.have.all.keys('ConsistentRead', 'Key', 'TableName');
-        return {
-          promise: () => (Promise.resolve({
-            Item: {
-              data: true,
-            },
-          })),
-        };
-      });
+      documentClientStub.get.callsFake(() => ({
+        promise: () => (Promise.resolve({
+          Item: {
+            data: true,
+          },
+        })),
+      }));
 
       try {
         await calculatedBehavior.atomicUpdate.apply(swatchCtx, [{
@@ -290,7 +276,7 @@ describe('calculatedBehavior', () => {
           key,
           user: requestor,
         });
-        expect(params).to.have.all.keys('ConsistentRead', 'Key', 'TableName');
+        expect(params).to.have.all.keys('ConsistentRead', 'Key', 'ReturnConsumedCapacity', 'TableName');
         return {
           promise: () => (Promise.resolve({
             Item: {
@@ -301,15 +287,19 @@ describe('calculatedBehavior', () => {
       });
 
       documentClientStub.update.callsFake(params => {
-        expect(params).to.have.all.keys('ConditionExpression',
-          'ExpressionAttributeNames', 'ExpressionAttributeValues',
-          'Key', 'TableName', 'UpdateExpression');
-
+        expect(params).to.have.all.keys(
+          'ConditionExpression',
+          'ExpressionAttributeNames',
+          'ExpressionAttributeValues',
+          'Key',
+          'ReturnConsumedCapacity',
+          'TableName',
+          'UpdateExpression',
+        );
         expect(params.Key).to.deep.equal({
           key,
           user: requestor,
         });
-
         expect(params.ExpressionAttributeValues[':value']).to.equal(1);
 
         return {
@@ -332,7 +322,12 @@ describe('calculatedBehavior', () => {
           key,
           user: requestor,
         });
-        expect(params).to.have.all.keys('ConsistentRead', 'Key', 'TableName');
+        expect(params).to.have.all.keys(
+          'ConsistentRead',
+          'Key',
+          'ReturnConsumedCapacity',
+          'TableName',
+        );
         return {
           promise: () => (Promise.resolve({
             Item: undefined,
@@ -341,10 +336,13 @@ describe('calculatedBehavior', () => {
       });
 
       documentClientStub.put.callsFake(params => {
-        expect(params).to.have.all.keys('ConditionExpression',
+        expect(params).to.have.all.keys(
+          'ConditionExpression',
           'ExpressionAttributeNames',
-          'Item', 'TableName');
-
+          'Item',
+          'ReturnConsumedCapacity',
+          'TableName',
+        );
         expect(params.Item).to.deep.equal({
           data: 1,
           key,
@@ -410,7 +408,7 @@ describe('calculatedBehavior', () => {
           key,
           user: requestor,
         });
-        expect(params).to.have.all.keys('Item', 'TableName');
+        expect(params).to.have.all.keys('Item', 'ReturnConsumedCapacity', 'TableName');
         return {
           promise: () => (Promise.resolve()),
         };
@@ -454,7 +452,7 @@ describe('calculatedBehavior', () => {
           key,
           user: requestor,
         });
-        expect(params).to.have.all.keys('Key', 'TableName');
+        expect(params).to.have.all.keys('Key', 'ReturnConsumedCapacity', 'TableName');
         return {
           promise: () => (Promise.resolve()),
         };
@@ -497,7 +495,7 @@ describe('calculatedBehavior', () => {
           key,
           user: requestor,
         });
-        expect(params).to.have.all.keys('ConsistentRead', 'Key', 'TableName');
+        expect(params).to.have.all.keys('ConsistentRead', 'Key', 'ReturnConsumedCapacity', 'TableName');
         return {
           promise: () => (Promise.resolve()),
         };
@@ -565,7 +563,7 @@ describe('calculatedBehavior', () => {
           },
         });
         expect(params).to.have.all.keys(
-          'ConsistentRead', 'KeyConditions', 'TableName',
+          'ConsistentRead', 'KeyConditions', 'ReturnConsumedCapacity', 'TableName',
         );
         return {
           promise: () => (Promise.resolve({ Items: [] })),

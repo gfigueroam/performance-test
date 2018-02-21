@@ -55,12 +55,7 @@ describe('authz', () => {
 
     it('calls throws an error if there is an existing authz configuration with that name', async () => {
       // dynamodb.get is called to check the existing value
-      documentClientStub.put.callsFake(params => {
-        expect(params.Item).to.deep.equal({ name, url });
-        expect(params).to.have.all.keys(
-          'Item', 'TableName', 'ExpressionAttributeNames', 'ConditionExpression',
-        );
-
+      documentClientStub.put.callsFake(() => {
         // Pretend the condition expression failed.
         throw new Error('The conditional request failed');
       });
@@ -80,7 +75,11 @@ describe('authz', () => {
       documentClientStub.put.callsFake(params => {
         expect(params.Item).to.deep.equal({ name, url });
         expect(params).to.have.all.keys(
-          'Item', 'TableName', 'ExpressionAttributeNames', 'ConditionExpression',
+          'Item',
+          'ReturnConsumedCapacity',
+          'TableName',
+          'ExpressionAttributeNames',
+          'ConditionExpression',
         );
 
         return {
@@ -111,7 +110,7 @@ describe('authz', () => {
     it('succeeds in the happy case', async () => {
       documentClientStub.delete.callsFake(params => {
         expect(params.Key).to.deep.equal({ name });
-        expect(params).to.have.all.keys('Key', 'TableName');
+        expect(params).to.have.all.keys('Key', 'ReturnConsumedCapacity', 'TableName');
 
         return {
           promise: () => (Promise.resolve({})),
@@ -131,7 +130,7 @@ describe('authz', () => {
   describe('list', () => {
     it('succeeds in the happy case', async () => {
       documentClientStub.scan.callsFake(params => {
-        expect(params).to.have.all.keys('ConsistentRead', 'TableName');
+        expect(params).to.have.all.keys('ConsistentRead', 'ReturnConsumedCapacity', 'TableName');
 
         return {
           promise: () => (Promise.resolve({
@@ -193,7 +192,7 @@ describe('authz', () => {
 
     it('returns an app if it exists', async () => {
       documentClientStub.get.callsFake(params => {
-        expect(params).to.have.all.keys('ConsistentRead', 'TableName', 'Key');
+        expect(params).to.have.all.keys('ConsistentRead', 'ReturnConsumedCapacity', 'TableName', 'Key');
         expect(params.Key).to.deep.equal({
           name,
         });
@@ -216,18 +215,11 @@ describe('authz', () => {
     });
 
     it('throws an error if an app does not exist', async () => {
-      documentClientStub.get.callsFake(params => {
-        expect(params).to.have.property('TableName');
-
-        expect(params).to.have.all.keys('ConsistentRead', 'TableName', 'Key');
-        expect(params.Key).to.deep.equal({ name });
-
-        return {
-          promise: () => (Promise.resolve({
-            Item: undefined,
-          })),
-        };
-      });
+      documentClientStub.get.callsFake(() => ({
+        promise: () => (Promise.resolve({
+          Item: undefined,
+        })),
+      }));
 
       try {
         await authz.info.apply(swatchCtx, [{ name }]);

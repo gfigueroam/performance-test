@@ -58,13 +58,7 @@ describe('apps', () => {
 
     it('calls throws an error if there is an existing app with that name', async () => {
       // dynamodb.get is called to check the existing value
-      documentClientStub.put.callsFake(params => {
-        expect(params.Item).to.deep.equal({
-          name,
-          quota,
-        });
-        expect(params).to.have.all.keys('Item', 'TableName', 'ExpressionAttributeNames', 'ConditionExpression');
-
+      documentClientStub.put.callsFake(() => {
         // Pretend the condition expression failed.
         throw new Error('The conditional request failed');
       });
@@ -89,7 +83,13 @@ describe('apps', () => {
           name,
           quota,
         });
-        expect(params).to.have.all.keys('Item', 'TableName', 'ExpressionAttributeNames', 'ConditionExpression');
+        expect(params).to.have.all.keys(
+          'Item',
+          'TableName',
+          'ReturnConsumedCapacity',
+          'ExpressionAttributeNames',
+          'ConditionExpression',
+        );
 
         return {
           promise: () => (Promise.resolve({})),
@@ -124,7 +124,7 @@ describe('apps', () => {
         expect(params.Key).to.deep.equal({
           name,
         });
-        expect(params).to.have.all.keys('Key', 'TableName');
+        expect(params).to.have.all.keys('Key', 'ReturnConsumedCapacity', 'TableName');
 
         return {
           promise: () => (Promise.resolve({})),
@@ -147,7 +147,7 @@ describe('apps', () => {
   describe('list', () => {
     it('succeeds in the happy case', async () => {
       documentClientStub.scan.callsFake(params => {
-        expect(params).to.have.all.keys('ConsistentRead', 'TableName');
+        expect(params).to.have.all.keys('ConsistentRead', 'ReturnConsumedCapacity', 'TableName');
 
         return {
           promise: () => (Promise.resolve({
@@ -210,7 +210,7 @@ describe('apps', () => {
 
     it('returns an app if it exists', async () => {
       documentClientStub.get.callsFake(params => {
-        expect(params).to.have.all.keys('ConsistentRead', 'TableName', 'Key');
+        expect(params).to.have.all.keys('ConsistentRead', 'ReturnConsumedCapacity', 'TableName', 'Key');
         expect(params.Key).to.deep.equal({
           name,
         });
@@ -241,25 +241,14 @@ describe('apps', () => {
     });
 
     it('throws an error if an app does not exist', async () => {
-      documentClientStub.get.callsFake(params => {
-        expect(params).to.have.property('TableName');
-
-        expect(params).to.have.all.keys('ConsistentRead', 'TableName', 'Key');
-        expect(params.Key).to.deep.equal({
-          name,
-        });
-
-        return {
-          promise: () => (Promise.resolve({
-            Item: undefined,
-          })),
-        };
-      });
+      documentClientStub.get.callsFake(() => ({
+        promise: () => (Promise.resolve({
+          Item: undefined,
+        })),
+      }));
 
       try {
-        await apps.info.apply(swatchCtx, [{
-          name,
-        }]);
+        await apps.info.apply(swatchCtx, [{ name }]);
       } catch (err) {
         expect(err).to.deep.equal(errors.codes.ERROR_CODE_APP_NOT_FOUND);
         return Promise.resolve();
@@ -272,9 +261,7 @@ describe('apps', () => {
   describe('setQuota', () => {
     it('throws an error if "name" is not passed in the params', async () => {
       try {
-        await apps.setQuota.apply(swatchCtx, [{
-          quota,
-        }]);
+        await apps.setQuota.apply(swatchCtx, [{ quota }]);
         return Promise.reject();
       } catch (err) {
         return Promise.resolve();
@@ -294,11 +281,15 @@ describe('apps', () => {
 
     it('sets the quota correctly', async () => {
       documentClientStub.put.callsFake(params => {
-        expect(params).to.have.all.keys('Item', 'TableName', 'ExpressionAttributeNames', 'ConditionExpression');
-        expect(params.Item).to.deep.equal({
-          name,
-          quota,
-        });
+        expect(params).to.have.all.keys(
+          'Item',
+          'TableName',
+          'ReturnConsumedCapacity',
+          'ExpressionAttributeNames',
+          'ConditionExpression',
+        );
+        expect(params.Item).to.deep.equal({ name, quota });
+        expect(params.ConditionExpression).to.equal('attribute_exists(#name)');
 
         return {
           promise: () => (Promise.resolve()),
@@ -319,23 +310,13 @@ describe('apps', () => {
     });
 
     it('throws an error if an app does not exist', async () => {
-      documentClientStub.put.callsFake(params => {
-        expect(params).to.have.all.keys('Item', 'TableName', 'ExpressionAttributeNames', 'ConditionExpression');
-        expect(params.Item).to.deep.equal({
-          name,
-          quota,
-        });
-        expect(params.ConditionExpression).to.equal('attribute_exists(#name)');
-
+      documentClientStub.put.callsFake(() => {
         // App not found in DynamoDB due to the condition expression.
         throw new Error('The conditional request failed');
       });
 
       try {
-        await apps.setQuota.apply(swatchCtx, [{
-          name,
-          quota,
-        }]);
+        await apps.setQuota.apply(swatchCtx, [{ name, quota }]);
       } catch (err) {
         expect(err).to.deep.equal(errors.codes.ERROR_CODE_APP_NOT_FOUND);
         return Promise.resolve();

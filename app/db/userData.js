@@ -1,19 +1,16 @@
 import appData from './appData';
+import utils from './utils';
+
 import constants from '../utils/constants';
 import auth from '../auth';
 import errors from '../models/errors';
 
+
 async function get(params) {
-  if (!params.key) {
-    throw new Error('Parameter "key" is required.');
-  }
-  if (!params.requestor) {
-    throw new Error('Parameter "requestor" is required.');
-  }
-  // If owner is not specified, default to the requestor.
-  if (!params.owner) {
-    params.owner = params.requestor;
-  }
+  // Validate required params and updates owner/requestor value
+  utils.validateParams(params, ['key', 'requestor']);
+  utils.ensureOwnerParam(params);
+
   // Verify requestor has access to owner's data.
   const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
   if (!allowed) {
@@ -26,17 +23,9 @@ async function get(params) {
 }
 
 async function query(params) {
-  if (!params.keyPrefix) {
-    throw new Error('Parameter "keyPrefix" is required.');
-  }
-  if (!params.requestor) {
-    throw new Error('Parameter "requestor" is required.');
-  }
-
-  // If owner is not specified, default to the requestor.
-  if (!params.owner) {
-    params.owner = params.requestor;
-  }
+  // Validate required params and updates owner/requestor value
+  utils.validateParams(params, ['keyPrefix', 'requestor']);
+  utils.ensureOwnerParam(params);
 
   // Verify requestor has access to owner's data.
   const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
@@ -50,22 +39,13 @@ async function query(params) {
 }
 
 async function set(params) {
-  if (!params.key) {
-    throw new Error('Parameter "key" is required.');
-  }
-  if (!params.type) {
-    throw new Error('Parameter "type" is required.');
-  }
+  // Validate required params and updates owner/requestor value
+  utils.validateParams(params, ['key', 'type', 'requestor']);
   if (params.data === undefined) {
     throw new Error('Parameter "data" is required.');
   }
-  if (!params.requestor) {
-    throw new Error('Parameter "requestor" is required.');
-  }
-  // If owner is not specified, default to the requestor.
-  if (!params.owner) {
-    params.owner = params.requestor;
-  }
+  utils.ensureOwnerParam(params);
+
   // Verify requestor has access to owner's data.
   const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
   if (!allowed) {
@@ -78,16 +58,10 @@ async function set(params) {
 }
 
 async function unset(params) {
-  if (!params.key) {
-    throw new Error('Parameter "key" is required.');
-  }
-  if (!params.requestor) {
-    throw new Error('Parameter "requestor" is required.');
-  }
-  // If owner is not specified, default to the requestor.
-  if (!params.owner) {
-    params.owner = params.requestor;
-  }
+  // Validate required params and updates owner/requestor value
+  utils.validateParams(params, ['key', 'requestor']);
+  utils.ensureOwnerParam(params);
+
   // Verify requestor has access to owner's data.
   const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
   if (!allowed) {
@@ -100,13 +74,10 @@ async function unset(params) {
 }
 
 async function list(params) {
-  if (!params.requestor) {
-    throw new Error('Parameter "requestor" is required.');
-  }
-  // If owner is not specified, default to the requestor.
-  if (!params.owner) {
-    params.owner = params.requestor;
-  }
+  // Validate required params and updates owner/requestor value
+  utils.validateParams(params, ['requestor']);
+  utils.ensureOwnerParam(params);
+
   // Verify requestor has access to owner's data.
   const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
   if (!allowed) {
@@ -116,7 +87,6 @@ async function list(params) {
 
   params.app = constants.HMH_APP;
   const appDataList = await appData.list.apply(this, [params]);
-
   return appDataList;
 }
 

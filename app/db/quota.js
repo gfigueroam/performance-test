@@ -1,22 +1,19 @@
 import sizeof from 'object-sizeof';
 import errors from '../models/errors';
 
-import nconf from '../config';
 import dynamodbClient from './dynamoDBClient';
+import utils from './utils';
+
+import nconf from '../config';
 import constants from '../utils/constants';
 import auth from '../auth';
 
+
 async function getConsumedQuota(params) {
-  if (!params.requestor) {
-    throw new Error('Parameter "requestor" is required.');
-  }
-  if (!params.app) {
-    throw new Error('Parameter "app" is required.');
-  }
-  // If owner is not specified, default to the requestor.
-  if (!params.owner) {
-    params.owner = params.requestor;
-  }
+  // Validate required params and updates owner/requestor value
+  utils.validateParams(params, ['app', 'requestor']);
+  utils.ensureOwnerParam(params);
+
   // Verify requestor has access to owner's data.
   const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
   if (!allowed) {
@@ -36,6 +33,7 @@ async function getConsumedQuota(params) {
         ':appUser': `${params.app}${constants.DELIMITER}${params.owner}`,
       },
       KeyConditionExpression: '#appUser = :appUser',
+      ReturnConsumedCapacity: 'TOTAL',
       Select: 'ALL_ATTRIBUTES', // Return full items
       TableName: nconf.get('database').appDataJsonTableName,
     };

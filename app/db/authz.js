@@ -1,17 +1,19 @@
+import dynamodbClient from './dynamoDBClient';
+import utils from './utils';
+
 import nconf from '../config';
 import errors from '../models/errors';
-import dynamodbClient from './dynamoDBClient';
 
 async function info(params) {
-  if (!params.name) {
-    throw new Error('Parameter "name" is required.');
-  }
+  // Validate required params
+  utils.validateParams(params, ['name']);
 
   const getResult = await dynamodbClient.instrumented('get', {
     ConsistentRead: this.database && this.database.consistentRead,
     Key: {
       name: params.name,
     },
+    ReturnConsumedCapacity: 'TOTAL',
     TableName: nconf.get('database').authzTableName,
   });
 
@@ -28,6 +30,7 @@ async function list() {
   do {
     const params = {
       ConsistentRead: this.database && this.database.consistentRead,
+      ReturnConsumedCapacity: 'TOTAL',
       TableName: nconf.get('database').authzTableName,
     };
 
@@ -45,9 +48,8 @@ async function list() {
 }
 
 async function register(params) {
-  if (!params.name) {
-    throw new Error('Parameter "name" is required.');
-  }
+  // Validate required params
+  utils.validateParams(params, ['name']);
   if (params.url === undefined) {
     throw new Error('Parameter "url" is required.');
   }
@@ -62,6 +64,7 @@ async function register(params) {
         name: params.name,
         url: params.url,
       },
+      ReturnConsumedCapacity: 'TOTAL',
       TableName: nconf.get('database').authzTableName,
     });
   } catch (err) {
@@ -74,14 +77,14 @@ async function register(params) {
 }
 
 async function remove(params) {
-  if (!params.name) {
-    throw new Error('Parameter "name" is required.');
-  }
+  // Validate required params
+  utils.validateParams(params, ['name']);
 
   await dynamodbClient.instrumented('delete', {
     Key: {
       name: params.name,
     },
+    ReturnConsumedCapacity: 'TOTAL',
     TableName: nconf.get('database').authzTableName,
   });
 }

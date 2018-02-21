@@ -1,5 +1,6 @@
 import AWS from 'aws-sdk';
 import Prometheus from 'prom-client';
+import util from 'util';
 
 import nconf from '../config';
 import labels from '../metrics/labels';
@@ -12,6 +13,12 @@ const queryDuration = new Prometheus.Summary(
   'db_query_duration_seconds',
   'DB Query Duration',
   labelKeys.concat(['table', 'action']),
+);
+
+const consumedCapacityCount = new Prometheus.Counter(
+  'db_consumed_capacity_units',
+  'DB Consumed Capacity',
+  labelKeys.concat(['table', 'type']),
 );
 
 
@@ -71,6 +78,14 @@ async function createDynamoDBClient() {
   dynamodb = new AWS.DynamoDB.DocumentClient(dynamoDbParams);
 }
 
+function getCapacityType(action) {
+  const readActions = ['get', 'query', 'scan'];
+  if (readActions.includes(action)) {
+    return 'read';
+  }
+  return 'write';
+}
+
 async function instrumented(action, params) {
   // This forces lazy initialization of the dynamodb DocumentClient.
   // We need to do this to support unit testing, since in a unit test we
@@ -109,15 +124,34 @@ async function instrumented(action, params) {
     {},
     labels,
     { table },
+  );
+
+  const queryLabels = Object.assign(
+    {},
+    dbLabels,
     { action },
   );
-  const endQueryDuration = queryDuration.startTimer(dbLabels);
+  const endQueryDuration = queryDuration.startTimer(queryLabels);
 
   // Execute query and await response
   const result = await dynamodb[action](params).promise();
 
   // Mark the completed query duration and add to summary
   endQueryDuration();
+
+  // Increment the consumed capacity based on result of query
+  const type = getCapacityType(action);
+  const capLabels = Object.assign(
+    {},
+    dbLabels,
+    { type },
+  );
+
+  const capacityObj = result.ConsumedCapacity || {};
+  const consumedCapacity = capacityObj.CapacityUnits || 1;
+  consumedCapacityCount.inc(capLabels, consumedCapacity);
+
+  logger.info(`ConsumedCapacity for Dynamo query: ${util.inspect(result.ConsumedCapacity)}`);
 
   return result;
 }

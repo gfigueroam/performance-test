@@ -1,22 +1,19 @@
+import dynamodbClient from './dynamoDBClient';
+import utils from './utils';
+
 import nconf from '../config';
 import errors from '../models/errors';
-import dynamodbClient from './dynamoDBClient';
 import auth from '../auth';
 
+
 async function set(params) {
-  if (!params.requestor) {
-    throw new Error('Parameter "requestor" is required.');
-  }
-  if (!params.key) {
-    throw new Error('Parameter "key" is required.');
-  }
+  // Validate required params and updates owner/requestor value
+  utils.validateParams(params, ['key', 'requestor']);
   if (params.data === undefined) {
     throw new Error('Parameter "data" is required.');
   }
-  // If owner is not specified, default to the requestor.
-  if (!params.owner) {
-    params.owner = params.requestor;
-  }
+  utils.ensureOwnerParam(params);
+
   // Verify requestor has access to owner's data.
   const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
   if (!allowed) {
@@ -24,31 +21,24 @@ async function set(params) {
     throw errors.codes.ERROR_CODE_AUTH_INVALID;
   }
 
-  /* eslint-disable sort-keys */
   await dynamodbClient.instrumented('put', {
     Item: {
-      user: params.owner,
-      key: params.key,
       data: params.data,
+      key: params.key,
+      user: params.owner,
     },
+    ReturnConsumedCapacity: 'TOTAL',
     TableName: nconf.get('database').calculatedBehaviorTableName,
-    /* eslint-enable sort-keys */
   });
 
   return undefined;
 }
 
 async function unset(params) {
-  if (!params.requestor) {
-    throw new Error('Parameter "requestor" is required.');
-  }
-  if (!params.key) {
-    throw new Error('Parameter "key" is required.');
-  }
-  // If owner is not specified, default to the requestor.
-  if (!params.owner) {
-    params.owner = params.requestor;
-  }
+  // Validate required params and updates owner/requestor value
+  utils.validateParams(params, ['key', 'requestor']);
+  utils.ensureOwnerParam(params);
+
   // Verify requestor has access to owner's data.
   const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
   if (!allowed) {
@@ -61,6 +51,7 @@ async function unset(params) {
       key: params.key,
       user: params.owner,
     },
+    ReturnConsumedCapacity: 'TOTAL',
     TableName: nconf.get('database').calculatedBehaviorTableName,
   });
 
@@ -68,16 +59,10 @@ async function unset(params) {
 }
 
 async function get(params) {
-  if (!params.requestor) {
-    throw new Error('Parameter "requestor" is required.');
-  }
-  if (!params.key) {
-    throw new Error('Parameter "key" is required.');
-  }
-  // If owner is not specified, default to the requestor.
-  if (!params.owner) {
-    params.owner = params.requestor;
-  }
+  // Validate required params and updates owner/requestor value
+  utils.validateParams(params, ['key', 'requestor']);
+  utils.ensureOwnerParam(params);
+
   // Verify requestor has access to owner's data.
   const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
   if (!allowed) {
@@ -85,30 +70,21 @@ async function get(params) {
     throw errors.codes.ERROR_CODE_AUTH_INVALID;
   }
 
-  /* eslint-disable sort-keys */
   return dynamodbClient.instrumented('get', {
     ConsistentRead: this.database && this.database.consistentRead,
     Key: {
-      user: params.owner,
       key: params.key,
+      user: params.owner,
     },
+    ReturnConsumedCapacity: 'TOTAL',
     TableName: nconf.get('database').calculatedBehaviorTableName,
-    /* eslint-enable sort-keys */
   });
 }
 
 async function query(params) {
-  if (!params.keyPrefix) {
-    throw new Error('Parameter "keyPrefix" is required.');
-  }
-  if (!params.requestor) {
-    throw new Error('Parameter "requestor" is required.');
-  }
-
-  // If owner is not specified, default to the requestor.
-  if (!params.owner) {
-    params.owner = params.requestor;
-  }
+  // Validate required params and updates owner/requestor value
+  utils.validateParams(params, ['keyPrefix', 'requestor']);
+  utils.ensureOwnerParam(params);
 
   // Verify requestor has access to owner's data.
   const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
@@ -132,6 +108,7 @@ async function query(params) {
           ComparisonOperator: 'EQ',
         },
       },
+      ReturnConsumedCapacity: 'TOTAL',
       TableName: nconf.get('database').calculatedBehaviorTableName,
     };
 
@@ -148,19 +125,10 @@ async function query(params) {
 }
 
 async function atomicUpdate(params) {
-  if (!params.requestor) {
-    throw new Error('Parameter "requestor" is required.');
-  }
-  if (!params.key) {
-    throw new Error('Parameter "key" is required.');
-  }
-  if (!params.value) {
-    throw new Error('Parameter "value" is required.');
-  }
-  // If owner is not specified, default to the requestor.
-  if (!params.owner) {
-    params.owner = params.requestor;
-  }
+  // Validate required params and updates owner/requestor value
+  utils.validateParams(params, ['key', 'value', 'requestor']);
+  utils.ensureOwnerParam(params);
+
   // Verify requestor has access to owner's data.
   const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
   if (!allowed) {
@@ -175,6 +143,7 @@ async function atomicUpdate(params) {
       key: params.key,
       user: params.owner,
     },
+    ReturnConsumedCapacity: 'TOTAL',
     TableName: nconf.get('database').calculatedBehaviorTableName,
   });
 
@@ -200,6 +169,7 @@ async function atomicUpdate(params) {
           key: params.key,
           user: params.owner,
         },
+        ReturnConsumedCapacity: 'TOTAL',
         TableName: nconf.get('database').calculatedBehaviorTableName,
         UpdateExpression: 'SET #data = #data + :value',
       });
@@ -226,6 +196,7 @@ async function atomicUpdate(params) {
         key: params.key,
         user: params.owner,
       },
+      ReturnConsumedCapacity: 'TOTAL',
       TableName: nconf.get('database').calculatedBehaviorTableName,
     });
 
@@ -234,19 +205,10 @@ async function atomicUpdate(params) {
 }
 
 async function merge(params) {
-  if (!params.requestor) {
-    throw new Error('Parameter "requestor" is required.');
-  }
-  if (!params.key) {
-    throw new Error('Parameter "key" is required.');
-  }
-  if (!params.data) {
-    throw new Error('Parameter "data" is required.');
-  }
-  // If owner is not specified, default to the requestor.
-  if (!params.owner) {
-    params.owner = params.requestor;
-  }
+  // Validate required params and updates owner/requestor value
+  utils.validateParams(params, ['key', 'data', 'requestor']);
+  utils.ensureOwnerParam(params);
+
   // Verify requestor has access to owner's data.
   const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
   if (!allowed) {
@@ -260,6 +222,7 @@ async function merge(params) {
       key: params.key,
       user: params.owner,
     },
+    ReturnConsumedCapacity: 'TOTAL',
     TableName: nconf.get('database').calculatedBehaviorTableName,
   });
 
@@ -291,6 +254,7 @@ async function merge(params) {
           key: params.key,
           user: params.owner,
         },
+        ReturnConsumedCapacity: 'TOTAL',
         TableName: nconf.get('database').calculatedBehaviorTableName,
         UpdateExpression: 'SET #data = :value',
       });
@@ -317,6 +281,7 @@ async function merge(params) {
         key: params.key,
         user: params.owner,
       },
+      ReturnConsumedCapacity: 'TOTAL',
       TableName: nconf.get('database').calculatedBehaviorTableName,
     });
 

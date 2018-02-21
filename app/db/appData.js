@@ -1,27 +1,20 @@
 import sizeof from 'object-sizeof';
 
-import nconf from '../config';
-import dynamodbClient from './dynamoDBClient';
 import apps from './apps';
+import dynamodbClient from './dynamoDBClient';
+import utils from './utils';
+
+import nconf from '../config';
 import errors from '../models/errors';
 import constants from '../utils/constants';
 import quota from './quota';
 import auth from '../auth';
 
+
 async function get(params) {
-  if (!params.key) {
-    throw new Error('Parameter "key" is required.');
-  }
-  if (!params.requestor) {
-    throw new Error('Parameter "requestor" is required.');
-  }
-  if (!params.app) {
-    throw new Error('Parameter "app" is required.');
-  }
-  // If owner is not specified, default to the requestor.
-  if (!params.owner) {
-    params.owner = params.requestor;
-  }
+  // Validate required params and updates owner/requestor value
+  utils.validateParams(params, ['app', 'key', 'requestor']);
+  utils.ensureOwnerParam(params);
 
   // Verify requestor has access to owner's data.
   const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
@@ -42,6 +35,7 @@ async function get(params) {
       appUser: `${params.app}${constants.DELIMITER}${params.owner}`,
       key: params.key,
     },
+    ReturnConsumedCapacity: 'TOTAL',
     TableName: nconf.get('database').appDataJsonTableName,
   });
 
@@ -49,22 +43,10 @@ async function get(params) {
 }
 
 async function set(params) {
-  if (!params.app) {
-    throw new Error('Parameter "app" is required.');
-  }
-  if (!params.key) {
-    throw new Error('Parameter "key" is required.');
-  }
-  if (!params.requestor) {
-    throw new Error('Parameter "requestor" is required.');
-  }
-  if (!params.data) {
-    throw new Error('Parameter "data" is required.');
-  }
-  // If owner is not specified, default to the requestor.
-  if (!params.owner) {
-    params.owner = params.requestor;
-  }
+  // Validate required params and updates owner/requestor value
+  utils.validateParams(params, ['app', 'data', 'key', 'requestor']);
+  utils.ensureOwnerParam(params);
+
   // Verify requestor has access to owner's data.
   const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
   if (!allowed) {
@@ -96,6 +78,7 @@ async function set(params) {
       type: params.type,
       user: params.owner,
     },
+    ReturnConsumedCapacity: 'TOTAL',
     TableName: nconf.get('database').appDataJsonTableName,
   });
 
@@ -103,20 +86,9 @@ async function set(params) {
 }
 
 async function query(params) {
-  if (!params.app) {
-    throw new Error('Parameter "app" is required.');
-  }
-  if (!params.keyPrefix) {
-    throw new Error('Parameter "keyPrefix" is required.');
-  }
-  if (!params.requestor) {
-    throw new Error('Parameter "requestor" is required.');
-  }
-
-  // If owner is not specified, default to the requestor.
-  if (!params.owner) {
-    params.owner = params.requestor;
-  }
+  // Validate required params and updates owner/requestor value
+  utils.validateParams(params, ['app', 'keyPrefix', 'requestor']);
+  utils.ensureOwnerParam(params);
 
   // Verify requestor has access to owner's data.
   const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
@@ -147,6 +119,7 @@ async function query(params) {
           ComparisonOperator: 'BEGINS_WITH',
         },
       },
+      ReturnConsumedCapacity: 'TOTAL',
       TableName: nconf.get('database').appDataJsonTableName,
     };
 
@@ -165,19 +138,10 @@ async function query(params) {
 }
 
 async function merge(params) {
-  if (!params.requestor) {
-    throw new Error('Parameter "requestor" is required.');
-  }
-  if (!params.key) {
-    throw new Error('Parameter "key" is required.');
-  }
-  if (!params.data) {
-    throw new Error('Parameter "data" is required.');
-  }
-  // If owner is not specified, default to the requestor.
-  if (!params.owner) {
-    params.owner = params.requestor;
-  }
+  // Validate required params and updates owner/requestor value
+  utils.validateParams(params, ['key', 'data', 'requestor']);
+  utils.ensureOwnerParam(params);
+
   // Verify requestor has access to owner's data.
   const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
   if (!allowed) {
@@ -204,6 +168,7 @@ async function merge(params) {
       appUser: `${params.app}${constants.DELIMITER}${params.owner}`,
       key: params.key,
     },
+    ReturnConsumedCapacity: 'TOTAL',
     TableName: nconf.get('database').appDataJsonTableName,
   });
 
@@ -234,6 +199,7 @@ async function merge(params) {
           appUser: `${params.app}${constants.DELIMITER}${params.owner}`,
           key: params.key,
         },
+        ReturnConsumedCapacity: 'TOTAL',
         TableName: nconf.get('database').appDataJsonTableName,
         UpdateExpression: 'SET #data = :value, updatedBy = :requestor',
       });
@@ -262,6 +228,7 @@ async function merge(params) {
         type: params.type,
         user: params.owner,
       },
+      ReturnConsumedCapacity: 'TOTAL',
       TableName: nconf.get('database').appDataJsonTableName,
     });
 
@@ -270,19 +237,10 @@ async function merge(params) {
 }
 
 async function unset(params) {
-  if (!params.app) {
-    throw new Error('Parameter "app" is required.');
-  }
-  if (!params.key) {
-    throw new Error('Parameter "key" is required.');
-  }
-  if (!params.requestor) {
-    throw new Error('Parameter "requestor" is required.');
-  }
-  // If owner is not specified, default to the requestor.
-  if (!params.owner) {
-    params.owner = params.requestor;
-  }
+  // Validate required params and updates owner/requestor value
+  utils.validateParams(params, ['app', 'key', 'requestor']);
+  utils.ensureOwnerParam(params);
+
   // Verify requestor has access to owner's data.
   const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
   if (!allowed) {
@@ -304,6 +262,7 @@ async function unset(params) {
       appUser: `${params.app}${constants.DELIMITER}${params.owner}`,
       key: params.key,
     },
+    ReturnConsumedCapacity: 'TOTAL',
     TableName: nconf.get('database').appDataJsonTableName,
   });
 
@@ -316,6 +275,7 @@ async function unset(params) {
       appUser: `${params.app}${constants.DELIMITER}${params.owner}`,
       key: params.key,
     },
+    ReturnConsumedCapacity: 'TOTAL',
     TableName: nconf.get('database').appDataJsonTableName,
   });
 
@@ -323,16 +283,10 @@ async function unset(params) {
 }
 
 async function list(params) {
-  if (!params.app) {
-    throw new Error('Parameter "app" is required.');
-  }
-  if (!params.requestor) {
-    throw new Error('Parameter "requestor" is required.');
-  }
-  // If owner is not specified, default to the requestor.
-  if (!params.owner) {
-    params.owner = params.requestor;
-  }
+  // Validate required params and updates owner/requestor value
+  utils.validateParams(params, ['app', 'requestor']);
+  utils.ensureOwnerParam(params);
+
   // Verify requestor has access to owner's data.
   const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
   if (!allowed) {
@@ -360,6 +314,7 @@ async function list(params) {
         },
         KeyConditionExpression: 'appUser = :appUser',
         ProjectionExpression: '#key', // Only return the data we are interested in
+        ReturnConsumedCapacity: 'TOTAL',
         TableName: nconf.get('database').appDataJsonTableName,
       };
 
@@ -393,6 +348,7 @@ async function list(params) {
         IndexName: 'uds-share-by-user-gsi',
         KeyConditionExpression: '#user = :user',
         ProjectionExpression: '#key', // Only return the data we are interested in
+        ReturnConsumedCapacity: 'TOTAL',
         TableName: nconf.get('database').shareTableName,
       };
 
@@ -433,9 +389,8 @@ async function list(params) {
 }
 
 async function getApps(params) {
-  if (!params.user) {
-    throw new Error('Parameter "user" is required.');
-  }
+  // Validate required params
+  utils.validateParams(params, ['user']);
 
   let lastEvaluatedKey;
   let items = [];
@@ -452,6 +407,7 @@ async function getApps(params) {
       IndexName: 'uds-app-data-json-gsi',
       KeyConditionExpression: '#user = :user',
       ProjectionExpression: 'appKey', // Only return the data we are interested in
+      ReturnConsumedCapacity: 'TOTAL',
       TableName: nconf.get('database').appDataJsonTableName,
     };
 

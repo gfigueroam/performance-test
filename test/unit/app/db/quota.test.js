@@ -64,10 +64,12 @@ describe('quota', () => {
         d: false,
       }];
       documentClientStub.query.callsFake(params => {
-        expect(params).to.have.all.keys('ConsistentRead',
+        expect(params).to.have.all.keys(
+          'ConsistentRead',
           'ExpressionAttributeNames',
           'KeyConditionExpression',
           'ExpressionAttributeValues',
+          'ReturnConsumedCapacity',
           'Select',
           'TableName',
         );
