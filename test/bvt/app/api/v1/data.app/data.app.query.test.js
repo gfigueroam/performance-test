@@ -48,8 +48,6 @@ describe('data.app.query', () => {
   });
 
   after(async () => {
-    await seed.apps.removeApps([app1, app2]);
-
     await seed.app.remove({
       app: app1,
       key: key1,
@@ -65,6 +63,8 @@ describe('data.app.query', () => {
       key: key3,
       user: requestor,
     });
+
+    await seed.apps.removeApps([app1, app2]);
   });
 
   it('fails if the request has no auth token', done => {

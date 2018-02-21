@@ -25,7 +25,9 @@ function getName() {
 }
 
 describe('apps.register', () => {
-  after(seed.apps.removeApps(usedNames));
+  after(async () => {
+    await seed.apps.removeApps(usedNames);
+  });
 
   it('should throw an error for an invalid quota', done => {
     const params = {

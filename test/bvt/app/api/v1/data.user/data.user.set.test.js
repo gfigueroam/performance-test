@@ -14,11 +14,10 @@ const requestor = 'data.user.test.requestor.1';
 const data = 'this is some data';
 
 describe('data.user.set', () => {
-  after((done) => {
-    seed.user.unset({
-      key,
-      user: requestor,
-    }, done);
+  after(done => {
+    seed.user.unset({ key, user: requestor }, () => {
+      seed.user.unset({ key: annotationKey, user: requestor }, done);
+    });
   });
 
   describe('validates the type and the data against that type', () => {

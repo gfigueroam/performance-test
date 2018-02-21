@@ -33,6 +33,8 @@ describe('data.app.list', () => {
       key: key2,
       user: requestor,
     });
+
+    await seed.apps.removeApps([app]);
   });
 
   it('returns app_not_found when the app is not registered', (done) => {

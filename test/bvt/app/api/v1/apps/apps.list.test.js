@@ -33,7 +33,9 @@ function registerNewApp() {
 }
 
 describe('apps.list', () => {
-  after(seed.apps.removeApps(usedNames));
+  after(async () => {
+    await seed.apps.removeApps(usedNames);
+  });
 
   it('should return the current number of registered apps', done => {
     function validate() {

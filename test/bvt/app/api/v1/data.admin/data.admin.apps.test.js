@@ -9,37 +9,34 @@ import tokens from '../../../../../common/helpers/tokens';
 
 const expect = chai.expect;
 
-const app = `uds.bvt.data.admin.apps.app.${seed.buildNumber}.`;
-const key = `uds.bvt.data.admin.apps.key.${seed.buildNumber}`;
+const app1 = `uds.bvt.data.admin.apps.app.${seed.buildNumber}.1`;
+const app2 = `uds.bvt.data.admin.apps.app.${seed.buildNumber}.2`;
+const key1 = `uds.bvt.data.admin.apps.key.${seed.buildNumber}.1`;
+const key2 = `uds.bvt.data.admin.apps.key.${seed.buildNumber}.2`;
 const user = `uds.bvt.data.admin.apps.user.${seed.buildNumber}`;
 const data = {
   key1: true,
   key2: 'some string',
   key3: [1, 2, 3],
 };
-const numApps = 10;
 
 const path = paths.DATA_ADMIN_APPS;
 
 describe('data.admin.apps', () => {
   before(async () => {
     // Register the apps
-    for (let i = 0; i < numApps; i += 1) {
-      // eslint-disable-next-line no-await-in-loop
-      await seed.apps.addApp({
-        name: `${app}${i}`,
-        quota: 1024,
-      });
-    }
+    await seed.apps.addApp({ name: app1, quota: 1024 });
+    await seed.apps.addApp({ name: app2, quota: 1024 });
   });
 
   after(async () => {
-    // Delete the apps
-    const appsToRemove = [];
-    for (let i = 0; i < numApps; i += 1) {
-      appsToRemove.push(`${app}${i}`);
-    }
-    await seed.apps.removeApps(appsToRemove);
+    // Delete the app and user data
+    await seed.app.remove({ app: app1, key: key1, user });
+    await seed.app.remove({ app: app1, key: key2, user });
+    await seed.app.remove({ app: app2, key: key1, user });
+
+    // Delete the apps themselves
+    await seed.apps.removeApps([app1, app2]);
   });
 
   it('should return error when the request has a user token', done => {
@@ -65,19 +62,17 @@ describe('data.admin.apps', () => {
   it('returns an empty array when the user has only has user data', (done) => {
     seed.user.set({
       data: 'some text data',
-      key,
+      key: key1,
       type: 'text',
       user,
     }, () => {
-      http.sendPostRequest(path, tokens.serviceToken, {
-        user,
-      }, (err, response) => {
+      http.sendPostRequest(path, tokens.serviceToken, { user }, (err, response) => {
         expect(err).to.equal(null);
         expect(response.body).to.deep.equal({
           ok: true,
           result: [],
         });
-        done();
+        seed.user.unset({ key: key1, user }, done);
       });
     });
   });
@@ -85,18 +80,16 @@ describe('data.admin.apps', () => {
   it('returns a single app when the user has only one app with data', (done) => {
     // Store some app data.
     seed.app.add({
-      app: `${app}0`,
+      app: app1,
       data,
-      key,
+      key: key1,
       user,
     }).then(() => {
-      http.sendPostRequest(path, tokens.serviceToken, {
-        user,
-      }, (err, response) => {
+      http.sendPostRequest(path, tokens.serviceToken, { user }, (err, response) => {
         expect(err).to.equal(null);
         expect(response.body).to.deep.equal({
           ok: true,
-          result: [`${app}0`],
+          result: [app1],
         });
         done();
       });
@@ -106,9 +99,9 @@ describe('data.admin.apps', () => {
   it('returns a single app even if the user has multiple keys stored under the app', (done) => {
     // Store some app data.
     seed.app.add({
-      app: `${app}0`,
+      app: app1,
       data,
-      key: `${key}2`,
+      key: key2,
       user,
     }).then(() => {
       http.sendPostRequest(path, tokens.serviceToken, {
@@ -117,7 +110,7 @@ describe('data.admin.apps', () => {
         expect(err).to.equal(null);
         expect(response.body).to.deep.equal({
           ok: true,
-          result: [`${app}0`],
+          result: [app1],
         });
         done();
       });
@@ -125,32 +118,26 @@ describe('data.admin.apps', () => {
   });
 
   it('returns multiple apps when the user has data in each', async () => {
-    const expectedApps = [`${app}0`];
-    for (let i = 1; i < numApps; i += 1) {
-      expectedApps.push(`${app}${i}`);
-      // eslint-disable-next-line no-await-in-loop
-      await seed.app.add({
-        app: `${app}${i}`,
-        data,
-        key: `${key}`,
+    await seed.app.add({
+      app: app2,
+      data,
+      key: key1,
+      user,
+    });
+    await new Promise((resolve, reject) => {
+      http.sendPostRequest(path, tokens.serviceToken, {
         user,
-      });
-      // eslint-disable-next-line no-await-in-loop
-      await new Promise((resolve, reject) => {
-        http.sendPostRequest(path, tokens.serviceToken, {
-          user,
-        }, (err, response) => {
-          if (err) {
-            return reject(err);
-          }
-          expect(err).to.equal(null);
-          expect(response.body).to.deep.equal({
-            ok: true,
-            result: expectedApps,
-          });
-          return resolve();
+      }, (err, response) => {
+        if (err) {
+          return reject(err);
+        }
+        expect(err).to.equal(null);
+        expect(response.body).to.deep.equal({
+          ok: true,
+          result: [app1, app2],
         });
+        return resolve();
       });
-    }
+    });
   });
 });

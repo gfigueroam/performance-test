@@ -221,6 +221,36 @@ describe('uds.batch', () => {
     http.sendBatchRequest(token, params, result, done);
   });
 
+  it('unsets multiple data items in a single request', done => {
+    const params = {
+      ops: [
+        {
+          args: {
+            key: appKey1,
+            requestor,
+          },
+          method: 'data.user.delete',
+        },
+        {
+          args: {
+            key: appKey2,
+            requestor,
+          },
+          method: 'data.user.delete',
+        },
+      ],
+    };
+    const result = {
+      ok: true,
+      result: [
+        { ok: true },
+        { ok: true },
+      ],
+    };
+
+    http.sendBatchRequest(token, params, result, done);
+  });
+
   it('removes two authz methods in a single request', done => {
     const params = {
       ops: [

@@ -33,13 +33,13 @@ describe('data.app.get', () => {
   });
 
   after(async () => {
-    await seed.apps.removeApps([app]);
-
     await seed.app.remove({
       app,
       key,
       user: requestor,
     });
+
+    await seed.apps.removeApps([app]);
   });
 
   it('throws invalid_app when the app contains invalid characters', (done) => {

@@ -6,22 +6,27 @@ const OK = {
   ok: true,
 };
 
-function removeApps(apps) {
-  return async () => (Promise.all(apps.map((name) => (
-    new Promise((resolve, reject) => {
-      const params = {
-        name,
-      };
-      http.sendPostRequestSuccess(paths.APPS_REMOVE, tokens.serviceToken, params, {
-        ok: true,
-      }, err => {
+async function removeApp(name) {
+  return new Promise((resolve, reject) => {
+    http.sendPostRequestSuccess(
+      paths.APPS_REMOVE,
+      tokens.serviceToken,
+      { name },
+      { ok: true },
+      (err) => {
         if (err) {
           return reject(err);
         }
         return resolve();
-      });
-    }))))
-  );
+      },
+    );
+  });
+}
+
+async function removeApps(apps) {
+  await Promise.all(apps.map(async name => {
+    await removeApp(name);
+  }));
 }
 
 function addApp(params) {
