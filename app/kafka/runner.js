@@ -7,32 +7,9 @@ import logger from '../monitoring/logger';
 import schemas from './schemas';
 
 
-const commits = [];
-const eventCommitInterval = 2000;
-
 function start(config) {
   const consumer = config.initConsumer();
   const offset = config.initOffset(consumer);
-
-  // Periodically update consumer offset to commit processed messages
-  function commitMessages() {
-    if (commits.length > 0) {
-      logger.info('Kafka consumer: Committing successfully handled events: ', commits);
-
-      offset.commit(config.kafkaGroupId, commits, (err, data) => {
-        if (err) {
-          logger.error('Kafka consumer: Error committing offsets: ', err);
-          return;
-        }
-
-        logger.info('Kafka consumer: Commit of offsets was successful. Data = ', data);
-
-        // Truncate the commits array.
-        commits.length = 0;
-      });
-    }
-    setTimeout(commitMessages, eventCommitInterval);
-  }
 
   consumer.on('offsetOutOfRange', err => {
     // TODO: Handle this properly, warn on missed events, ensure offset is updated
@@ -63,12 +40,19 @@ function start(config) {
       uri,
     }).then(body => {
       if (body.ok) {
-        // Push the offset into the commits array which periodically is commited
-        logger.info(`Kafka consumer: UDS call succeeded! Adding event to pending commit list: ${udsPayload}`);
-        commits.push({
+        // Commit the event by offset after processing successfully
+        logger.info(`Kafka consumer: UDS call succeeded! Commit processed event: ${udsPayload}`);
+        const commit = {
           offset: message.offset + 1,
           partition: message.partition,
           topic: config.kafkaTopic,
+        };
+        offset.commit(config.kafkaGroupId, [commit], (err, data) => {
+          if (err) {
+            logger.error('Kafka consumer: Error committing offsets: ', err);
+          } else {
+            logger.info('Kafka consumer: Commit of offset was successful. Data:', data);
+          }
         });
       } else {
         // TODO: Confirm Kafka will re-send the message after some visibility timeout
@@ -79,9 +63,6 @@ function start(config) {
       logger.error('Kafka consumer: UDS called failed!', err);
     });
   });
-
-  // Start periodic loop to commit handled events
-  setTimeout(commitMessages, eventCommitInterval);
 }
 /* eslint-enable promise/prefer-await-to-callbacks */
 /* eslint-enable promise/prefer-await-to-then */
