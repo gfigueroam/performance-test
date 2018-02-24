@@ -1,25 +1,18 @@
 import sizeof from 'object-sizeof';
-import errors from '../models/errors';
 
 import dynamodbClient from './dynamoDBClient';
 import utils from './utils';
 
 import nconf from '../config';
 import constants from '../utils/constants';
-import auth from '../auth';
 
 
 async function getConsumedQuota(params) {
-  // Validate required params and updates owner/requestor value
+  // Validate required params for db query
   utils.validateParams(params, ['app', 'requestor']);
-  utils.ensureOwnerParam(params);
 
-  // Verify requestor has access to owner's data.
-  const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
-  if (!allowed) {
-    this.logger.warn(`Quota DB: Requestor (${params.requestor}) access denied to owner (${params.owner})`);
-    throw errors.codes.ERROR_CODE_AUTH_INVALID;
-  }
+  // Authorize that requestor has access to owner data
+  await utils.verifyOwnerAccess.call(this, params);
 
   let lastEvaluatedKey;
   let consumed = 0;

@@ -4,24 +4,18 @@ import apps from './apps';
 import dynamodbClient from './dynamoDBClient';
 import utils from './utils';
 
-import nconf from '../config';
-import errors from '../models/errors';
 import constants from '../utils/constants';
+import errors from '../models/errors';
+import nconf from '../config';
 import quota from './quota';
-import auth from '../auth';
 
 
 async function get(params) {
-  // Validate required params and updates owner/requestor value
+  // Validate required params for db query
   utils.validateParams(params, ['app', 'key', 'requestor']);
-  utils.ensureOwnerParam(params);
 
-  // Verify requestor has access to owner's data.
-  const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
-  if (!allowed) {
-    this.logger.warn(`App DB: Requestor (${params.requestor}) access denied to owner (${params.owner})`);
-    throw errors.codes.ERROR_CODE_AUTH_INVALID;
-  }
+  // Authorize that requestor has access to owner data
+  await utils.verifyOwnerAccess.call(this, params);
 
   if (params.app !== constants.HMH_APP) {
     await apps.info({
@@ -43,16 +37,11 @@ async function get(params) {
 }
 
 async function set(params) {
-  // Validate required params and updates owner/requestor value
+  // Validate required params for db query
   utils.validateParams(params, ['app', 'data', 'key', 'requestor']);
-  utils.ensureOwnerParam(params);
 
-  // Verify requestor has access to owner's data.
-  const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
-  if (!allowed) {
-    this.logger.warn(`App DB: Requestor (${params.requestor}) access denied to owner (${params.owner})`);
-    throw errors.codes.ERROR_CODE_AUTH_INVALID;
-  }
+  // Authorize that requestor has access to owner data
+  await utils.verifyOwnerAccess.call(this, params);
 
   if (params.app !== constants.HMH_APP) {
     const appInfo = await apps.info({
@@ -86,16 +75,11 @@ async function set(params) {
 }
 
 async function query(params) {
-  // Validate required params and updates owner/requestor value
+  // Validate required params for db query
   utils.validateParams(params, ['app', 'keyPrefix', 'requestor']);
-  utils.ensureOwnerParam(params);
 
-  // Verify requestor has access to owner's data.
-  const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
-  if (!allowed) {
-    this.logger.warn(`App DB: Requestor (${params.requestor}) access denied to owner (${params.owner})`);
-    throw errors.codes.ERROR_CODE_AUTH_INVALID;
-  }
+  // Authorize that requestor has access to owner data
+  await utils.verifyOwnerAccess.call(this, params);
 
   // Ensure the target app exists before running query
   if (params.app !== constants.HMH_APP) {
@@ -138,16 +122,11 @@ async function query(params) {
 }
 
 async function merge(params) {
-  // Validate required params and updates owner/requestor value
+  // Validate required params for db query
   utils.validateParams(params, ['key', 'data', 'requestor']);
-  utils.ensureOwnerParam(params);
 
-  // Verify requestor has access to owner's data.
-  const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
-  if (!allowed) {
-    this.logger.warn(`App DB: Requestor (${params.requestor}) access denied to owner (${params.owner})`);
-    throw errors.codes.ERROR_CODE_AUTH_INVALID;
-  }
+  // Authorize that requestor has access to owner data
+  await utils.verifyOwnerAccess.call(this, params);
 
   if (params.app !== constants.HMH_APP) {
     const appInfo = await apps.info({
@@ -237,16 +216,11 @@ async function merge(params) {
 }
 
 async function unset(params) {
-  // Validate required params and updates owner/requestor value
+  // Validate required params for db query
   utils.validateParams(params, ['app', 'key', 'requestor']);
-  utils.ensureOwnerParam(params);
 
-  // Verify requestor has access to owner's data.
-  const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
-  if (!allowed) {
-    this.logger.warn(`App DB: Requestor (${params.requestor}) access denied to owner (${params.owner})`);
-    throw errors.codes.ERROR_CODE_AUTH_INVALID;
-  }
+  // Authorize that requestor has access to owner data
+  await utils.verifyOwnerAccess.call(this, params);
 
   if (params.app !== constants.HMH_APP) {
     await apps.info({
@@ -283,16 +257,11 @@ async function unset(params) {
 }
 
 async function list(params) {
-  // Validate required params and updates owner/requestor value
+  // Validate required params for db query
   utils.validateParams(params, ['app', 'requestor']);
-  utils.ensureOwnerParam(params);
 
-  // Verify requestor has access to owner's data.
-  const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
-  if (!allowed) {
-    this.logger.warn(`App DB: Requestor (${params.requestor}) access denied to owner (${params.owner})`);
-    throw errors.codes.ERROR_CODE_AUTH_INVALID;
-  }
+  // Authorize that requestor has access to owner data
+  await utils.verifyOwnerAccess.call(this, params);
 
   if (params.app !== constants.HMH_APP) {
     await apps.info({

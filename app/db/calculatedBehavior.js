@@ -1,25 +1,19 @@
 import dynamodbClient from './dynamoDBClient';
 import utils from './utils';
 
-import nconf from '../config';
 import errors from '../models/errors';
-import auth from '../auth';
+import nconf from '../config';
 
 
 async function set(params) {
-  // Validate required params and updates owner/requestor value
+  // Validate required params for db query
   utils.validateParams(params, ['key', 'requestor']);
   if (params.data === undefined) {
     throw new Error('Parameter "data" is required.');
   }
-  utils.ensureOwnerParam(params);
 
-  // Verify requestor has access to owner's data.
-  const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
-  if (!allowed) {
-    this.logger.warn(`CB DB: Requestor (${params.requestor}) access denied to owner (${params.owner})`);
-    throw errors.codes.ERROR_CODE_AUTH_INVALID;
-  }
+  // Authorize that requestor has access to owner data
+  await utils.verifyOwnerAccess.call(this, params);
 
   await dynamodbClient.instrumented('put', {
     Item: {
@@ -35,16 +29,11 @@ async function set(params) {
 }
 
 async function unset(params) {
-  // Validate required params and updates owner/requestor value
+  // Validate required params for db query
   utils.validateParams(params, ['key', 'requestor']);
-  utils.ensureOwnerParam(params);
 
-  // Verify requestor has access to owner's data.
-  const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
-  if (!allowed) {
-    this.logger.warn(`CB DB: Requestor (${params.requestor}) access denied to owner (${params.owner})`);
-    throw errors.codes.ERROR_CODE_AUTH_INVALID;
-  }
+  // Authorize that requestor has access to owner data
+  await utils.verifyOwnerAccess.call(this, params);
 
   await dynamodbClient.instrumented('delete', {
     Key: {
@@ -59,16 +48,11 @@ async function unset(params) {
 }
 
 async function get(params) {
-  // Validate required params and updates owner/requestor value
+  // Validate required params for db query
   utils.validateParams(params, ['key', 'requestor']);
-  utils.ensureOwnerParam(params);
 
-  // Verify requestor has access to owner's data.
-  const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
-  if (!allowed) {
-    this.logger.warn(`CB DB: Requestor (${params.requestor}) access denied to owner (${params.owner})`);
-    throw errors.codes.ERROR_CODE_AUTH_INVALID;
-  }
+  // Authorize that requestor has access to owner data
+  await utils.verifyOwnerAccess.call(this, params);
 
   return dynamodbClient.instrumented('get', {
     ConsistentRead: this.database && this.database.consistentRead,
@@ -82,16 +66,11 @@ async function get(params) {
 }
 
 async function query(params) {
-  // Validate required params and updates owner/requestor value
+  // Validate required params for db query
   utils.validateParams(params, ['keyPrefix', 'requestor']);
-  utils.ensureOwnerParam(params);
 
-  // Verify requestor has access to owner's data.
-  const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
-  if (!allowed) {
-    this.logger.warn(`CB DB: Requestor (${params.requestor}) access denied to owner (${params.owner})`);
-    throw errors.codes.ERROR_CODE_AUTH_INVALID;
-  }
+  // Authorize that requestor has access to owner data
+  await utils.verifyOwnerAccess.call(this, params);
 
   let lastEvaluatedKey;
   let items = [];
@@ -125,16 +104,11 @@ async function query(params) {
 }
 
 async function atomicUpdate(params) {
-  // Validate required params and updates owner/requestor value
+  // Validate required params for db query
   utils.validateParams(params, ['key', 'value', 'requestor']);
-  utils.ensureOwnerParam(params);
 
-  // Verify requestor has access to owner's data.
-  const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
-  if (!allowed) {
-    this.logger.warn(`CB DB: Requestor (${params.requestor}) access denied to owner (${params.owner})`);
-    throw errors.codes.ERROR_CODE_AUTH_INVALID;
-  }
+  // Authorize that requestor has access to owner data
+  await utils.verifyOwnerAccess.call(this, params);
 
   // Look up the current value that already exists.
   const currentValue = await dynamodbClient.instrumented('get', {
@@ -205,16 +179,11 @@ async function atomicUpdate(params) {
 }
 
 async function merge(params) {
-  // Validate required params and updates owner/requestor value
+  // Validate required params for db query
   utils.validateParams(params, ['key', 'data', 'requestor']);
-  utils.ensureOwnerParam(params);
 
-  // Verify requestor has access to owner's data.
-  const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
-  if (!allowed) {
-    this.logger.warn(`CB DB: Requestor (${params.requestor}) access denied to owner (${params.owner})`);
-    throw errors.codes.ERROR_CODE_AUTH_INVALID;
-  }
+  // Authorize that requestor has access to owner data
+  await utils.verifyOwnerAccess.call(this, params);
 
   // Look up the current value that already exists.
   const currentValue = await dynamodbClient.instrumented('get', {

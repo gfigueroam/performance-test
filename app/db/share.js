@@ -1,6 +1,5 @@
 import uuid from 'uuid';
 
-import auth from '../auth';
 import authz from '../authz';
 import constants from '../utils/constants';
 import errors from '../models/errors';
@@ -60,16 +59,11 @@ async function getShared(params) {
 }
 
 async function share(params) {
-  // Validate required params and updates owner/requestor value
+  // Validate required params for db query
   utils.validateParams(params, ['key', 'authz', 'ctx', 'requestor']);
-  utils.ensureOwnerParam(params);
 
-  // Verify requestor has access to owner's data.
-  const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
-  if (!allowed) {
-    this.logger.warn(`Share DB: Requestor (${params.requestor}) access denied to owner (${params.owner})`);
-    throw errors.codes.ERROR_CODE_AUTH_INVALID;
-  }
+  // Authorize that requestor has access to owner data
+  await utils.verifyOwnerAccess.call(this, params);
 
   // Throw an error if either the key or authz config doesnt exist
   //  authz query will throw, user data query will return undefined
@@ -106,16 +100,11 @@ async function share(params) {
 }
 
 async function unshare(params) {
-  // Validate required params and updates owner/requestor value
+  // Validate required params for db query
   utils.validateParams(params, ['id', 'requestor']);
-  utils.ensureOwnerParam(params);
 
-  // Verify requestor has access to owner's data and is allowed to unshare
-  const allowed = await auth.ids.hasAccessTo.apply(this, [params.requestor, params.owner]);
-  if (!allowed) {
-    this.logger.warn(`Share DB: Requestor (${params.requestor}) access denied to owner (${params.owner})`);
-    throw errors.codes.ERROR_CODE_AUTH_INVALID;
-  }
+  // Authorize that requestor has access to owner data
+  await utils.verifyOwnerAccess.call(this, params);
 
   // Query for item first and throw an error if share id does not exist
   const getResult = await dynamodbClient.instrumented('get', {
