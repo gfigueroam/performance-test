@@ -1,0 +1,180 @@
+FORMAT: 1A
+
+# Applications Data - Drawing Tool example
+
+[scenario source](https://hmhco.slack.com/files/U07CMCTU1/F6SHY9X08/user-centric-content.pdf)
+
+[Drawing Tool - Home page on Confluence](https://confluence.hmhco.com/display/PMT/HMH+Drawing+Tool)
+[Drawing Tool - CAS Data Persistence Solution - Architecture page on Confluence](https://confluence.hmhco.com/display/PMT/Drawing+Tool+-+Data+persistence+solution)
+
+## Drawing Tool overview
+### Intro
+
+The HMH Drawing Tool is a stand-alone HTML5 Canvas based web application that allows vector-based drawing and object manipulation.
+It was originally created for Math Expressions 2018 but it is going to be used in other programs where creating drawings brings benefit to the learning process.
+
+Drawing Tool lets users create and manipulate raster objects from the library of stamps, vector object from the library of shapes, paths created with Pencil and
+Brush and text fields. Manipulation involves changing position, size, orientation and z-index hierarchy and in the case of vector based objects, their color, fill and thickness.
+
+### Widget mode vs Standalone mode
+
+In the widget mode, the Drawing Tool is integrated into the ebook content as a QTI question. It is essentially a link with certain query string parameters to launch
+the Drawing Tool instance in the iframe. Among the launch parameters are the book ISBN and the unique (within that book) element ID. When the tool is launched it uses
+them both to query CAS to find out if there are any saved diagrams for that user and to create a new drawing. When the Drawing Tool instance is launched in this mode,
+it expects only a single drawing per user.
+
+In the standalone mode, the Drawing Tool is not embedded in the content and it is not displayed in the eBook shell's iframe. Instead, it may be launched as a standalone tool,
+that may be required to fetch all parameters (from LTI provider) on its own. In this mode, when the tool launches, it will query for all drawings saved by the user who
+launched it. As there may be many drawings available for loading, the tool will provide the image explorer window with titles, date of creation and last modification and
+a thumbnail allowing the user to select a drawing to load.
+
+### Export Data Format
+
+Drawing Tool uses FabricJS library to render and manage drawings in the HTML Canvas element. The library supports exporting and importing canvas data in the JSON format as below:
+
+```
+{
+  "background": "rgba(255, 255, 1)",
+  "someOtherGeneralProperties": "...",
+  "objects": [{
+    "oid": "0001",
+    "type": "circle",
+    // general properties
+    "left": 123,
+    "top": 123,
+    // object type specific properties
+    "angle": 0,
+    "radius": 75
+  }, {
+    "oid": "0002",
+    "type": "path",
+    // general properties
+    "left": 123,
+    "top": 123,
+    // object type specific properties
+    "pathOffset" {},
+    "path": [["M", 123.4, 12], ["Q", 123.4, 12, 234.5, 12], ..., ["L", 345.5, 23]]
+  }, {
+    "oid": "0001",
+    "type": "image",
+    // general properties
+    "left": 123,
+    "top": 123,
+    // object type specific properties
+    "src": "/content/hsp/math/mx2018/common/mxdt/assets/stamps/3dshapes_cone.svg"
+  }],
+}
+```
+
+At the root level, general canvas properties are saved like the background color, canvas size.
+
+All objects moved by a user on the canvas are stored in the list at the "objects" property. The index of an object represents its z-index position on the canvas.
+
+Each object has a set of properties that can be divided in three groups:
+- a unique (within the context of the canvas) object id (oid)
+- general properties like scale, position, origin point, shadow, visibility and more
+- type specific properties, for example, vector shapes like a path have stroke color, stroke width, background color, stroke style and more
+- object definition:
+-- raster objects have source image URL
+-- vector objects have their type from the provided library (triangle, cone, square, circle...)
+-- vector paths have a list of points defining their shape
+-- text fields have text and styling
+
+
+In terms of data size, we can easily predict how much data is needed by general and specific properties as we know which are included and we know their maximum values are known.
+We can't predict the size of path definitions and text fields as their length depends on the user. This is a problem especially in case of paths (pencil/brush tool),
+points are added from the moment the user presses the mouse down, for as long as the mouse is in the move until the mouse button is up.
+
+Drawing Tool currently controls a number of objects the user can drag onto the canvas. FabricJS doesn't natively provide any ability to limit and control any of the free hand tools.
+A temporary measure has been introduced to cut path longer (defined as a number of points) than the specified limit, but this has a knock-on effect on the user experience.
+Drawing Tool can't prevent users from creating long paths as they are required to meet exercise goals, therefore the limits are going to be high and this will lead to large data requiring syncing.
+
+### Drawing data growth
+
+For the purpose of this exercise, let's assume that after every user action, the Drawing Tool application will export canvas data for syncing with remote data persistence service.
+
+Let's go through the user actions and the corresponding change in the output JavaScript object.
+
+|| # || User action in UI                                    || Change in output JS object                                                                                ||
+|  1 |  User drags a new shape or raster object on a canvas  | A new object with a unique ID is added to the "objects" list with a shape type or src URL                  |
+|  2 |  User creates a new path with the pen tool            | A new object with a unique ID is added to the "objects" list with a list of points defining the path       |
+|  3 |  User swaps two objects hierarchy position            | Two corresponding object's indexes are swapped in the "objects" list                                       |
+|  4 |  User changes color or position of an object          | The value of one of the properties of an object with a corresponding ID in the "objects" list gets updated |
+|  5 |  User removes an object                               | The object with a corresponding ID is removed from the "objects" list                                      |
+
+Once the object is created, its definition can't be changed, for example after creating a new path object, the path can't be modified, or in other words, none of the existing
+points defining that path can be removed, changed or new points be added.
+
+### Syncing frequency
+
+Currently the tool exports and syncs data when the user clicks on the save button.
+
+The ideal solution would auto-save the current state of canvas with every user modification captures (every user action). This has not been implemented due to concerns around
+CAS performance (CAS was not meant to support this kind of use cases with high frequency updates of large amounts of data).
+
+## High-level view on the existing CAS integration
+
+[More details](https://confluence.hmhco.com/display/PMT/Drawing+Tool+-+Data+persistence+solution)
+
+Every single user action updates only a single object at a time, therefore instead of sending the full JSON export from FabricJS, it makes more sense to capture the changes
+between the previous JSON snapshot and the current one that is currently exported and sync only the deltas. In this solution, every object from the "objects" list is represented
+as a separate record in CAS database and all of these records are linked to the parent object that stores the general canvas properties (like background color, size), the z-hierarchy
+for all objects and the title for the drawing.
+
+```
+parent record with data including: context information, unique canvas title, canvas properties and z-index map for canvas objects
+ |
+ |__ child record for object 1 (object type (shape, text, free hand, stamp), object properties (x, y, scale, orientation, stroke), object ref (shape type/text/image ref or img path)
+ |__ child record for object 2
+ |__ child record for object 3
+```
+
+In the setup when the Drawing Tool syncs data on the press of the Save button, there may be multiple records that will require updates at a time. Instead of sending multiple
+individual requests, we are sending all the changes in a single batch request (for example 3 records created, 2 records updated, 1 record removed and an update to the parent due
+to the z-index change).
+
+## Proposed UDS data.app.json integration
+
+### App registration
+
+In both, the standalone and the widget mode, the Drawing Tool will need to be registered with the apps endpoint.
+
+During the registration, a quota for the maximum data size per user needs to be defined. DynamoDB maximum record (item) size is 400 KB, presumably, this is also the maximum quota size.
+
+The tool will register two different app names for the widget and the standalone mode.
+
+It may seem that all instances of the widget drawing tools should share the same registration name as it is impossible to register each instance separately. But on the other hand,
+with one shared app we have one shared quota and with multiple instances of the drawing widget in every book the data size will quickly rise above the 400 KB limit.
+
+### Format of the data
+
+There are two ways to store the Drawing Tool data with the remote service. A drawing data can be stored exactly in the same format as it is exported by FabricJS or it can be split
+into individual objects like it has been done already for CAS integration.
+
+The format of the data expected by the data.app.json endpoint:
+
+{
+  "app": "app_name",
+  "key": "object_name",
+  "data": {}
+}
+
+#### Saving data in the raw FabricJS format
+
+If we wanted to save data in the raw FabricJS format, the key value would be the interaction_id in the widget mode or the drawing title in the standalone mode (or a hash of few
+properties including creation date to allow the user to change the title).
+
+The objects property originally containing a list would become a hash table, with the key property equal to the "oid" value of each object. The hierarchy of the object in the z-index would
+become one the properties in that object (in the raw format z-index is represented by object's index in the "objects" list).
+
+Every time one of the existing objects (representing visual objects on the canvas) get updated, removed or a new object is created, the DynamoDB items would be updated with the expression
+targeting a particular property.
+
+#### Saving data in the decomposed format
+
+One of the main reasons to avoid storing drawings in the raw FabricJS format may be a risk that the drawing size may get larger than 400 KB limit.
+
+To avoid that limitation, the canvas properties located at the root level would be saved in their own item, similarly, each of the objects from the "objects" property would be saved as their
+own item as well.
+
+In this case, the key would need to become a composite of the interaction_id/hash and the object own id. Perhaps a secondary index could be created to facilitate finding objects.
