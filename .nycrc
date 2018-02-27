@@ -13,9 +13,9 @@
         "**/static/**"
     ],
     "all": true,
-    "lines": 89.7,
-    "functions": 94.84,
-    "statements": 89.76,
-    "branch": 83.36,
+    "lines": 89.66,
+    "functions": 94.94,
+    "statements": 89.72,
+    "branch": 82.94,
     "check-coverage": true
 }

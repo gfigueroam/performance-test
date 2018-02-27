@@ -4,6 +4,7 @@ import http from '../../../../../common/helpers/http';
 import paths from '../../../../../common/helpers/paths';
 import seed from '../../../../../common/seed';
 import tokens from '../../../../../common/helpers/tokens';
+import constants from '../../../../../../app/utils/constants';
 
 const quota = 1024;
 const NEW_QUOTA = 2345;
@@ -26,6 +27,15 @@ describe('apps.setPerUserQuota', () => {
       name,
       quota: 1111,
     }, errors.codes.ERROR_CODE_APP_NOT_FOUND, done);
+  });
+
+  [constants.HMH_APP, constants.CB_APP].forEach((reservedApp) => {
+    it(`should return error for reserved app named "${reservedApp}"`, done => {
+      http.sendPostRequestError(path, tokens.serviceToken, {
+        name: reservedApp,
+        quota: 1111,
+      }, errors.codes.ERROR_CODE_APP_NOT_FOUND, done);
+    });
   });
 
   it('should update quota to a valid value', done => {

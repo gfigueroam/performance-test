@@ -1,9 +1,14 @@
+import chai from 'chai';
+
 import errors from '../../../../../../app/models/errors';
 
 import http from '../../../../../common/helpers/http';
 import seed from '../../../../../common/seed';
 import paths from '../../../../../common/helpers/paths';
 import tokens from '../../../../../common/helpers/tokens';
+import constants from '../../../../../../app/utils/constants';
+
+const expect = chai.expect;
 
 const keyPrefix = `uds.bvt.data.app.query.test.${seed.buildNumber}`;
 const key1 = `uds.bvt.data.app.query.some.other.test.${seed.buildNumber}.value.1`;
@@ -109,6 +114,23 @@ describe('data.app.query', () => {
     const params = { app: 'none', keyPrefix, requestor };
     const errorCode = errors.codes.ERROR_CODE_APP_NOT_FOUND;
     http.sendPostRequestError(path, serviceToken, params, errorCode, done);
+  });
+
+  [constants.HMH_APP].forEach((reservedApp) => {
+    it(`throws invalid_app when the app is the reserved app "${reservedApp}"`, (done) => {
+      http.sendPostRequest(path, tokens.serviceToken, {
+        app: reservedApp,
+        keyPrefix,
+        requestor,
+      }, (err, response) => {
+        expect(err).to.equal(null);
+        expect(response.body).to.deep.equal({
+          error: errors.codes.ERROR_CODE_INVALID_APP,
+          ok: false,
+        });
+        done();
+      });
+    });
   });
 
   it('returns an empty list when no values match keyPrefix', done => {

@@ -397,7 +397,9 @@ async function getApps(params) {
   });
 
   // HMH_APP is a special built-in app; don't return.
-  delete appsInUse[constants.HMH_APP];
+  [constants.HMH_APP, constants.CB_APP].forEach((reservedApp) => {
+    delete appsInUse[reservedApp];
+  });
 
   return Object.keys(appsInUse);
 }

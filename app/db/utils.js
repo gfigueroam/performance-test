@@ -1,6 +1,6 @@
 import auth from '../auth';
 import errors from '../models/errors';
-
+import constants from '../utils/constants';
 
 function validateParams(params, requiredKeys) {
   // Verify that params dict has a value for each required key
@@ -9,6 +9,12 @@ function validateParams(params, requiredKeys) {
       throw new Error(`Parameter "${p}" is required.`);
     }
   });
+}
+
+function rejectHiddenApp(appName, errorCode) {
+  if (appName === constants.HMH_APP || appName === constants.CB_APP) {
+    throw errorCode || errors.codes.ERROR_CODE_APP_NOT_FOUND;
+  }
 }
 
 async function verifyOwnerAccess(params) {
@@ -26,6 +32,7 @@ async function verifyOwnerAccess(params) {
 }
 
 export default {
+  rejectHiddenApp,
   validateParams,
   verifyOwnerAccess,
 };

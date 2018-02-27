@@ -6,6 +6,7 @@ import seed from '../../../../../common/seed';
 import paths from '../../../../../common/helpers/paths';
 import tokens from '../../../../../common/helpers/tokens';
 import errors from '../../../../../../app/models/errors';
+import constants from '../../../../../../app/utils/constants';
 
 const expect = chai.expect;
 
@@ -56,6 +57,24 @@ describe('data.app.set', () => {
         ok: false,
       });
       done();
+    });
+  });
+
+  [constants.HMH_APP].forEach((reservedApp) => {
+    it(`throws invalid_app when the app is the reserved app "${reservedApp}"`, (done) => {
+      http.sendPostRequest(paths.DATA_APP_SET, tokens.serviceToken, {
+        app: reservedApp,
+        data,
+        key,
+        requestor,
+      }, (err, response) => {
+        expect(err).to.equal(null);
+        expect(response.body).to.deep.equal({
+          error: errors.codes.ERROR_CODE_INVALID_APP,
+          ok: false,
+        });
+        done();
+      });
     });
   });
 

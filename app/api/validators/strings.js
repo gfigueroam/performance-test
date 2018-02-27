@@ -1,6 +1,7 @@
 import errors from '../../models/errors';
 import regex from '../utils/regex';
 import system from '../../models/system';
+import constants from '../../utils/constants';
 
 const NONEMPTY_MIN_LENGTH = 1;
 const DEFAULT_MAX_LENGTH = 255;
@@ -90,6 +91,11 @@ function validateApp(param) {
     `^${regex.NAME_REGEX}$`,
     errors.codes.ERROR_CODE_INVALID_APP,
   );
+
+  // Cannot be HMH_APP
+  if (param === constants.HMH_APP) {
+    throw errors.codes.ERROR_CODE_INVALID_APP;
+  }
 }
 
 function validateKey(param) {

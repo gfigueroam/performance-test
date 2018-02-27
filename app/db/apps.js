@@ -3,11 +3,14 @@ import utils from './utils';
 
 import nconf from '../config';
 import errors from '../models/errors';
+import constants from '../utils/constants';
 
 
 async function setQuota(params) {
   // Validate required params
   utils.validateParams(params, ['name']);
+  utils.rejectHiddenApp(params.name);
+
   if (params.quota === undefined) {
     throw new Error('Parameter "quota" is required.');
   }
@@ -37,6 +40,7 @@ async function setQuota(params) {
 async function info(params) {
   // Validate required params
   utils.validateParams(params, ['name']);
+  utils.rejectHiddenApp(params.name);
 
   const getResult = await dynamodbClient.instrumented('get', {
     ConsistentRead: this.database && this.database.consistentRead,
@@ -74,12 +78,22 @@ async function list() {
     lastEvaluatedKey = iterationResult.LastEvaluatedKey;
   } while (lastEvaluatedKey !== undefined);
 
-  return result;
+  // Remove 'cb' and 'hmh' apps.
+  const filteredApps = [];
+  result.forEach((item) => {
+    if (item.name !== constants.HMH_APP && item.name !== constants.CB_APP) {
+      filteredApps.push(item);
+    }
+  });
+
+  return filteredApps;
 }
 
 async function register(params) {
   // Validate required params
   utils.validateParams(params, ['name']);
+  utils.rejectHiddenApp(params.name, errors.codes.ERROR_CODE_INVALID_APP);
+
   if (params.quota === undefined) {
     throw new Error('Parameter "quota" is required.');
   }
@@ -109,6 +123,7 @@ async function register(params) {
 async function remove(params) {
   // Validate required params
   utils.validateParams(params, ['name']);
+  utils.rejectHiddenApp(params.name);
 
   await dynamodbClient.instrumented('delete', {
     Key: {

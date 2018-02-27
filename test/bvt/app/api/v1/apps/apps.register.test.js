@@ -6,6 +6,7 @@ import http from '../../../../../common/helpers/http';
 import paths from '../../../../../common/helpers/paths';
 import seed from '../../../../../common/seed';
 import tokens from '../../../../../common/helpers/tokens';
+import constants from '../../../../../../app/utils/constants';
 
 const path = paths.APPS_REGISTER;
 const expect = chai.expect;
@@ -108,5 +109,25 @@ describe('apps.register', () => {
       // Second call should fail, since it already exists
       http.sendPostRequestError(path, serviceToken, params, errorCode, done);
     });
+  });
+
+  it(`should reject registering an app with the reserved name "${constants.CB_APP}"`, done => {
+    const params = {
+      name: constants.CB_APP,
+      quota,
+    };
+    const serviceToken = tokens.serviceToken;
+    const errorCode = errors.codes.ERROR_CODE_INVALID_APP;
+    http.sendPostRequestError(path, serviceToken, params, errorCode, done);
+  });
+
+  it(`should reject registering an app with the reserved name "${constants.HMH_APP}"`, done => {
+    const params = {
+      name: constants.HMH_APP,
+      quota,
+    };
+    const serviceToken = tokens.serviceToken;
+    const errorCode = errors.codes.ERROR_CODE_INVALID_APP;
+    http.sendPostRequestError(path, serviceToken, params, errorCode, done);
   });
 });

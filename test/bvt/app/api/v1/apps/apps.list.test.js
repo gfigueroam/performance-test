@@ -4,6 +4,7 @@ import http from '../../../../../common/helpers/http';
 import paths from '../../../../../common/helpers/paths';
 import seed from '../../../../../common/seed';
 import tokens from '../../../../../common/helpers/tokens';
+import constants from '../../../../../../app/utils/constants';
 
 const path = paths.APPS_LIST;
 const expect = chai.expect;
@@ -46,10 +47,19 @@ describe('apps.list', () => {
           }
           expect(response).to.have.status(200);
           expect(response.body.ok).to.equal(true);
+
           // We cannot check the total, because in some environments non-BVT apps may exist
           // expect(response.body.result.length).to.equal(usedNames.length);
           usedNames.forEach((name) => {
             expect(response.body.result).to.deep.include({
+              name,
+              quota,
+            });
+          });
+
+          // Make sure the built-in apps are not returned
+          [constants.HMH_APP, constants.CB_APP].forEach((name) => {
+            expect(response.body.result).not.to.deep.include({
               name,
               quota,
             });
