@@ -12,13 +12,18 @@ const data = 'Sample data value';
 const requestor = 'hmh-test-user.123';
 const swatchCtx = { logger };
 
+
 describe('data.cb.set', () => {
+  before(() => {
+    sinon.stub(calculatedBehavior, 'set');
+  });
+
   after(() => {
     calculatedBehavior.set.restore();
   });
 
   it('returns no value', done => {
-    sinon.stub(calculatedBehavior, 'set').callsFake((params) => {
+    calculatedBehavior.set.callsFake((params) => {
       expect(params).to.deep.equal({
         data,
         key,

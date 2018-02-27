@@ -11,11 +11,10 @@ const key = 'test.data.user.set.name';
 const requestor = 'hmh-test-user.123';
 const swatchCtx = { logger };
 
-let getStub;
 
 describe('data.cb.get', () => {
   before(() => {
-    getStub = sinon.stub(calculatedBehavior, 'get');
+    sinon.stub(calculatedBehavior, 'get');
   });
 
   after(() => {
@@ -32,7 +31,7 @@ describe('data.cb.get', () => {
         anotherKey: 5,
       },
     };
-    getStub.callsFake((params) => {
+    calculatedBehavior.get.callsFake((params) => {
       expect(params).to.deep.equal({
         key,
         owner: undefined,
@@ -56,7 +55,7 @@ describe('data.cb.get', () => {
   });
 
   it('returns undefined if there is no DynamoDB item', done => {
-    getStub.callsFake((params) => {
+    calculatedBehavior.get.callsFake((params) => {
       expect(params).to.deep.equal({
         key,
         owner: undefined,

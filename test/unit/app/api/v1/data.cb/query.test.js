@@ -11,11 +11,10 @@ const keyPrefix = 'test.data.user.query.name.prefix.';
 const requestor = 'hmh-test-user.123';
 const swatchCtx = { logger };
 
-let queryStub;
 
 describe('data.cb.query', () => {
   before(() => {
-    queryStub = sinon.stub(calculatedBehavior, 'query');
+    sinon.stub(calculatedBehavior, 'query');
   });
 
   after(() => {
@@ -27,7 +26,7 @@ describe('data.cb.query', () => {
       { key1: true },
       { key2: 'value' },
     ];
-    queryStub.callsFake((params) => {
+    calculatedBehavior.query.callsFake((params) => {
       expect(params).to.deep.equal({
         keyPrefix,
         owner: undefined,
@@ -45,7 +44,7 @@ describe('data.cb.query', () => {
   });
 
   it('returns empty array if there is no DynamoDB items', done => {
-    queryStub.callsFake((params) => {
+    calculatedBehavior.query.callsFake((params) => {
       expect(params).to.deep.equal({
         keyPrefix,
         owner: undefined,

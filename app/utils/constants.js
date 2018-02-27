@@ -1,4 +1,5 @@
 export default {
+  CB_APP: 'cb',
   DELIMITER: '*-*',
   HMH_APP: 'hmh',
   UDS_BVT_REQUEST_HEADER: 'x-hmh-uds-bvt',

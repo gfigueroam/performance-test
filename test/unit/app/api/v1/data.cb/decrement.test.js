@@ -11,13 +11,18 @@ const key = 'test.data.user.decrement.name';
 const requestor = 'hmh-test-user.123';
 const swatchCtx = { logger };
 
+
 describe('data.cb.decrement', () => {
+  before(() => {
+    sinon.stub(calculatedBehavior, 'atomicUpdate');
+  });
+
   after(() => {
     calculatedBehavior.atomicUpdate.restore();
   });
 
   it('calls calculatedBehavior.atomicUpdate', done => {
-    sinon.stub(calculatedBehavior, 'atomicUpdate').callsFake((params) => {
+    calculatedBehavior.atomicUpdate.callsFake((params) => {
       expect(params).to.deep.equal({
         key,
         owner: undefined,

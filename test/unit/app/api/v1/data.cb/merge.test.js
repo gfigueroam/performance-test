@@ -12,13 +12,18 @@ const data = 'Sample data value';
 const requestor = 'hmh-test-user.123';
 const swatchCtx = { logger };
 
+
 describe('data.cb.merge', () => {
+  before(() => {
+    sinon.stub(calculatedBehavior, 'merge');
+  });
+
   after(() => {
     calculatedBehavior.merge.restore();
   });
 
   it('returns no value', done => {
-    sinon.stub(calculatedBehavior, 'merge').callsFake((params) => {
+    calculatedBehavior.merge.callsFake((params) => {
       expect(params).to.deep.equal({
         data,
         key,
