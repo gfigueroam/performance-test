@@ -39,10 +39,7 @@ describe('data.app.merge', () => {
     });
 
     mergeHandler.apply(swatchCtx, [key, data, app, requestor]).then(result => {
-      expect(result).to.deep.equal({
-        data,
-        key,
-      });
+      expect(result).to.equal(undefined);
       done();
     }).catch(done);
   });

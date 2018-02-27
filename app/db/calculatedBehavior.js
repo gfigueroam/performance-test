@@ -17,6 +17,7 @@ async function set(params) {
 
   await dynamodbClient.instrumented('put', {
     Item: {
+      createdBy: params.requestor,
       data: params.data,
       key: params.key,
       user: params.owner,
@@ -24,7 +25,6 @@ async function set(params) {
     ReturnConsumedCapacity: 'TOTAL',
     TableName: nconf.get('database').calculatedBehaviorTableName,
   });
-
   return undefined;
 }
 
@@ -43,7 +43,6 @@ async function unset(params) {
     ReturnConsumedCapacity: 'TOTAL',
     TableName: nconf.get('database').calculatedBehaviorTableName,
   });
-
   return undefined;
 }
 
@@ -54,7 +53,7 @@ async function get(params) {
   // Authorize that requestor has access to owner data
   await utils.verifyOwnerAccess.call(this, params);
 
-  return dynamodbClient.instrumented('get', {
+  const getResult = dynamodbClient.instrumented('get', {
     ConsistentRead: this.database && this.database.consistentRead,
     Key: {
       key: params.key,
@@ -63,6 +62,7 @@ async function get(params) {
     ReturnConsumedCapacity: 'TOTAL',
     TableName: nconf.get('database').calculatedBehaviorTableName,
   });
+  return getResult;
 }
 
 async function query(params) {
@@ -137,6 +137,7 @@ async function atomicUpdate(params) {
           '#data': 'data',
         },
         ExpressionAttributeValues: {
+          ':requestor': params.requestor,
           ':value': params.value,
         },
         Key: {
@@ -145,7 +146,7 @@ async function atomicUpdate(params) {
         },
         ReturnConsumedCapacity: 'TOTAL',
         TableName: nconf.get('database').calculatedBehaviorTableName,
-        UpdateExpression: 'SET #data = #data + :value',
+        UpdateExpression: 'SET #data = #data + :value, updatedBy = :requestor',
       });
 
       return undefined;
@@ -166,6 +167,7 @@ async function atomicUpdate(params) {
         '#data': 'data',
       },
       Item: {
+        createdBy: params.requestor,
         data: newValue,
         key: params.key,
         user: params.owner,
@@ -217,6 +219,7 @@ async function merge(params) {
         },
         ExpressionAttributeValues: {
           ':oldval': currentValue.Item.data,
+          ':requestor': params.requestor,
           ':value': newValue,
         },
         Key: {
@@ -225,7 +228,7 @@ async function merge(params) {
         },
         ReturnConsumedCapacity: 'TOTAL',
         TableName: nconf.get('database').calculatedBehaviorTableName,
-        UpdateExpression: 'SET #data = :value',
+        UpdateExpression: 'SET #data = :value, updatedBy = :requestor',
       });
 
       return undefined;
@@ -246,6 +249,7 @@ async function merge(params) {
         '#data': 'data',
       },
       Item: {
+        createdBy: params.requestor,
         data: params.data,
         key: params.key,
         user: params.owner,

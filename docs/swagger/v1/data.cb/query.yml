@@ -23,7 +23,7 @@ post:
           - keyPrefix
   responses:
     200:
-      description: Returns a list of stored JSON document that match the key query prefix.
+      description: Returns a list of stored JSON documents that match the key query prefix.
       schema:
         type: object
         properties:
@@ -34,16 +34,21 @@ post:
             items:
               type: object
               properties:
+                createdBy:
+                  type: string
                 key:
                   type: string
                 data:
-                  type: string, number, boolean, array, object
-                user:
+                  type: string
+                app:
+                  type: string
+                updatedBy:
                   type: string
               required:
+                - createdBy
                 - key
                 - data
-                - user
+                - app
         required:
           - ok
           - result

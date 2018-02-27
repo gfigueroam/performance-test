@@ -89,22 +89,22 @@ describe('data.cb.decrement', () => {
     decrement()
     .then(retrieve)
     .then((retrieved => {
-      expect(retrieved.result).to.equal(-1);
+      expect(retrieved.result.data).to.equal(-1);
     }))
     .then(decrement)
     .then(retrieve)
     .then((retrieved => {
-      expect(retrieved.result).to.equal(-2);
+      expect(retrieved.result.data).to.equal(-2);
     }))
     .then(decrement)
     .then(retrieve)
     .then((retrieved => {
-      expect(retrieved.result).to.equal(-3);
+      expect(retrieved.result.data).to.equal(-3);
     }))
     .then(decrement)
     .then(retrieve)
     .then((retrieved => {
-      expect(retrieved.result).to.equal(-4);
+      expect(retrieved.result.data).to.equal(-4);
       done();
     }));
   });
@@ -114,7 +114,7 @@ describe('data.cb.decrement', () => {
     .then(decrement)
     .then(retrieve)
     .then((retrieved => {
-      expect(retrieved.result).to.equal(14);
+      expect(retrieved.result.data).to.equal(14);
       done();
     }));
   });

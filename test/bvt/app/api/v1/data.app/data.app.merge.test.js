@@ -118,13 +118,7 @@ describe('data.app.merge', () => {
       requestor,
     }, (err, response) => {
       expect(err).to.equal(null);
-      expect(response.body).to.deep.equal({
-        ok: true,
-        result: {
-          data,
-          key,
-        },
-      });
+      expect(response.body).to.deep.equal({ ok: true });
 
       http.sendPostRequest(paths.DATA_APP_GET, tokens.serviceToken, {
         app,
@@ -157,20 +151,7 @@ describe('data.app.merge', () => {
       requestor,
     }, (err, response) => {
       expect(err).to.equal(null);
-      expect(response.body).to.deep.equal({
-        ok: true,
-        result: {
-          data: {
-            key1: data.key1,
-            key2: data.key2,
-            key3: data.key3,
-            key4: {
-              s: 'some string here',
-            },
-          },
-          key,
-        },
-      });
+      expect(response.body).to.deep.equal({ ok: true });
 
       http.sendPostRequest(paths.DATA_APP_GET, tokens.serviceToken, {
         app,
@@ -211,20 +192,7 @@ describe('data.app.merge', () => {
       requestor,
     }, (err, response) => {
       expect(err).to.equal(null);
-      expect(response.body).to.deep.equal({
-        ok: true,
-        result: {
-          data: {
-            key1: data.key1,
-            key2: data.key2,
-            key3: data.key3,
-            key4: {
-              b: true,
-            },
-          },
-          key,
-        },
-      });
+      expect(response.body).to.deep.equal({ ok: true });
 
       http.sendPostRequest(paths.DATA_APP_GET, tokens.serviceToken, {
         app,
@@ -266,21 +234,7 @@ describe('data.app.merge', () => {
       requestor,
     }, (err, response) => {
       expect(err).to.equal(null);
-      expect(response.body).to.deep.equal({
-        ok: true,
-        result: {
-          data: {
-            key1: data.key1,
-            key2: data.key2,
-            key3: data.key3,
-            key4: {
-              i: 7,
-            },
-            key5: 'whatever',
-          },
-          key,
-        },
-      });
+      expect(response.body).to.deep.equal({ ok: true });
 
       http.sendPostRequest(paths.DATA_APP_GET, tokens.serviceToken, {
         app,
@@ -355,14 +309,7 @@ describe('data.app.merge', () => {
       requestor: `${requestor}.2`,
     }, (err, response) => {
       expect(err).to.equal(null);
-
-      expect(response.body).to.deep.equal({
-        ok: true,
-        result: {
-          data: halfQuotaData,
-          key,
-        },
-      });
+      expect(response.body).to.deep.equal({ ok: true });
 
       http.sendPostRequest(paths.DATA_APP_MERGE, tokens.serviceToken, {
         app,

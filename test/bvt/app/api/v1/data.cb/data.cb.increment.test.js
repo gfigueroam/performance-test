@@ -81,22 +81,22 @@ describe('data.cb.increment', () => {
     increment()
     .then(retrieve)
     .then((retrieved => {
-      expect(retrieved.result).to.equal(1);
+      expect(retrieved.result.data).to.equal(1);
     }))
     .then(increment)
     .then(retrieve)
     .then((retrieved => {
-      expect(retrieved.result).to.equal(2);
+      expect(retrieved.result.data).to.equal(2);
     }))
     .then(increment)
     .then(retrieve)
     .then((retrieved => {
-      expect(retrieved.result).to.equal(3);
+      expect(retrieved.result.data).to.equal(3);
     }))
     .then(increment)
     .then(retrieve)
     .then((retrieved => {
-      expect(retrieved.result).to.equal(4);
+      expect(retrieved.result.data).to.equal(4);
       done();
     }));
   });
@@ -106,7 +106,7 @@ describe('data.cb.increment', () => {
     .then(increment)
     .then(retrieve)
     .then((retrieved => {
-      expect(retrieved.result).to.equal(16);
+      expect(retrieved.result.data).to.equal(16);
       done();
     }));
   });

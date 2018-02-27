@@ -15,17 +15,22 @@ See [Naming rules](common-names.html) for more information on names.
 | `owner`           | `user_789`        | Optional  | The user whose data is being accessed. Defaults to `requestor` if not specified.
 
 ## Result
-The result is whatever value is stored at the specified `key` for the user
-identified by the authentication token or `owner` parameter. The result will
-be either a `number`, a `string`, a `boolean`, an `object`, or an `array`.
-If the key has not been set for the user, the result will be `undefined`.
+The result is an object including whatever value is stored at the specified
+`key` for the user identified by the authentication token or `owner` parameter.
+The `data` param will be either a `number`, a `string`, a `boolean`, an `object`, or
+an `array`. If the key has not been set for the user, the result will be `undefined`.
 
 ```javascript
 {
     "ok": true,
     "result": {
-      "contentIdA": {...},
-      "contentIdC": {...}
+        "createdBy": "user_789",
+        "key":  "user.789.annotation",
+        "data": {
+          "contentIdA": {...},
+          "contentIdC": {...}
+        },
+        "updatedBy": "user_789"
     }
 }
 ```

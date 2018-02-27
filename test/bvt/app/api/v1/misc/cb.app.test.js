@@ -6,16 +6,12 @@ import paths from '../../../../../common/helpers/paths';
 import tokens from '../../../../../common/helpers/tokens';
 
 const key = `uds.bvt.cb.app.data.test.${seed.buildNumber}`;
-const data = 'some.sample.cb.data';
+const data = 10;
 const requestor = 'cb.app.test.requestor.1';
 
 const token = tokens.serviceToken;
 
 const OK = { ok: true };
-const expectedResult = {
-  ok: true,
-  result: data,
-};
 
 
 describe('cb.app', () => {
@@ -34,12 +30,28 @@ describe('cb.app', () => {
   it('returns the new data via data.cb endpoint', done => {
     const path = paths.DATA_CB_GET;
     const params = { key, requestor };
+    const expectedResult = {
+      ok: true,
+      result: {
+        createdBy: requestor,
+        data,
+        key,
+      },
+    };
     http.sendPostRequestSuccess(path, token, params, expectedResult, done);
   });
 
   it('returns the new data via data.app endpoint', done => {
     const path = paths.DATA_APP_GET;
     const params = { app: 'cb', key, requestor };
+    const expectedResult = {
+      ok: true,
+      result: {
+        createdBy: requestor,
+        data,
+        key,
+      },
+    };
     http.sendPostRequestSuccess(path, token, params, expectedResult, done);
   });
 
@@ -50,10 +62,38 @@ describe('cb.app', () => {
     const result = {
       ok: true,
       result: [{
+        app: 'cb',
+        createdBy: requestor,
         data,
         key,
-        user: requestor,
       }],
+    };
+    http.sendPostRequestSuccess(path, token, params, result, done);
+  });
+
+  it('queries for the new data via data.cb endpoint', done => {
+    const path = paths.DATA_CB_QUERY;
+    const keyPrefix = 'uds.bvt.cb.app';
+    const params = { keyPrefix, requestor };
+    const result = {
+      ok: true,
+      result: [{
+        app: 'cb',
+        createdBy: requestor,
+        data,
+        key,
+      }],
+    };
+    http.sendPostRequestSuccess(path, token, params, result, done);
+  });
+
+  it('queries for no data via data.cb endpoint with wrong prefix', done => {
+    const path = paths.DATA_CB_QUERY;
+    const keyPrefix = 'uds.bvt.cb.wrong';
+    const params = { keyPrefix, requestor };
+    const result = {
+      ok: true,
+      result: [],
     };
     http.sendPostRequestSuccess(path, token, params, result, done);
   });
@@ -64,6 +104,42 @@ describe('cb.app', () => {
     const mergeData = { key: 'not-mergeable-with-a-string' };
     const params = { app: 'cb', data: mergeData, key, requestor };
     http.sendPostRequestError(path, token, params, error, done);
+  });
+
+  it('increments the data value using cb.increment endpoint', done => {
+    const path = paths.DATA_CB_INCREMENT;
+    const params = { key, requestor };
+    http.sendPostRequestSuccess(path, token, params, OK, done);
+  });
+
+  it('retrieves the new data with updated user via data.app endpoint', done => {
+    const path = paths.DATA_APP_GET;
+    const params = { app: 'cb', key, requestor };
+    const expectedResult = {
+      ok: true,
+      result: {
+        createdBy: requestor,
+        data: data + 1,
+        key,
+        updatedBy: requestor,
+      },
+    };
+    http.sendPostRequestSuccess(path, token, params, expectedResult, done);
+  });
+
+  it('retrieves the new data with updated user via data.cb endpoint', done => {
+    const path = paths.DATA_CB_GET;
+    const params = { key, requestor };
+    const expectedResult = {
+      ok: true,
+      result: {
+        createdBy: requestor,
+        data: data + 1,
+        key,
+        updatedBy: requestor,
+      },
+    };
+    http.sendPostRequestSuccess(path, token, params, expectedResult, done);
   });
 
   it('unsets the data via data.app endpoint', done => {

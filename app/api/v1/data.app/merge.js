@@ -6,19 +6,15 @@ export default async function mergeHandler(key, data, app, requestor, owner) {
   this.logger.info(`data.app.merge: app (${app}), key (${key}), requestor (${requestor}), owner (${owner}), data ${data}`);
 
   if (app === constants.CB_APP) {
-    const cbResult = await cb.merge.apply(this, [key, data, requestor, owner]);
-    return cbResult;
+    await cb.merge.apply(this, [key, data, requestor, owner]);
+  } else {
+    await db.merge.apply(this, [{
+      app,
+      data,
+      key,
+      owner,
+      requestor,
+    }]);
   }
-
-  const result = await db.merge.apply(this, [{
-    app,
-    data,
-    key,
-    owner,
-    requestor,
-  }]);
-  return {
-    data: result,
-    key,
-  };
+  return undefined;
 }

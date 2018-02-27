@@ -1,5 +1,6 @@
 import chai from 'chai';
 
+import constants from '../../../../../../app/utils/constants';
 import errors from '../../../../../../app/models/errors';
 
 import http from '../../../../../common/helpers/http';
@@ -118,14 +119,16 @@ describe('data.cb.query', () => {
       expect(retrieved.ok).to.equal(true);
       expect(retrieved.result).to.deep.equal([
         {
+          app: constants.CB_APP,
+          createdBy: requestor,
           data: 'string',
           key: key1,
-          user: requestor,
         },
         {
+          app: constants.CB_APP,
+          createdBy: requestor,
           data: false,
           key: key2,
-          user: requestor,
         },
       ]);
       done();

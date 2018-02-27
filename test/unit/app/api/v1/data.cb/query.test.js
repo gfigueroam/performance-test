@@ -23,8 +23,8 @@ describe('data.cb.query', () => {
 
   it('returns a list of items matching query', done => {
     const items = [
-      { key1: true },
-      { key2: 'value' },
+      { data: true, key: 'key1' },
+      { data: 'value', key: 'key2' },
     ];
     calculatedBehavior.query.callsFake((params) => {
       expect(params).to.deep.equal({
@@ -36,7 +36,22 @@ describe('data.cb.query', () => {
       return Promise.resolve(items);
     });
     queryHandler.apply(swatchCtx, [keyPrefix, requestor]).then(result => {
-      expect(result).to.deep.equal(items);
+      expect(result).to.deep.equal([
+        {
+          app: 'cb',
+          createdBy: undefined,
+          data: true,
+          key: 'key1',
+          updatedBy: undefined,
+        },
+        {
+          app: 'cb',
+          createdBy: undefined,
+          data: 'value',
+          key: 'key2',
+          updatedBy: undefined,
+        },
+      ]);
       expect(calculatedBehavior.query.called).to.equal(true);
 
       done();

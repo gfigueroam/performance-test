@@ -102,7 +102,7 @@ describe('data.cb.merge', () => {
     merge(data)
     .then(retrieve)
     .then((retrieved => {
-      expect(retrieved.result).to.deep.equal(data);
+      expect(retrieved.result.data).to.deep.equal(data);
     }))
     .then(() => {
       // Let's merge the same object into itself; this should have no changes.
@@ -110,7 +110,7 @@ describe('data.cb.merge', () => {
     })
     .then(retrieve)
     .then((retrieved => {
-      expect(retrieved.result).to.deep.equal(data);
+      expect(retrieved.result.data).to.deep.equal(data);
       done();
     }))
     .catch(done);
@@ -157,7 +157,7 @@ describe('data.cb.merge', () => {
     /* eslint-enable arrow-body-style */
     .then(retrieve)
     .then((retrieved => {
-      expect(retrieved.result).to.deep.equal({
+      expect(retrieved.result.data).to.deep.equal({
         aBoolean: true,
         aListOfBooleans: [true, true, false],
         aListOfNumbers: [1, 2, 3, 4],
@@ -201,7 +201,7 @@ describe('data.cb.merge', () => {
     /* eslint-enable arrow-body-style */
     .then(retrieve)
     .then((retrieved) => {
-      expect(retrieved.result).to.deep.equal({
+      expect(retrieved.result.data).to.deep.equal({
         aBoolean: false,
         aListOfBooleans: [true, false],
         aListOfNumbers: [4],

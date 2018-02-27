@@ -411,19 +411,16 @@ describe('appData', () => {
         });
       });
 
-      appData.merge({
+      appData.merge.apply(swatchCtx, [{
         app,
         data: {
           newKey: 'newValue',
         },
         key,
         requestor,
-      })
+      }])
       .then((result) => {
-        expect(result).to.deep.equal({
-          existingKey: 'existingValue',
-          newKey: 'newValue',
-        });
+        expect(result).to.equal(undefined);
         done();
       })
       .catch(done);
@@ -486,9 +483,7 @@ describe('appData', () => {
         requestor,
       }])
       .then((result) => {
-        expect(result).to.deep.equal({
-          newKey: 'newValue',
-        });
+        expect(result).to.equal(undefined);
         done();
       })
       .catch(done);

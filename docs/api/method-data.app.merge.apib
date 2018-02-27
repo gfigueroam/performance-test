@@ -4,7 +4,8 @@ FORMAT: 1A
 
 Merge a document into an existing one for a given user, as if by an
 invocation of [Object.assign](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign).
-If the existing document is not found, it creates a new one.
+If the existing document is not found, it creates a new one. This method throws an error if there is an existing
+stored value which is not an object.
 
 :[](common-args.md url:"data.app.merge" token:"Can be used with either a service token or a user token.")
 
@@ -18,18 +19,9 @@ If the existing document is not found, it creates a new one.
 
 ## Result
 
-Returns the merged object.
-
 ```javascript
 {
-    "ok": true,
-    "result": {
-        "key":  "settings",
-        "data": {
-            "font-size": "12pt",
-            "font-weight": "bold"
-        }
-    }
+    "ok": true
 }
 ```
 

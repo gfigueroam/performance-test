@@ -30,15 +30,11 @@ describe('data.cb.increment', () => {
         value: 1,
       });
 
-      return Promise.resolve({
-        Item: {
-          key,
-          user: requestor,
-        },
-      });
+      return Promise.resolve();
     });
 
-    incrementHandler.apply(swatchCtx, [key, requestor]).then(() => {
+    incrementHandler.apply(swatchCtx, [key, requestor]).then(result => {
+      expect(result).to.equal(undefined);
       expect(calculatedBehavior.atomicUpdate.called).to.equal(true);
 
       done();

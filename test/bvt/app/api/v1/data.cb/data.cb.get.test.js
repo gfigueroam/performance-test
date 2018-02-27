@@ -67,12 +67,12 @@ describe('data.cb.get', () => {
     store(true)
     .then(retrieve)
     .then((retrieved => {
-      expect(retrieved.result).to.equal(true);
+      expect(retrieved.result.data).to.equal(true);
     }))
     .then(() => (store(false)))
     .then(retrieve)
     .then((retrieved => {
-      expect(retrieved.result).to.equal(false);
+      expect(retrieved.result.data).to.equal(false);
       done();
     }))
     .catch(done);
@@ -82,7 +82,7 @@ describe('data.cb.get', () => {
     store(15)
     .then(retrieve)
     .then((retrieved => {
-      expect(retrieved.result).to.equal(15);
+      expect(retrieved.result.data).to.equal(15);
       done();
     }));
   });
@@ -91,7 +91,7 @@ describe('data.cb.get', () => {
     store(6.789)
     .then(retrieve)
     .then((retrieved => {
-      expect(retrieved.result).to.equal(6.789);
+      expect(retrieved.result.data).to.equal(6.789);
       done();
     }));
   });
@@ -100,7 +100,7 @@ describe('data.cb.get', () => {
     store('this is a string used in a BVT')
     .then(retrieve)
     .then((retrieved => {
-      expect(retrieved.result).to.equal('this is a string used in a BVT');
+      expect(retrieved.result.data).to.equal('this is a string used in a BVT');
       done();
     }));
   });
@@ -121,7 +121,7 @@ describe('data.cb.get', () => {
     store(obj)
     .then(retrieve)
     .then((retrieved => {
-      expect(retrieved.result).to.deep.equal(obj);
+      expect(retrieved.result.data).to.deep.equal(obj);
       done();
     }));
   });

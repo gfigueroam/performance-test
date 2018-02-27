@@ -1,3 +1,4 @@
+import constants from '../../../utils/constants';
 import db from '../../../db/calculatedBehavior';
 
 export default async function queryHandler(keyPrefix, requestor, owner) {
@@ -8,5 +9,11 @@ export default async function queryHandler(keyPrefix, requestor, owner) {
     owner,
     requestor,
   }]);
-  return items;
+  return items ? items.map(item => ({
+    app: constants.CB_APP,
+    createdBy: item.createdBy,
+    data: item.data,
+    key: item.key,
+    updatedBy: item.updatedBy,
+  })) : [];
 }

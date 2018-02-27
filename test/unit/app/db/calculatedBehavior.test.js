@@ -121,6 +121,7 @@ describe('calculatedBehavior', () => {
           'ExpressionAttributeNames', 'Item', 'ReturnConsumedCapacity', 'TableName');
 
         expect(params.Item).to.deep.equal({
+          createdBy: requestor,
           data,
           key,
           user: requestor,
@@ -344,6 +345,7 @@ describe('calculatedBehavior', () => {
           'TableName',
         );
         expect(params.Item).to.deep.equal({
+          createdBy: requestor,
           data: 1,
           key,
           user: requestor,
@@ -404,6 +406,7 @@ describe('calculatedBehavior', () => {
       const data = 'this is some data';
       documentClientStub.put.callsFake(params => {
         expect(params.Item).to.deep.equal({
+          createdBy: requestor,
           data,
           key,
           user: requestor,

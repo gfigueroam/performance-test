@@ -30,15 +30,11 @@ describe('data.cb.decrement', () => {
         value: -1,
       });
 
-      return Promise.resolve({
-        Item: {
-          key,
-          user: requestor,
-        },
-      });
+      return Promise.resolve({});
     });
 
-    decrementHandler.apply(swatchCtx, [key, requestor]).then(() => {
+    decrementHandler.apply(swatchCtx, [key, requestor]).then(result => {
+      expect(result).to.equal(undefined);
       expect(calculatedBehavior.atomicUpdate.called).to.equal(true);
 
       done();

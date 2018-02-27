@@ -155,6 +155,8 @@ async function merge(params) {
   let conditionExpression;
   // Is there an existing item?
   if (currentValue.Item) {
+    this.logger.info(`App DB: App data merge on existing data item: ${params.key}`);
+
     // merge only works on objects
     // This logic is based in part on underscore.js' implementation of isObject.
     // (underscore.js is MIT licensed.)
@@ -183,13 +185,15 @@ async function merge(params) {
         UpdateExpression: 'SET #data = :value, updatedBy = :requestor',
       });
 
-      return newValue;
+      return undefined;
     }
 
     // Not an object value - this should never happen.
-    this.logger.error(`Found a non-object data type in app data for key ${params.key}, user ${params.owner}, app ${params.app}.`);
+    this.logger.error(`App DB: App data merge failed on non-object data: ${currentValue.Item.data}`);
     throw errors.codes.ERROR_CODE_INVALID_DATA_TYPE;
   } else {
+    this.logger.info(`App DB: App data merge creating new data item with key: ${params.key}`);
+
     // There is not an existing value, so store the new value as though the previous value was {}.
     newValue = params.data;
     conditionExpression = 'attribute_not_exists(#data)';
@@ -211,7 +215,7 @@ async function merge(params) {
       TableName: nconf.get('database').appDataJsonTableName,
     });
 
-    return newValue;
+    return undefined;
   }
 }
 

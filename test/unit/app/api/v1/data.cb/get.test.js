@@ -40,6 +40,7 @@ describe('data.cb.get', () => {
 
       return Promise.resolve({
         Item: {
+          createdBy: requestor,
           data: val,
           key,
           user: requestor,
@@ -47,7 +48,12 @@ describe('data.cb.get', () => {
       });
     });
     getHandler.apply(swatchCtx, [key, requestor]).then(result => {
-      expect(result).to.deep.equal(val);
+      expect(result).to.deep.equal({
+        createdBy: requestor,
+        data: val,
+        key,
+        updatedBy: undefined,
+      });
       expect(calculatedBehavior.get.called).to.equal(true);
 
       done();

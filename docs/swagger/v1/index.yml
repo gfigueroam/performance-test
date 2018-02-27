@@ -155,9 +155,14 @@ definitions:
             type: string
           data:
             type: object
+          createdBy:
+            type: string
+          updatedBy:
+            type: string
         required:
           - key
           - data
+          - createdBy
     required:
       - ok
       - result
@@ -178,37 +183,15 @@ definitions:
               type: object
             app:
               type: string
-            user:
+            createdBy:
+              type: string
+            updatedBy:
               type: string
           required:
             - key
             - data
             - app
-            - user
-    required:
-      - ok
-      - result
-  cbQueryResult:
-    description: Response describing a calculated behavior data query result, where (ok = true)
-    type: object
-    properties:
-      ok:
-        type: boolean
-      result:
-        type: array
-        items:
-          type: object
-          properties:
-            key:
-              type: string
-            data:
-              type: string, number, boolean, array, object
-            user:
-              type: string
-          required:
-            - key
-            - data
-            - user
+            - createdBy
     required:
       - ok
       - result

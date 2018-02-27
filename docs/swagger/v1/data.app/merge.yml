@@ -29,21 +29,11 @@ post:
           - app
   responses:
     200:
-      description: Returns the merged application data JSON document.
+      description: Returns true if the data was merged, or an error result.
       schema:
         type: object
         properties:
           ok:
             type: boolean
-          result:
-            type: object
-            properties:
-              key:
-                type: string
-              data:
-                type: object
-            required:
-              - key
-              - data
         required:
           - ok
