@@ -1,0 +1,47 @@
+{
+  "$id": "http://hmhco.com/document.json",
+  "type": "object",
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-06/schema#",
+  "properties": {
+    "description": {
+      "$id": "/properties/description",
+      "type": "string",
+      "description": "A description of the document.",
+      "examples": [
+        "This shows how to perform three digit subtraction."
+      ]
+    },
+    "location": {
+      "$id": "/properties/location",
+      "type": "string",
+      "description": "The location of the document.",
+      "examples": [
+        "http://hmhco.com/image.jpg"
+      ]
+    },
+    "size": {
+      "$id": "/properties/size",
+      "type": "integer",
+      "description": "Size in bytes of the document.",
+      "examples": [
+        786432
+      ]
+    },
+    "title": {
+      "$id": "/properties/title",
+      "type": "string",
+      "description": "The title of the document.",
+      "examples": [
+        "Annual Report"
+      ]
+    }
+  },
+  "required": [
+    "description",
+    "location",
+    "size",
+    "title"
+  ],
+  "additionalProperties": false
+}

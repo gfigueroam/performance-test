@@ -1,0 +1,75 @@
+{
+  "$id": "http://hmhco.com/video.json",
+  "type": "object",
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-06/schema#",
+  "properties": {
+    "description": {
+      "$id": "/properties/description",
+      "type": "string",
+      "description": "A description of the video.",
+      "examples": [
+        "This shows how to perform three digit subtraction."
+      ]
+    },
+    "duration": {
+      "$id": "/properties/duration",
+      "type": "integer",
+      "description": "Duration of the video in seconds.",
+      "examples": [
+        60
+      ]
+    },
+    "encoding": {
+      "$id": "/properties/encoding",
+      "type": "string",
+      "enum": ["mp4", "3gp", "ogg", "wmv", "webm", "avi", "flv"],
+      "description": "The encoding type",
+      "examples": [
+        "mp4"
+      ]
+    },
+    "height": {
+      "$id": "/properties/height",
+      "type": "integer",
+      "description": "The height of the video.",
+      "examples": [
+        768
+      ]
+    },
+    "location": {
+      "$id": "/properties/location",
+      "type": "string",
+      "description": "The location of the video.",
+      "examples": [
+        "http://hmhco.com/image.jpg"
+      ]
+    },
+    "size": {
+      "$id": "/properties/size",
+      "type": "integer",
+      "description": "Size in bytes of the video.",
+      "examples": [
+        786432
+      ]
+    },
+    "width": {
+      "$id": "/properties/width",
+      "type": "integer",
+      "description": "The width of the video.",
+      "examples": [
+        1024
+      ]
+    }
+  },
+  "required": [
+    "description",
+    "duration",
+    "encoding",
+    "height",
+    "location",
+    "size",
+    "width"
+  ],
+  "additionalProperties": false
+}
