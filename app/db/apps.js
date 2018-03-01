@@ -6,15 +6,7 @@ import errors from '../models/errors';
 import constants from '../utils/constants';
 
 
-async function setQuota(params) {
-  // Validate required params
-  utils.validateParams(params, ['name']);
-  utils.rejectHiddenApp(params.name);
-
-  if (params.quota === undefined) {
-    throw new Error('Parameter "quota" is required.');
-  }
-
+async function updateQuota(name, quota) {
   try {
     await dynamodbClient.instrumented('put', {
       ConditionExpression: 'attribute_exists(#name)',
@@ -22,8 +14,8 @@ async function setQuota(params) {
         '#name': 'name',
       },
       Item: {
-        name: params.name,
-        quota: params.quota,
+        name,
+        quota,
       },
       ReturnConsumedCapacity: 'TOTAL',
       TableName: nconf.get('database').appsTableName,
@@ -35,6 +27,26 @@ async function setQuota(params) {
     }
     throw err;
   }
+}
+
+async function setQuota(params) {
+  // Validate required params
+  utils.validateParams(params, ['name']);
+  utils.rejectHiddenApp(params.name, errors.codes.ERROR_CODE_INVALID_APP);
+
+  if (params.quota === undefined) {
+    throw new Error('Parameter "quota" is required.');
+  }
+
+  await updateQuota(params.name, params.quota);
+}
+
+async function removeQuota(params) {
+  // Validate required params
+  utils.validateParams(params, ['name']);
+  utils.rejectHiddenApp(params.name, errors.codes.ERROR_CODE_INVALID_APP);
+
+  await updateQuota(params.name, constants.UDS_UNLIMITED_QUOTA);
 }
 
 async function info(params) {
@@ -139,5 +151,6 @@ module.exports = {
   list,
   register,
   remove,
+  removeQuota,
   setQuota,
 };

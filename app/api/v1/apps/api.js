@@ -8,6 +8,7 @@ import listHandler from './list';
 import registerHandler from './register';
 import removeHandler from './remove';
 import setPerUserQuotaHandler from './setPerUserQuota';
+import removePerUserQuotaHandler from './removePerUserQuota';
 
 export default {
   'apps.register': {
@@ -90,6 +91,23 @@ export default {
         optional: false,
         parse: parsers.numbers.parseQuota,
         validate: validators.numbers.validateQuota,
+      },
+    ],
+    metadata: {
+      middleware: [
+        middleware.auth.requireServiceToken,
+        middleware.database.ensureReadConsistency,
+      ],
+    },
+  },
+  'apps.removePerUserQuota': {
+    handler: removePerUserQuotaHandler,
+    args: [
+      {
+        name: 'name',
+        optional: false,
+        parse: parsers.strings.parseString,
+        validate: validators.strings.validateName,
       },
     ],
     metadata: {

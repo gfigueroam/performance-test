@@ -1,0 +1,30 @@
+FORMAT: 1A
+
+# apps.removePerUserQuota
+
+Removes the per-user storage quota on an existing app.
+
+:[](common-args.md url:"apps.removePerUserQuota" token:"Requires a service token.")
+
+| Argument       | Example           | Required  | Description
+|:---            |:---               |:---       |:---
+| `name`         | `browser_client`  | Required  | The name of the app.
+
+## Result
+
+```javascript
+{
+    "ok": true
+}
+```
+
+## Errors
+
+:[](common-errors.md)
+
+| Error                     | Description
+|:---                       |:---
+| `not_authed`              | No authentication token provided.
+| `wrong_token_type`        | This endpoint requires a service token.
+| `invalid_name`            | `name` does not conform to the naming rules.
+| `app_not_found`           | `name` does not name an existing app.

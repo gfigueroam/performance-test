@@ -1,5 +1,6 @@
 import chai from 'chai';
 
+import constants from '../../../../../app/utils/constants';
 import errors from '../../../../../app/models/errors';
 import stringValidators from '../../../../../app/api/validators/strings';
 
@@ -111,6 +112,12 @@ describe('String Validators', () => {
           errors.codes.ERROR_CODE_INVALID_APP,
         );
       });
+    });
+
+    it('should reject internal app names', () => {
+      expect(() => stringValidators.validateApp(constants.HMH_APP)).to.throw(
+        errors.codes.ERROR_CODE_INVALID_APP,
+      );
     });
   });
 

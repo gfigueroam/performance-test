@@ -48,12 +48,14 @@ async function set(params) {
       name: params.app,
     });
 
-    // Enforce quota limits
-    const consumedQuota = await quota.getConsumedQuota.apply(this, [params]);
-    const newQuota = consumedQuota + sizeof(params.data);
-    if (newQuota > appInfo.quota) {
-      this.logger.warn(`App DB: Requested data (${newQuota}) would exceed quota limit (${appInfo.quota})`);
-      throw errors.codes.ERROR_CODE_QUOTA_EXCEEDED;
+    if (appInfo.quota !== constants.UDS_UNLIMITED_QUOTA) {
+      // Enforce quota limits
+      const consumedQuota = await quota.getConsumedQuota.apply(this, [params]);
+      const newQuota = consumedQuota + sizeof(params.data);
+      if (newQuota > appInfo.quota) {
+        this.logger.warn(`App DB: Requested data (${newQuota}) would exceed quota limit (${appInfo.quota})`);
+        throw errors.codes.ERROR_CODE_QUOTA_EXCEEDED;
+      }
     }
   }
 
@@ -133,10 +135,14 @@ async function merge(params) {
       name: params.app,
     });
 
-    // Enforce quota limits
-    const consumedQuota = await quota.getConsumedQuota.apply(this, [params]);
-    if (consumedQuota + sizeof(params.data) > appInfo.quota) {
-      throw errors.codes.ERROR_CODE_QUOTA_EXCEEDED;
+    if (appInfo.quota !== constants.UDS_UNLIMITED_QUOTA) {
+      // Enforce quota limits
+      const consumedQuota = await quota.getConsumedQuota.apply(this, [params]);
+      const newQuota = consumedQuota + sizeof(params.data);
+      if (newQuota > appInfo.quota) {
+        this.logger.warn(`App DB: Requested data (${newQuota}) would exceed quota limit (${appInfo.quota})`);
+        throw errors.codes.ERROR_CODE_QUOTA_EXCEEDED;
+      }
     }
   }
 

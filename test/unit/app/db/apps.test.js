@@ -8,6 +8,7 @@ import sinon from 'sinon';
 import apps from '../../../../app/db/apps';
 import dynamoDBClient from '../../../../app/db/dynamoDBClient';
 
+import constants from '../../../../app/utils/constants';
 import errors from '../../../../app/models/errors';
 
 const expect = chai.expect;
@@ -279,6 +280,17 @@ describe('apps', () => {
       }
     });
 
+    it('throws an error trying to update a system app', async () => {
+      try {
+        const params = { name: constants.CB_APP, quota };
+        await apps.setQuota.call(swatchCtx, params);
+        return Promise.reject();
+      } catch (err) {
+        expect(err).to.equal(errors.codes.ERROR_CODE_INVALID_APP);
+        return Promise.resolve();
+      }
+    });
+
     it('sets the quota correctly', async () => {
       documentClientStub.put.callsFake(params => {
         expect(params).to.have.all.keys(
@@ -297,10 +309,7 @@ describe('apps', () => {
       });
 
       try {
-        const result = await apps.setQuota.apply(swatchCtx, [{
-          name,
-          quota,
-        }]);
+        const result = await apps.setQuota.apply(swatchCtx, [{ name, quota }]);
         expect(result).to.equal(undefined);
       } catch (err) {
         return Promise.reject(err);
@@ -317,6 +326,71 @@ describe('apps', () => {
 
       try {
         await apps.setQuota.apply(swatchCtx, [{ name, quota }]);
+      } catch (err) {
+        expect(err).to.deep.equal(errors.codes.ERROR_CODE_APP_NOT_FOUND);
+        return Promise.resolve();
+      }
+
+      return Promise.reject(new Error('Test should have thrown an error earlier.'));
+    });
+  });
+
+  describe('removeQuota', () => {
+    it('throws an error if "name" is not passed in the params', async () => {
+      try {
+        await apps.removeQuota.apply(swatchCtx, [{ quota }]);
+        return Promise.reject();
+      } catch (err) {
+        return Promise.resolve();
+      }
+    });
+
+    it('throws an error trying to update a system app', async () => {
+      try {
+        const params = { name: constants.HMH_APP, quota };
+        await apps.removeQuota.apply(swatchCtx, [params]);
+        return Promise.reject();
+      } catch (err) {
+        expect(err).to.equal(errors.codes.ERROR_CODE_INVALID_APP);
+        return Promise.resolve();
+      }
+    });
+
+    it('removes the quota correctly', async () => {
+      documentClientStub.put.callsFake(params => {
+        expect(params).to.have.all.keys(
+          'Item',
+          'TableName',
+          'ReturnConsumedCapacity',
+          'ExpressionAttributeNames',
+          'ConditionExpression',
+        );
+        const p = { name, quota: constants.UDS_UNLIMITED_QUOTA };
+        expect(params.Item).to.deep.equal(p);
+        expect(params.ConditionExpression).to.equal('attribute_exists(#name)');
+        return {
+          promise: () => (Promise.resolve()),
+        };
+      });
+
+      try {
+        const result = await apps.removeQuota.apply(swatchCtx, [{ name, quota }]);
+        expect(result).to.equal(undefined);
+      } catch (err) {
+        return Promise.reject(err);
+      }
+
+      return Promise.resolve();
+    });
+
+    it('throws an error if an app does not exist', async () => {
+      documentClientStub.put.callsFake(() => {
+        // App not found in DynamoDB due to the condition expression.
+        throw new Error('The conditional request failed');
+      });
+
+      try {
+        await apps.removeQuota.apply(swatchCtx, [{ name, quota }]);
       } catch (err) {
         expect(err).to.deep.equal(errors.codes.ERROR_CODE_APP_NOT_FOUND);
         return Promise.resolve();

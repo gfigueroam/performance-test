@@ -271,6 +271,24 @@ describe('appData', () => {
         done();
       });
     });
+
+    it('does not enforce quota when app quota is unlimited', (done) => {
+      apps.info.callsFake(params => {
+        expect(params.name).to.equal(app);
+        return Promise.resolve({
+          quota: constants.UDS_UNLIMITED_QUOTA,
+        });
+      });
+
+      appData.set.apply(swatchCtx, [{
+        app,
+        data,
+        key,
+        requestor,
+      }])
+      .then(done)
+      .catch(done);
+    });
   });
 
   describe('merge', () => {
@@ -518,6 +536,26 @@ describe('appData', () => {
         quota.getConsumedQuota.reset();
         done();
       });
+    });
+
+    it('does not enforce quota when app quota is unlimited', (done) => {
+      apps.info.callsFake(params => {
+        expect(params.name).to.equal(app);
+        return Promise.resolve({
+          quota: constants.UDS_UNLIMITED_QUOTA,
+        });
+      });
+
+      appData.merge.apply(swatchCtx, [{
+        app,
+        data: {
+          newKey: 'newValue',
+        },
+        key,
+        requestor,
+      }])
+      .then(done)
+      .catch(done);
     });
   });
 

@@ -3,6 +3,7 @@ export default {
   APPS_LIST: 'api/v1/apps.list',
   APPS_REGISTER: 'api/v1/apps.register',
   APPS_REMOVE: 'api/v1/apps.remove',
+  APPS_REMOVE_PER_USER_QUOTA: 'api/v1/apps.removePerUserQuota',
   APPS_SET_PER_USER_QUOTA: 'api/v1/apps.setPerUserQuota',
 
   AUTHZ_INFO: 'api/v1/authz.info',

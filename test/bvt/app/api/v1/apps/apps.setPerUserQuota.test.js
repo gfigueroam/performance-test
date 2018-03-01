@@ -34,7 +34,7 @@ describe('apps.setPerUserQuota', () => {
       http.sendPostRequestError(path, tokens.serviceToken, {
         name: reservedApp,
         quota: 1111,
-      }, errors.codes.ERROR_CODE_APP_NOT_FOUND, done);
+      }, errors.codes.ERROR_CODE_INVALID_APP, done);
     });
   });
 

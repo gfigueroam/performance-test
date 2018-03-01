@@ -29,6 +29,8 @@ paths:
     $ref: ./docs/swagger/v1/apps/remove.yml
   /api/v1/apps.setPerUserQuota:
     $ref: ./docs/swagger/v1/apps/setPerUserQuota.yml
+  /api/v1/apps.removePerUserQuota:
+    $ref: ./docs/swagger/v1/apps/removePerUserQuota.yml
   /api/v1/authz.info:
     $ref: ./docs/swagger/v1/authz/info.yml
   /api/v1/authz.list:
