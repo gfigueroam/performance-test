@@ -358,14 +358,14 @@ describe('appData', () => {
       apps.info.callsFake(() => ({ quota: 1024 }));
 
       try {
-        await appData.merge({
+        await appData.merge.apply(swatchCtx, [{
           app,
           data: {
             newKey: 'newValue',
           },
           key,
           requestor,
-        });
+        }]);
         return Promise.reject();
       } catch (err) {
         return Promise.resolve();
@@ -753,14 +753,22 @@ describe('appData', () => {
       .catch(done);
     });
 
-    it('calls dynamoDB.get and returns a promisified list of results', (done) => {
-      const expectedResult = [{
-        appData: 'mock-app-data',
+    it('calls dynamoDB.query and returns promisified list of results', (done) => {
+      const item1 = {
+        appData: 'mock-app-data-1',
         appUser: 'mock-app-user',
-        data: 'mock-data',
-        key: 'mock-key',
+        data: 'mock-data-2',
+        key: 'mock-key-1',
         user: 'mock-user',
-      }];
+      };
+      const item2 = {
+        appData: 'mock-app-data-2',
+        appUser: 'mock-app-user',
+        data: 'mock-data-2',
+        key: 'mock-key-2',
+        user: 'mock-user',
+      };
+      const expectedResult = [item1, item2];
 
       apps.info.callsFake(params => {
         expect(params.name).to.equal(app);
@@ -769,23 +777,25 @@ describe('appData', () => {
         });
       });
 
-      documentClientStub.query.callsFake(params => {
-        expect(params.KeyConditions).to.deep.equal({
-          appUser: {
-            AttributeValueList: [`${app}${constants.DELIMITER}${requestor}`],
-            ComparisonOperator: 'EQ',
-          },
-          key: {
-            AttributeValueList: [keyPrefix],
-            ComparisonOperator: 'BEGINS_WITH',
-          },
-        });
+      documentClientStub.query.reset();
+      documentClientStub.query.onCall(0).callsFake(params => {
         expect(params).to.have.all.keys(
           'ConsistentRead', 'KeyConditions', 'ReturnConsumedCapacity', 'TableName',
         );
         return {
           promise: () => (Promise.resolve({
-            Items: expectedResult,
+            Items: [item1],
+            LastEvaluatedKey: 'someExclusiveStartKey2',
+          })),
+        };
+      });
+      documentClientStub.query.onCall(1).callsFake(params => {
+        expect(params).to.have.all.keys(
+          'ConsistentRead', 'ExclusiveStartKey', 'KeyConditions', 'ReturnConsumedCapacity', 'TableName',
+        );
+        return {
+          promise: () => (Promise.resolve({
+            Items: [item2],
           })),
         };
       });

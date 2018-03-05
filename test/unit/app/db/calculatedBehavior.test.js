@@ -582,5 +582,55 @@ describe('calculatedBehavior', () => {
       })
       .catch(done);
     });
+
+    it('calls dynamoDB.query and returns a list of paginated results', (done) => {
+      const item1 = {
+        data: {
+          anotherKey: 'anotherValue',
+          someKey: 'someValue',
+        },
+      };
+      const item2 = {
+        data: {
+          anotherKey: 'someOtherValue',
+        },
+      };
+      const expectedResult = [item1, item2];
+
+      auth.ids.hasAccessTo.returns(true);
+
+      documentClientStub.query.reset();
+      documentClientStub.query.onCall(0).callsFake(params => {
+        expect(params).to.have.all.keys(
+          'ConsistentRead', 'KeyConditions', 'ReturnConsumedCapacity', 'TableName',
+        );
+        return {
+          promise: () => (Promise.resolve({
+            Items: [item1],
+            LastEvaluatedKey: 'someStartKey',
+          })),
+        };
+      });
+      documentClientStub.query.onCall(1).callsFake(params => {
+        expect(params).to.have.all.keys(
+          'ConsistentRead', 'ExclusiveStartKey', 'KeyConditions', 'ReturnConsumedCapacity', 'TableName',
+        );
+        return {
+          promise: () => (Promise.resolve({
+            Items: [item2],
+          })),
+        };
+      });
+
+      calculatedBehavior.query.apply(swatchCtx, [{
+        keyPrefix,
+        requestor,
+      }])
+      .then((items) => {
+        expect(items).to.deep.equal(expectedResult);
+        done();
+      })
+      .catch(done);
+    });
   });
 });
