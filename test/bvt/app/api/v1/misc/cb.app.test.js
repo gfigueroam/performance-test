@@ -57,8 +57,7 @@ describe('cb.app', () => {
 
   it('queries for the new data via data.app endpoint', done => {
     const path = paths.DATA_APP_QUERY;
-    const keyPrefix = 'uds.bvt.cb.app';
-    const params = { app: 'cb', keyPrefix, requestor };
+    const params = { app: 'cb', keyPrefix: key, requestor };
     const result = {
       ok: true,
       result: [{
@@ -73,8 +72,7 @@ describe('cb.app', () => {
 
   it('queries for the new data via data.cb endpoint', done => {
     const path = paths.DATA_CB_QUERY;
-    const keyPrefix = 'uds.bvt.cb.app';
-    const params = { keyPrefix, requestor };
+    const params = { keyPrefix: key, requestor };
     const result = {
       ok: true,
       result: [{
