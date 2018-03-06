@@ -14,6 +14,7 @@ const serviceToken = tokens.serviceToken;
 const params = { name };
 const OK = { ok: true };
 
+
 describe('authz.info', () => {
   after(seed.authz.removeAuthz([name]));
 

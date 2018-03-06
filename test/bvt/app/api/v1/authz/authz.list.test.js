@@ -19,6 +19,7 @@ const twoAuthz = {
   url: `${baseUrl}/2`,
 };
 
+
 describe('authz.list', () => {
   before(async () => {
     await seed.authz.addAuthz(oneAuthz);

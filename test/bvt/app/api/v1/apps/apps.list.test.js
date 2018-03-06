@@ -1,80 +1,88 @@
 import chai from 'chai';
 
+import constants from '../../../../../../app/utils/constants';
+import errors from '../../../../../../app/models/errors';
+
 import http from '../../../../../common/helpers/http';
 import paths from '../../../../../common/helpers/paths';
 import seed from '../../../../../common/seed';
 import tokens from '../../../../../common/helpers/tokens';
-import constants from '../../../../../../app/utils/constants';
 
-const path = paths.APPS_LIST;
 const expect = chai.expect;
 
-const quota = 1024;
 const baseAppName = `uds.bvt.apps.list.test.${seed.buildNumber}`;
-let numNamesUsed = 0;
-const usedNames = [];
 
-function registerNewApp() {
-  return new Promise((resolve, reject) => {
-    usedNames.push(`${baseAppName}.${numNamesUsed}`);
-    numNamesUsed += 1; // ESLint forces this syntax rather than return usedNames[numNamesUsed++];
-    const params = {
-      name: usedNames[numNamesUsed - 1],
-      quota: 1024,
-    };
-    http.sendPostRequestSuccess(paths.APPS_REGISTER, tokens.serviceToken, params, {
-      ok: true,
-    }, err => {
-      if (err) {
-        return reject(err);
-      }
-      return resolve();
+const app1 = `${baseAppName}.0`;
+const app2 = `${baseAppName}.1`;
+const app3 = `${baseAppName}.2`;
+const quota = 1024;
+
+const path = paths.APPS_LIST;
+const token = tokens.serviceToken;
+
+const OK = { ok: true };
+
+
+function validateApps(appNames, nonAppNames, done) {
+  http.sendPostRequest(paths.APPS_LIST, token, {}, (err, res) => {
+    expect(res).to.have.status(200);
+    expect(res.body.ok).to.equal(true);
+
+    // We cannot check the total, because in some environments non-BVT apps may exist
+    //  so just check that all app names listed in 'appNames' are present in result
+    appNames.forEach(name => {
+      expect(res.body.result).to.deep.include({ name, quota });
     });
+
+    // Also check that app names in nonAppNames are not found yet
+    nonAppNames.forEach(name => {
+      expect(res.body.result).not.to.deep.include({ name, quota });
+    });
+
+    // Make sure the built-in apps are not returned
+    [constants.HMH_APP, constants.CB_APP].forEach(name => {
+      expect(res.body.result).not.to.deep.include({ name, quota });
+    });
+    return done(err);
   });
+}
+
+function registerNewApp(name, done) {
+  const registerPath = paths.APPS_REGISTER;
+  const params = { name, quota };
+  http.sendPostRequestSuccess(registerPath, token, params, OK, done);
 }
 
 describe('apps.list', () => {
   after(async () => {
-    await seed.apps.removeApps(usedNames);
+    await seed.apps.removeApps([app1, app2, app3]);
   });
 
-  it('should return the current number of registered apps', done => {
-    function validate() {
-      return new Promise((resolve, reject) => {
-        http.sendPostRequest(path, tokens.serviceToken, {}, (err, response) => {
-          if (err) {
-            return reject(err);
-          }
-          expect(response).to.have.status(200);
-          expect(response.body.ok).to.equal(true);
+  it('should find no registered apps initially', done => {
+    validateApps([], [app1, app2, app3], done);
+  });
 
-          // We cannot check the total, because in some environments non-BVT apps may exist
-          // expect(response.body.result.length).to.equal(usedNames.length);
-          usedNames.forEach((name) => {
-            expect(response.body.result).to.deep.include({
-              name,
-              quota,
-            });
-          });
+  it('should register a single app and retrieve it', done => {
+    registerNewApp(app1, () => {
+      validateApps([app1], [app2, app3], done);
+    });
+  });
 
-          // Make sure the built-in apps are not returned
-          [constants.HMH_APP, constants.CB_APP].forEach((name) => {
-            expect(response.body.result).not.to.deep.include({
-              name,
-              quota,
-            });
-          });
-          return resolve();
-        });
-      });
-    }
-    registerNewApp()
-    .then(validate)
-    .then(registerNewApp)
-    .then(validate)
-    .then(registerNewApp)
-    .then(validate)
-    .then(done)
-    .catch(done);
+  it('should register another app and retrieve both', done => {
+    registerNewApp(app2, () => {
+      validateApps([app1, app2], [app3], done);
+    });
+  });
+
+  it('should register a final app and retrieve them all', done => {
+    registerNewApp(app3, () => {
+      validateApps([app1, app2, app3], [], done);
+    });
+  });
+
+  it('should return an error for a user token', done => {
+    const userToken = tokens.userTokens.internal;
+    const errorCode = errors.codes.ERROR_CODE_WRONG_TOKEN_TYPE;
+    http.sendPostRequestError(path, userToken, {}, errorCode, done);
   });
 });

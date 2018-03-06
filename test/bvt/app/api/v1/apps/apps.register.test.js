@@ -1,133 +1,73 @@
-import chai from 'chai';
-
+import constants from '../../../../../../app/utils/constants';
 import errors from '../../../../../../app/models/errors';
 
 import http from '../../../../../common/helpers/http';
 import paths from '../../../../../common/helpers/paths';
 import seed from '../../../../../common/seed';
 import tokens from '../../../../../common/helpers/tokens';
-import constants from '../../../../../../app/utils/constants';
+
+const name1 = `uds.bvt.apps.register.test.${seed.buildNumber}.1`;
+const name2 = `uds.bvt.apps.register.test.${seed.buildNumber}.2`;
+const quota = 1024;
+
+const OK = { ok: true };
 
 const path = paths.APPS_REGISTER;
-const expect = chai.expect;
+const token = tokens.serviceToken;
 
-const baseAppName = `uds.bvt.apps.register.test.${seed.buildNumber}`;
-const quota = 1024;
-let numNamesUsed = 0;
-const usedNames = [];
-const OK = {
-  ok: true,
-};
-
-function getName() {
-  usedNames.push(`${baseAppName}.${numNamesUsed}`);
-  numNamesUsed += 1; // ESLint forces this syntax rather than return usedNames[numNamesUsed++];
-  return usedNames[numNamesUsed - 1];
-}
 
 describe('apps.register', () => {
   after(async () => {
-    await seed.apps.removeApps(usedNames);
+    await seed.apps.removeApps([name1, name2]);
   });
 
   it('should throw an error for an invalid quota', done => {
-    const params = {
-      name: getName(),
-      quota: 'abc',
-    };
-    const serviceToken = tokens.serviceToken;
+    const params = { name: name1, quota: 'abc' };
     const errorCode = errors.codes.ERROR_CODE_INVALID_QUOTA;
-
-    http.sendPostRequestError(path, serviceToken, params, errorCode, done);
+    http.sendPostRequestError(path, token, params, errorCode, done);
   });
 
   it('should return error when the request has a user token', done => {
-    const params = { name: getName(), quota };
+    const params = { name: name2, quota };
     const userToken = tokens.userTokens.internal;
     const errorCode = errors.codes.ERROR_CODE_WRONG_TOKEN_TYPE;
     http.sendPostRequestError(path, userToken, params, errorCode, done);
   });
 
   it('should successfully register an app', done => {
-    const name = getName();
-    const params = {
-      name,
-      quota,
-    };
-    const serviceToken = tokens.serviceToken;
-
-    http.sendPostRequestSuccess(path, serviceToken, params, OK, (err) => {
-      expect(err).to.equal(null);
-
-      // Make sure the app was stored correctly.
-      http.sendPostRequest(paths.APPS_INFO, serviceToken, {
-        name,
-      }, (error, res) => {
-        expect(error).to.equal(null);
-        expect(res.body).to.deep.equal({
-          ok: true,
-          result: {
-            name,
-            quota,
-          },
-        });
-        done();
-      });
+    const params = { name: name1, quota };
+    http.sendPostRequestSuccess(path, token, params, OK, () => {
+      // Make sure the app was stored correctly
+      const result = {
+        ok: true,
+        result: { name: name1, quota },
+      };
+      http.sendPostRequestSuccess(paths.APPS_INFO, token, { name: name1 }, result, done);
     });
-  });
-
-  it('should allow registering an app with a quota at precisely 1MB', done => {
-    const params = {
-      name: getName(),
-      quota: 1024 * 1024,
-    };
-    const serviceToken = tokens.serviceToken;
-
-    http.sendPostRequestSuccess(path, serviceToken, params, OK, done);
   });
 
   it('should reject registering an app with a quota over 1M', done => {
-    const params = {
-      name: getName(),
-      quota: (1024 * 1024) + 1,
-    };
-    const serviceToken = tokens.serviceToken;
+    const params = { name: name2, quota: (1024 * 1024) + 1 };
     const errorCode = errors.codes.ERROR_CODE_INVALID_QUOTA;
+    http.sendPostRequestError(path, token, params, errorCode, done);
+  });
 
-    http.sendPostRequestError(path, serviceToken, params, errorCode, done);
+  it('should allow registering an app with a quota at precisely 1MB', done => {
+    const params = { name: name2, quota: 1024 * 1024 };
+    http.sendPostRequestSuccess(path, token, params, OK, done);
   });
 
   it('should reject registering an app with a name which is already taken', done => {
-    const params = {
-      name: getName(),
-      quota,
-    };
-    const serviceToken = tokens.serviceToken;
+    const params = { name: name1, quota };
     const errorCode = errors.codes.ERROR_CODE_NAME_IN_USE;
-    http.sendPostRequestSuccess(path, serviceToken, params, OK, err => {
-      expect(err).to.equal(null);
-      // Second call should fail, since it already exists
-      http.sendPostRequestError(path, serviceToken, params, errorCode, done);
+    http.sendPostRequestError(path, token, params, errorCode, done);
+  });
+
+  [constants.HMH_APP, constants.CB_APP].forEach(reservedName => {
+    it(`should reject registering an app with the reserved name "${reservedName}"`, done => {
+      const params = { name: reservedName, quota };
+      const errorCode = errors.codes.ERROR_CODE_INVALID_APP;
+      http.sendPostRequestError(path, token, params, errorCode, done);
     });
-  });
-
-  it(`should reject registering an app with the reserved name "${constants.CB_APP}"`, done => {
-    const params = {
-      name: constants.CB_APP,
-      quota,
-    };
-    const serviceToken = tokens.serviceToken;
-    const errorCode = errors.codes.ERROR_CODE_INVALID_APP;
-    http.sendPostRequestError(path, serviceToken, params, errorCode, done);
-  });
-
-  it(`should reject registering an app with the reserved name "${constants.HMH_APP}"`, done => {
-    const params = {
-      name: constants.HMH_APP,
-      quota,
-    };
-    const serviceToken = tokens.serviceToken;
-    const errorCode = errors.codes.ERROR_CODE_INVALID_APP;
-    http.sendPostRequestError(path, serviceToken, params, errorCode, done);
   });
 });

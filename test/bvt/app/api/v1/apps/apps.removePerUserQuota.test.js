@@ -35,7 +35,7 @@ describe('apps.removePerUserQuota', () => {
     http.sendPostRequestError(path, token, params, errorCode, done);
   });
 
-  [constants.HMH_APP, constants.CB_APP].forEach((reservedApp) => {
+  [constants.HMH_APP, constants.CB_APP].forEach(reservedApp => {
     const errorCode = errors.codes.ERROR_CODE_INVALID_APP;
     it(`should return error for reserved app named "${reservedApp}"`, done => {
       http.sendPostRequestError(path, token, { name: reservedApp }, errorCode, done);

@@ -1,103 +1,67 @@
+import constants from '../../../../../../app/utils/constants';
 import errors from '../../../../../../app/models/errors';
 
 import http from '../../../../../common/helpers/http';
 import paths from '../../../../../common/helpers/paths';
 import seed from '../../../../../common/seed';
 import tokens from '../../../../../common/helpers/tokens';
-import constants from '../../../../../../app/utils/constants';
 
 const quota = 1024;
 const NEW_QUOTA = 2345;
 const name = `uds.bvt.apps.setPerUserQuota.test.${seed.buildNumber}`;
 
 const path = paths.APPS_SET_PER_USER_QUOTA;
+const token = tokens.serviceToken;
+
+const initialParams = { name, quota };
+const newParams = { name, quota: NEW_QUOTA };
+const OK = { ok: true };
+
 
 describe('apps.setPerUserQuota', () => {
-  after((done) => {
-    const params = {
-      name,
-    };
-    http.sendPostRequestSuccess(paths.APPS_REMOVE, tokens.serviceToken, params, {
-      ok: true,
-    }, done);
+  after(done => {
+    http.sendPostRequestSuccess(paths.APPS_REMOVE, token, { name }, OK, done);
   });
 
   it('should return error when there is no app with the given name', done => {
-    http.sendPostRequestError(path, tokens.serviceToken, {
-      name,
-      quota: 1111,
-    }, errors.codes.ERROR_CODE_APP_NOT_FOUND, done);
+    const errorCode = errors.codes.ERROR_CODE_APP_NOT_FOUND;
+    http.sendPostRequestError(path, token, initialParams, errorCode, done);
   });
 
-  [constants.HMH_APP, constants.CB_APP].forEach((reservedApp) => {
+  [constants.HMH_APP, constants.CB_APP].forEach(reservedApp => {
     it(`should return error for reserved app named "${reservedApp}"`, done => {
-      http.sendPostRequestError(path, tokens.serviceToken, {
-        name: reservedApp,
-        quota: 1111,
-      }, errors.codes.ERROR_CODE_INVALID_APP, done);
+      const params = { name: reservedApp, quota };
+      const errorCode = errors.codes.ERROR_CODE_INVALID_APP;
+      http.sendPostRequestError(path, token, params, errorCode, done);
     });
   });
 
   it('should update quota to a valid value', done => {
-    const params = {
-      name,
-      quota,
-    };
-    seed.apps.addApp(params)
-    .then(() => {
-      params.quota = NEW_QUOTA;
-      return new Promise((resolve, reject) => {
-        http.sendPostRequestSuccess(path,
-          tokens.serviceToken, params, {
-            ok: true,
-          }, (err) => {
-            if (err) {
-              return reject(err);
-            }
-            return http.sendPostRequestSuccess(paths.APPS_INFO, tokens.serviceToken, {
-              name,
-            }, {
-              ok: true,
-              result: params,
-            }, (err2) => {
-              if (err2) {
-                return reject(err2);
-              }
-              return resolve();
-            });
-          },
-        );
+    seed.apps.addApp(initialParams).then(() => {
+      http.sendPostRequestSuccess(path, token, newParams, OK, () => {
+        const result = { ok: true, result: newParams };
+        http.sendPostRequestSuccess(paths.APPS_INFO, token, { name }, result, done);
       });
     })
-    .then(done)
     .catch(done);
   });
 
   it('should return error when the request has a user token', done => {
-    const params = { name, quota };
     const userToken = tokens.userTokens.internal;
     const errorCode = errors.codes.ERROR_CODE_WRONG_TOKEN_TYPE;
-    http.sendPostRequestError(path, userToken, params, errorCode, done);
+    http.sendPostRequestError(path, userToken, initialParams, errorCode, done);
   });
 
   it('should fail to update quota if quota is too high', done => {
-    const params = {
-      name,
-      quota,
-    };
-    params.quota = (1024 * 1024) + 1;
-    http.sendPostRequestError(path, tokens.serviceToken,
-      params, errors.codes.ERROR_CODE_INVALID_QUOTA, () => (
-        http.sendPostRequestSuccess(paths.APPS_INFO, tokens.serviceToken, {
-          name,
-        }, {
-          ok: true,
-          result: {
-            name,
-            quota: NEW_QUOTA,
-          },
-        },
-        done)
-      ));
+    const largeQuota = (1024 * 1024) + 1;
+    const largeParams = { name, quota: largeQuota };
+    const errorCode = errors.codes.ERROR_CODE_INVALID_QUOTA;
+    http.sendPostRequestError(path, token, largeParams, errorCode, () => {
+      http.sendPostRequestSuccess(paths.APPS_INFO, token, { name }, {
+        ok: true,
+        result: newParams,
+      },
+      done);
+    });
   });
 });

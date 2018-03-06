@@ -1,15 +1,54 @@
+import constants from '../../../../../../app/utils/constants';
 import errors from '../../../../../../app/models/errors';
+
 import http from '../../../../../common/helpers/http';
 import paths from '../../../../../common/helpers/paths';
+import seed from '../../../../../common/seed';
 import tokens from '../../../../../common/helpers/tokens';
-import constants from '../../../../../../app/utils/constants';
+
+const name = `uds.bvt.apps.remove.test.${seed.buildNumber}`;
+const quota = 1024;
+
+const path = paths.APPS_REMOVE;
+const token = tokens.serviceToken;
+
+const OK = { ok: true };
+
 
 describe('apps.remove', () => {
-  [constants.HMH_APP, constants.CB_APP].forEach((reservedApp) => {
-    it(`should return error for reserved app named "${reservedApp}"`, done => {
-      http.sendPostRequestError(paths.APPS_REMOVE, tokens.serviceToken, {
-        name: reservedApp,
-      }, errors.codes.ERROR_CODE_APP_NOT_FOUND, done);
+  before(async () => {
+    await seed.apps.addApp({ name, quota });
+  });
+
+  it('should return an error when the app name is invalid', done => {
+    const params = { name: '*not_valid*.fail#' };
+    const errorCode = errors.codes.ERROR_CODE_INVALID_NAME;
+    http.sendPostRequestError(path, token, params, errorCode, done);
+  });
+
+  it('should silently do nothing when an app does not exist', done => {
+    http.sendPostRequestSuccess(path, token, { name: 'nope' }, OK, done);
+  });
+
+  it('should return an error when a user token is found', done => {
+    const userToken = tokens.userTokens.internal;
+    const errorCode = errors.codes.ERROR_CODE_WRONG_TOKEN_TYPE;
+    http.sendPostRequestError(path, userToken, { name }, errorCode, done);
+  });
+
+  it('should successfully remove an app by name', done => {
+    http.sendPostRequestSuccess(path, token, { name }, OK, done);
+  });
+
+  it('should silently do nothing when the app no longer exists', done => {
+    http.sendPostRequestSuccess(path, token, { name }, OK, done);
+  });
+
+  [constants.HMH_APP, constants.CB_APP].forEach(reservedName => {
+    it(`should return error for reserved app named "${reservedName}"`, done => {
+      const params = { name: reservedName };
+      const errorCode = errors.codes.ERROR_CODE_APP_NOT_FOUND;
+      http.sendPostRequestError(path, token, params, errorCode, done);
     });
   });
 });

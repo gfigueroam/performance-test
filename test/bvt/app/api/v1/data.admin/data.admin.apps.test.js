@@ -1,13 +1,9 @@
-import chai from 'chai';
-
 import errors from '../../../../../../app/models/errors';
 
 import http from '../../../../../common/helpers/http';
 import seed from '../../../../../common/seed';
 import paths from '../../../../../common/helpers/paths';
 import tokens from '../../../../../common/helpers/tokens';
-
-const expect = chai.expect;
 
 const app1 = `uds.bvt.data.admin.apps.app.${seed.buildNumber}.1`;
 const app2 = `uds.bvt.data.admin.apps.app.${seed.buildNumber}.2`;
@@ -21,6 +17,8 @@ const data = {
 };
 
 const path = paths.DATA_ADMIN_APPS;
+const token = tokens.serviceToken;
+
 
 describe('data.admin.apps', () => {
   before(async () => {
@@ -46,38 +44,32 @@ describe('data.admin.apps', () => {
     http.sendPostRequestError(path, userToken, params, errorCode, done);
   });
 
-  it('returns an empty array when the user has no app data', (done) => {
-    http.sendPostRequest(path, tokens.serviceToken, {
-      user,
-    }, (err, response) => {
-      expect(err).to.equal(null);
-      expect(response.body).to.deep.equal({
-        ok: true,
-        result: [],
-      });
-      done();
-    });
+  it('should return error when the user param is invalid', done => {
+    const params = { user: '' };
+    const errorCode = errors.codes.ERROR_CODE_INVALID_USER;
+    http.sendPostRequestError(path, token, params, errorCode, done);
   });
 
-  it('returns an empty array when the user has only has user data', (done) => {
+  it('returns an empty array when the user has no app data', done => {
+    const result = { ok: true, result: [] };
+    http.sendPostRequestSuccess(path, token, { user }, result, done);
+  });
+
+  it('returns an empty array when the user has only has user data', done => {
     seed.user.set({
       data: 'some text data',
       key: key1,
       type: 'text',
       user,
     }, () => {
-      http.sendPostRequest(path, tokens.serviceToken, { user }, (err, response) => {
-        expect(err).to.equal(null);
-        expect(response.body).to.deep.equal({
-          ok: true,
-          result: [],
-        });
+      const result = { ok: true, result: [] };
+      http.sendPostRequestSuccess(path, token, { user }, result, () => {
         seed.user.unset({ key: key1, user }, done);
       });
     });
   });
 
-  it('returns a single app when the user has only one app with data', (done) => {
+  it('returns a single app when the user has only one app with data', done => {
     // Store some app data.
     seed.app.add({
       app: app1,
@@ -85,18 +77,12 @@ describe('data.admin.apps', () => {
       key: key1,
       user,
     }).then(() => {
-      http.sendPostRequest(path, tokens.serviceToken, { user }, (err, response) => {
-        expect(err).to.equal(null);
-        expect(response.body).to.deep.equal({
-          ok: true,
-          result: [app1],
-        });
-        done();
-      });
+      const result = { ok: true, result: [app1] };
+      http.sendPostRequestSuccess(path, token, { user }, result, done);
     }).catch(done);
   });
 
-  it('returns a single app even if the user has multiple keys stored under the app', (done) => {
+  it('returns a single app even if the user has multiple keys stored under the app', done => {
     // Store some app data.
     seed.app.add({
       app: app1,
@@ -104,40 +90,20 @@ describe('data.admin.apps', () => {
       key: key2,
       user,
     }).then(() => {
-      http.sendPostRequest(path, tokens.serviceToken, {
-        user,
-      }, (err, response) => {
-        expect(err).to.equal(null);
-        expect(response.body).to.deep.equal({
-          ok: true,
-          result: [app1],
-        });
-        done();
-      });
+      const result = { ok: true, result: [app1] };
+      http.sendPostRequestSuccess(path, token, { user }, result, done);
     }).catch(done);
   });
 
-  it('returns multiple apps when the user has data in each', async () => {
-    await seed.app.add({
+  it('returns multiple apps when the user has data in each', done => {
+    seed.app.add({
       app: app2,
       data,
       key: key1,
       user,
-    });
-    await new Promise((resolve, reject) => {
-      http.sendPostRequest(path, tokens.serviceToken, {
-        user,
-      }, (err, response) => {
-        if (err) {
-          return reject(err);
-        }
-        expect(err).to.equal(null);
-        expect(response.body).to.deep.equal({
-          ok: true,
-          result: [app1, app2],
-        });
-        return resolve();
-      });
-    });
+    }).then(() => {
+      const result = { ok: true, result: [app1, app2] };
+      http.sendPostRequestSuccess(path, token, { user }, result, done);
+    }).catch(done);
   });
 });
