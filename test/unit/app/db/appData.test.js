@@ -8,7 +8,7 @@ import auth from '../../../../app/auth';
 import appData from '../../../../app/db/appData';
 import quota from '../../../../app/db/quota';
 import apps from '../../../../app/db/apps';
-import dynamoDBClient from '../../../../app/db/dynamoDBClient';
+import dynamoDBClient from '../../../../app/db/client';
 import nconf from '../../../../app/config';
 import constants from '../../../../app/utils/constants';
 import errors from '../../../../app/models/errors';

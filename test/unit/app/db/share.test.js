@@ -9,7 +9,7 @@ import logger from '../../../../app/monitoring/logger';
 import share from '../../../../app/db/share';
 
 import authz from '../../../../app/authz';
-import dynamoDBClient from '../../../../app/db/dynamoDBClient';
+import dynamoDBClient from '../../../../app/db/client';
 import userDB from '../../../../app/db/userData';
 
 const expect = chai.expect;

@@ -5,7 +5,7 @@ import sizeof from 'object-sizeof';
 
 import auth from '../../../../app/auth';
 import quota from '../../../../app/db/quota';
-import dynamoDBClient from '../../../../app/db/dynamoDBClient';
+import dynamoDBClient from '../../../../app/db/client';
 
 const expect = chai.expect;
 

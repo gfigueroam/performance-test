@@ -5,7 +5,7 @@ import sinon from 'sinon';
 // We import authz before we set the DocumentClient stub because
 //  authz uses lazy initialization. See details within authz.js
 import authz from '../../../../app/db/authz';
-import dynamoDBClient from '../../../../app/db/dynamoDBClient';
+import dynamoDBClient from '../../../../app/db/client';
 
 import errors from '../../../../app/models/errors';
 

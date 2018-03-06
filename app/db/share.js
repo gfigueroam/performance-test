@@ -5,7 +5,7 @@ import constants from '../utils/constants';
 import errors from '../models/errors';
 import nconf from '../config';
 
-import dynamodbClient from './dynamoDBClient';
+import dynamodbClient from './client';
 import userDB from './userData';
 import utils from './utils';
 

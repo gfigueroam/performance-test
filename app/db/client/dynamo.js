@@ -1,30 +1,38 @@
 import AWS from 'aws-sdk';
-import Prometheus from 'prom-client';
-import util from 'util';
 
-import nconf from '../config';
-import labels from '../metrics/labels';
-import logger from '../monitoring/logger';
-
-// Track the duration of DB queries to biuld summary
-const labelKeys = Object.keys(labels);
-
-const queryDuration = new Prometheus.Summary(
-  'db_query_duration_seconds',
-  'DB Query Duration',
-  labelKeys.concat(['table', 'action']),
-);
-
-const consumedCapacityCount = new Prometheus.Counter(
-  'db_consumed_capacity_units',
-  'DB Consumed Capacity',
-  labelKeys.concat(['table', 'type']),
-);
+import nconf from '../../config';
+import logger from '../../monitoring/logger';
 
 
 let dynamodb;
 
-async function createDynamoDBClient() {
+async function initClient() {
+  // This forces lazy initialization of the dynamodb DocumentClient.
+  // We need to do this to support unit testing, since in a unit test we
+  // want to mock the DocumentClient constructor in the unit test before
+  // the constructor is called below. Normally we could do the following in
+  // the unit test file:
+  //
+  // sinon.stub(AWS.DynamoDB, 'DocumentClient');
+  // const calculatedBehavior = require('../calculatedBehavior');
+  //
+  // The above works fine. However UDS uses babel, and we tend to use
+  // import in favor of require, which makes the above look like:
+  //
+  // sinon.stub(AWS.DynamoDB, 'DocumentClient');
+  // import calculatedBehavior from '../calculatedBehavior';
+  //
+  // The problem here is babel. It transpiles the ES6 import syntax into a
+  // require, and in doing so, it places the require *above* the sinon.stub
+  // call, so if we did not use this lazy initialization of the DocumentClient
+  // we would end up calling the un-mocked constructor and life would be sad
+  // for the author trying to write the unit test.
+  //
+  // We could also initialize a new DocumentClient({...}) in each call. A quick
+  // test indicates the constructor call takes 0.07ms on average (measured
+  // across 100,000 calls on a ~2011 Macbook Air). However, there's no reason
+  // to pay the tax if we do not need to.
+  //
   const dynamoDbParams = {
     apiVersion: nconf.get('database').apiVersion,
     region: nconf.get('database').region,
@@ -53,7 +61,7 @@ async function createDynamoDBClient() {
       dynamoDbParams.sessionToken = assumedData.Credentials.SessionToken;
 
       // Re-create the DynamoDB client 100 seconds before the credentials expire.
-      setTimeout(createDynamoDBClient, 3500);
+      setTimeout(initClient, 3500);
     } catch (err) {
       logger.error(`Unable to assume IAM role with STS Params ${stsParams}`, err);
       throw err;
@@ -78,15 +86,7 @@ async function createDynamoDBClient() {
   dynamodb = new AWS.DynamoDB.DocumentClient(dynamoDbParams);
 }
 
-function getCapacityType(action) {
-  const readActions = ['get', 'query', 'scan'];
-  if (readActions.includes(action)) {
-    return 'read';
-  }
-  return 'write';
-}
-
-async function instrumented(action, params) {
+async function getClient() {
   // This forces lazy initialization of the dynamodb DocumentClient.
   // We need to do this to support unit testing, since in a unit test we
   // want to mock the DocumentClient constructor in the unit test before
@@ -113,49 +113,13 @@ async function instrumented(action, params) {
   // across 100,000 calls on a ~2011 Macbook Air). However, there's no reason
   // to pay the tax if we do not need to.
   //
-
   if (!dynamodb) {
-    await createDynamoDBClient();
+    await initClient();
   }
 
-  // Use built-in timer to track query duration for DB request
-  const table = params.TableName;
-  const dbLabels = Object.assign(
-    {},
-    labels,
-    { table },
-  );
-
-  const queryLabels = Object.assign(
-    {},
-    dbLabels,
-    { action },
-  );
-  const endQueryDuration = queryDuration.startTimer(queryLabels);
-
-  // Execute query and await response
-  const result = await dynamodb[action](params).promise();
-
-  // Mark the completed query duration and add to summary
-  endQueryDuration();
-
-  // Increment the consumed capacity based on result of query
-  const type = getCapacityType(action);
-  const capLabels = Object.assign(
-    {},
-    dbLabels,
-    { type },
-  );
-
-  const capacityObj = result.ConsumedCapacity || {};
-  const consumedCapacity = capacityObj.CapacityUnits || 1;
-  consumedCapacityCount.inc(capLabels, consumedCapacity);
-
-  logger.info(`ConsumedCapacity for Dynamo query: ${util.inspect(result.ConsumedCapacity)}`);
-
-  return result;
+  return dynamodb;
 }
 
-module.exports = {
-  instrumented,
+export default {
+  getClient,
 };

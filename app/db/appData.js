@@ -1,7 +1,7 @@
 import sizeof from 'object-sizeof';
 
 import apps from './apps';
-import dynamodbClient from './dynamoDBClient';
+import dynamodbClient from './client';
 import utils from './utils';
 
 import constants from '../utils/constants';

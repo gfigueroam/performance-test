@@ -6,7 +6,7 @@ import sinon from 'sinon';
 // because calculatedBehavior uses lazy initialization. See details within
 // calculatedBehavior.js
 import calculatedBehavior from '../../../../app/db/calculatedBehavior';
-import dynamoDBClient from '../../../../app/db/dynamoDBClient';
+import dynamoDBClient from '../../../../app/db/client';
 
 import auth from '../../../../app/auth';
 import errors from '../../../../app/models/errors';

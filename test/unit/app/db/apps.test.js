@@ -6,7 +6,7 @@ import sinon from 'sinon';
 // because apps uses lazy initialization. See details within
 // apps.js
 import apps from '../../../../app/db/apps';
-import dynamoDBClient from '../../../../app/db/dynamoDBClient';
+import dynamoDBClient from '../../../../app/db/client';
 
 import constants from '../../../../app/utils/constants';
 import errors from '../../../../app/models/errors';
