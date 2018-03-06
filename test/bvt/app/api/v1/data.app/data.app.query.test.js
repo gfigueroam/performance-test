@@ -1,5 +1,3 @@
-import chai from 'chai';
-
 import errors from '../../../../../../app/models/errors';
 
 import http from '../../../../../common/helpers/http';
@@ -7,8 +5,6 @@ import seed from '../../../../../common/seed';
 import paths from '../../../../../common/helpers/paths';
 import tokens from '../../../../../common/helpers/tokens';
 import constants from '../../../../../../app/utils/constants';
-
-const expect = chai.expect;
 
 const keyPrefix = `uds.bvt.data.app.query.test.${seed.buildNumber}`;
 const key1 = `uds.bvt.data.app.query.some.other.test.${seed.buildNumber}.value.1`;
@@ -19,7 +15,8 @@ const app2 = `uds.bvt.data.app.query.app.${seed.buildNumber}.2`;
 const requestor = 'data.app.query.test.requestor.1';
 
 const path = paths.DATA_APP_QUERY;
-const serviceToken = tokens.serviceToken;
+const token = tokens.serviceToken;
+
 
 describe('data.app.query', () => {
   before(async () => {
@@ -82,21 +79,21 @@ describe('data.app.query', () => {
     const params = { app: app2, requestor };
     const errorCode = 'missing_arg';
     const errorDetails = 'Required argument "keyPrefix" missing.';
-    http.sendPostRequestErrorDetails(path, serviceToken, params, errorCode, errorDetails, done);
+    http.sendPostRequestErrorDetails(path, token, params, errorCode, errorDetails, done);
   });
 
   it('fails if the "app" parameter is not present', done => {
     const params = { keyPrefix, requestor };
     const errorCode = 'missing_arg';
     const errorDetails = 'Required argument "app" missing.';
-    http.sendPostRequestErrorDetails(path, serviceToken, params, errorCode, errorDetails, done);
+    http.sendPostRequestErrorDetails(path, token, params, errorCode, errorDetails, done);
   });
 
   it('fails if the "requestor" parameter is not present when using a service token', done => {
     const params = { app: app1, keyPrefix };
     const errorCode = 'missing_arg';
     const errorDetails = 'Required argument "requestor" missing.';
-    http.sendPostRequestErrorDetails(path, serviceToken, params, errorCode, errorDetails, done);
+    http.sendPostRequestErrorDetails(path, token, params, errorCode, errorDetails, done);
   });
 
   it('fails if the "owner" parameter doesnt match "requestor" parameter', done => {
@@ -107,29 +104,24 @@ describe('data.app.query', () => {
       requestor,
     };
     const errorCode = errors.codes.ERROR_CODE_AUTH_INVALID;
-    http.sendPostRequestError(path, serviceToken, params, errorCode, done);
+    http.sendPostRequestError(path, token, params, errorCode, done);
   });
 
   it('fails if the "app" does not exist', done => {
     const params = { app: 'none', keyPrefix, requestor };
     const errorCode = errors.codes.ERROR_CODE_APP_NOT_FOUND;
-    http.sendPostRequestError(path, serviceToken, params, errorCode, done);
+    http.sendPostRequestError(path, token, params, errorCode, done);
   });
 
-  [constants.HMH_APP].forEach((reservedApp) => {
-    it(`throws invalid_app when the app is the reserved app "${reservedApp}"`, (done) => {
-      http.sendPostRequest(path, tokens.serviceToken, {
+  [constants.HMH_APP].forEach(reservedApp => {
+    it(`throws invalid_app when the app is the reserved app "${reservedApp}"`, done => {
+      const params = {
         app: reservedApp,
         keyPrefix,
         requestor,
-      }, (err, response) => {
-        expect(err).to.equal(null);
-        expect(response.body).to.deep.equal({
-          error: errors.codes.ERROR_CODE_INVALID_APP,
-          ok: false,
-        });
-        done();
-      });
+      };
+      const errorCode = errors.codes.ERROR_CODE_INVALID_APP;
+      http.sendPostRequestError(path, token, params, errorCode, done);
     });
   });
 
@@ -140,7 +132,7 @@ describe('data.app.query', () => {
       requestor,
     };
     const result = { ok: true, result: [] };
-    http.sendPostRequestSuccess(path, serviceToken, params, result, done);
+    http.sendPostRequestSuccess(path, token, params, result, done);
   });
 
   it('returns a list of results that match keyPrefix and app', done => {
@@ -156,7 +148,7 @@ describe('data.app.query', () => {
         },
       ],
     };
-    http.sendPostRequestSuccess(path, serviceToken, params, result, done);
+    http.sendPostRequestSuccess(path, token, params, result, done);
   });
 
   it('returns a list of results that match keyPrefix and the other app', done => {
@@ -172,6 +164,6 @@ describe('data.app.query', () => {
         },
       ],
     };
-    http.sendPostRequestSuccess(path, serviceToken, params, result, done);
+    http.sendPostRequestSuccess(path, token, params, result, done);
   });
 });

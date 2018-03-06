@@ -11,7 +11,7 @@ import tokens from '../../../../../common/helpers/tokens';
 const expect = chai.expect;
 
 const path = paths.DATA_USER_UNSHARE;
-const serviceToken = tokens.serviceToken;
+const token = tokens.serviceToken;
 
 const key = `uds.bvt.data.user.unshare.test.${seed.buildNumber}`;
 const data = 'authz.unshare.test.data';
@@ -23,7 +23,7 @@ let shareId;
 
 
 describe('data.user.unshare', () => {
-  before((done) => {
+  before(done => {
     seed.user.set({
       data,
       key,
@@ -32,7 +32,7 @@ describe('data.user.unshare', () => {
     }, done);
   });
 
-  after((done) => {
+  after(done => {
     seed.user.unset({
       key,
       user: requestor,
@@ -47,17 +47,17 @@ describe('data.user.unshare', () => {
   it('should return error when the share id is invalid', done => {
     const params = { id: 'some.share.id.1' };
     const errorCode = errors.codes.ERROR_CODE_INVALID_SHARE_ID;
-    http.sendPostRequestError(path, serviceToken, params, errorCode, done);
+    http.sendPostRequestError(path, token, params, errorCode, done);
   });
 
   it('should return error when the share id does not exist', done => {
     const params = { id: uuid.v4(), requestor };
     const errorCode = errors.codes.ERROR_CODE_SHARE_ID_NOT_FOUND;
-    http.sendPostRequestError(path, serviceToken, params, errorCode, done);
+    http.sendPostRequestError(path, token, params, errorCode, done);
   });
 
-  it('shares an existing data value correctly with a unique id', (done) => {
-    http.sendPostRequest(paths.DATA_USER_SHARE, serviceToken, {
+  it('shares an existing data value correctly with a unique id', done => {
+    http.sendPostRequest(paths.DATA_USER_SHARE, token, {
       authz,
       ctx,
       key,
@@ -76,12 +76,12 @@ describe('data.user.unshare', () => {
   it('should return error when requestor does not have access', done => {
     const params = { id: shareId, owner: 'different.user.account', requestor };
     const errorCode = errors.codes.ERROR_CODE_AUTH_INVALID;
-    http.sendPostRequestError(path, serviceToken, params, errorCode, done);
+    http.sendPostRequestError(path, token, params, errorCode, done);
   });
 
-  it('unshares a piece of content by share id', (done) => {
+  it('unshares a piece of content by share id', done => {
     const params = { id: shareId, requestor };
-    http.sendPostRequest(path, serviceToken, params, (err, response) => {
+    http.sendPostRequest(path, token, params, (err, response) => {
       expect(err).to.equal(null);
       expect(response.body).to.deep.equal({ ok: true });
       done();
@@ -91,6 +91,6 @@ describe('data.user.unshare', () => {
   it('should return error after an item has already been unshared', done => {
     const params = { id: shareId, requestor };
     const errorCode = errors.codes.ERROR_CODE_SHARE_ID_NOT_FOUND;
-    http.sendPostRequestError(path, serviceToken, params, errorCode, done);
+    http.sendPostRequestError(path, token, params, errorCode, done);
   });
 });

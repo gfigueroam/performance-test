@@ -1,73 +1,48 @@
 import chai from 'chai';
 
+import errors from '../../../../../../app/models/errors';
+
+import cb from '../../../../../common/helpers/cb';
 import http from '../../../../../common/helpers/http';
 import seed from '../../../../../common/seed';
 import paths from '../../../../../common/helpers/paths';
 import tokens from '../../../../../common/helpers/tokens';
-import errors from '../../../../../../app/models/errors';
 
 const expect = chai.expect;
 
 const key = `uds.bvt.data.cb.set.test.${seed.buildNumber}`;
 const requestor = 'data.admin.test.requestor.1';
+const params = { key, requestor };
+
+const path = paths.DATA_CB_UNSET;
+const token = tokens.serviceToken;
+const OK = { ok: true };
+
 
 describe('data.cb.unset', () => {
-  function store(value) {
-    return new Promise((resolve, reject) => {
-      http.sendPostRequestSuccess(paths.DATA_CB_SET, tokens.serviceToken, {
-        data: value,
-        key,
-        requestor,
-      }, { ok: true }, (err) => {
-        if (err) {
-          return reject(err);
-        }
-        return resolve();
-      });
-    });
-  }
+  const store = cb.store(token, key, requestor);
+  const retrieve = cb.retrieve(token, params);
 
   function unset() {
     return new Promise((resolve, reject) => {
-      http.sendPostRequestSuccess(paths.DATA_CB_UNSET, tokens.serviceToken, {
-        key,
-        requestor,
-      }, { ok: true }, (err) => {
+      http.sendPostRequestSuccess(paths.DATA_CB_UNSET, token, params, OK, err => {
         if (err) {
           return reject(err);
         }
         return resolve();
-      });
-    });
-  }
-
-  function retrieve() {
-    return new Promise((resolve, reject) => {
-      http.sendPostRequest(paths.DATA_CB_GET, tokens.serviceToken, {
-        key,
-        requestor,
-      }, (err, res) => {
-        if (err) {
-          return reject(err);
-        }
-        if (!res.ok) {
-          return reject(new Error(res.error));
-        }
-        return resolve(res.body);
       });
     });
   }
 
   it('fails if the "requestor" parameter is not present while using a service token', done => {
-    http.sendPostRequestError(paths.DATA_CB_UNSET, tokens.serviceToken, {
-      key,
-    }, errors.codes.ERROR_CODE_USER_NOT_FOUND, done);
+    const errorCode = errors.codes.ERROR_CODE_USER_NOT_FOUND;
+    http.sendPostRequestError(path, token, { key }, errorCode, done);
   });
 
   it('fails if the "key" parameter is not present', done => {
-    http.sendPostRequestErrorDetails(paths.DATA_CB_UNSET, tokens.serviceToken, {
-      requestor,
-    }, 'missing_arg', 'Required argument "key" missing.', done);
+    const errorCode = errors.codes.ERROR_CODE_MISSING_ARG;
+    const errorDetails = 'Required argument "key" missing.';
+    http.sendPostRequestErrorDetails(path, token, { requestor }, errorCode, errorDetails, done);
   });
 
   it('unsets a boolean value', done => {
@@ -79,9 +54,7 @@ describe('data.cb.unset', () => {
     .then(unset)
     .then(retrieve)
     .then((retrieved => {
-      expect(retrieved).to.deep.equal({
-        ok: true,
-      });
+      expect(retrieved).to.deep.equal(OK);
       done();
     }))
     .catch(done);
@@ -96,9 +69,7 @@ describe('data.cb.unset', () => {
     .then(unset)
     .then(retrieve)
     .then((retrieved => {
-      expect(retrieved).to.deep.equal({
-        ok: true,
-      });
+      expect(retrieved).to.deep.equal(OK);
       done();
     }))
     .catch(done);
@@ -113,9 +84,7 @@ describe('data.cb.unset', () => {
     .then(unset)
     .then(retrieve)
     .then((retrieved => {
-      expect(retrieved).to.deep.equal({
-        ok: true,
-      });
+      expect(retrieved).to.deep.equal(OK);
       done();
     }))
     .catch(done);
@@ -130,9 +99,7 @@ describe('data.cb.unset', () => {
     .then(unset)
     .then(retrieve)
     .then((retrieved => {
-      expect(retrieved).to.deep.equal({
-        ok: true,
-      });
+      expect(retrieved).to.deep.equal(OK);
       done();
     }))
     .catch(done);
@@ -159,9 +126,7 @@ describe('data.cb.unset', () => {
     .then(unset)
     .then(retrieve)
     .then((retrieved => {
-      expect(retrieved).to.deep.equal({
-        ok: true,
-      });
+      expect(retrieved).to.deep.equal(OK);
       done();
     }))
     .catch(done);

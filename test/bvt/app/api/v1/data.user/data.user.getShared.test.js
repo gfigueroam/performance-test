@@ -10,9 +10,6 @@ import tokens from '../../../../../common/helpers/tokens';
 
 const expect = chai.expect;
 
-const path = paths.DATA_USER_GET_SHARED;
-const serviceToken = tokens.serviceToken;
-
 const key = `uds.bvt.data.user.getShared.test.${seed.buildNumber}`;
 const data = 'authz.getShared.test.data';
 const type = 'text';
@@ -21,11 +18,17 @@ const ctx = 'authz.getShared.test.ctx.1';
 const requestor = 'data.user.getShared.test.requestor.1';
 const shareRequestor = 'data.user.getShared.test.requestor.2';
 
+const path = paths.DATA_USER_GET_SHARED;
+const token = tokens.serviceToken;
+
+const OK = { ok: true };
+
 let allowShareId;
 let denyShareId;
 
+
 describe('data.user.getShared', () => {
-  before((done) => {
+  before(done => {
     seed.user.set({
       data,
       key,
@@ -34,7 +37,7 @@ describe('data.user.getShared', () => {
     }, done);
   });
 
-  after((done) => {
+  after(done => {
     seed.user.unshare({
       id: allowShareId,
       user: requestor,
@@ -57,12 +60,12 @@ describe('data.user.getShared', () => {
       requestor: shareRequestor,
     };
     const errorCode = errors.codes.ERROR_CODE_INVALID_SHARE_ID;
-    http.sendPostRequestError(path, serviceToken, params, errorCode, done);
+    http.sendPostRequestError(path, token, params, errorCode, done);
   });
 
-  it('shares an existing data value correctly with a unique id', (done) => {
+  it('shares an existing data value correctly with a unique id', done => {
     const params = { authz, ctx, key, requestor };
-    http.sendPostRequest(paths.DATA_USER_SHARE, serviceToken, params, (err, response) => {
+    http.sendPostRequest(paths.DATA_USER_SHARE, token, params, (err, response) => {
       expect(err).to.equal(null);
       expect(response.body.ok).to.equal(true);
 
@@ -73,9 +76,9 @@ describe('data.user.getShared', () => {
     });
   });
 
-  it('shares an existing data value correctly with a different authz', (done) => {
+  it('shares an existing data value correctly with a different authz', done => {
     const params = { authz: 'uds_authz_deny', ctx, key, requestor };
-    http.sendPostRequest(paths.DATA_USER_SHARE, serviceToken, params, (err, response) => {
+    http.sendPostRequest(paths.DATA_USER_SHARE, token, params, (err, response) => {
       expect(err).to.equal(null);
       expect(response.body.ok).to.equal(true);
 
@@ -91,12 +94,7 @@ describe('data.user.getShared', () => {
       id: uuid.v4(),
       requestor: shareRequestor,
     };
-    http.sendPostRequest(path, serviceToken, params, (err, response) => {
-      expect(err).to.equal(null);
-      expect(response.body).to.deep.equal({ ok: true });
-
-      done();
-    });
+    http.sendPostRequestSuccess(path, token, params, OK, done);
   });
 
   it('should return error when authz is denied', done => {
@@ -105,26 +103,23 @@ describe('data.user.getShared', () => {
       requestor: shareRequestor,
     };
     const errorCode = errors.codes.ERROR_CODE_AUTHZ_ACCESS_DENIED;
-    http.sendPostRequestError(path, serviceToken, params, errorCode, done);
+    http.sendPostRequestError(path, token, params, errorCode, done);
   });
 
-  it('retrieves a shared piece of content by share id', (done) => {
+  it('retrieves a shared piece of content by share id', done => {
     const params = {
       id: allowShareId,
       requestor: shareRequestor,
     };
-    http.sendPostRequest(path, serviceToken, params, (err, response) => {
-      expect(err).to.equal(null);
-      expect(response.body).to.deep.equal({
-        ok: true,
-        result: { data, key, type },
-      });
-      done();
-    });
+    const result = {
+      ok: true,
+      result: { data, key, type },
+    };
+    http.sendPostRequestSuccess(path, token, params, result, done);
   });
 
   it('should return an error when the data content is removed', done => {
-    seed.user.unset({ key, user: requestor }, (unsetError) => {
+    seed.user.unset({ key, user: requestor }, unsetError => {
       if (unsetError) {
         done(unsetError);
       } else {
@@ -132,12 +127,7 @@ describe('data.user.getShared', () => {
           id: allowShareId,
           requestor: shareRequestor,
         };
-        http.sendPostRequest(path, serviceToken, params, (err, response) => {
-          expect(err).to.equal(null);
-          expect(response.body).to.deep.equal({ ok: true });
-
-          done();
-        });
+        http.sendPostRequestSuccess(path, token, params, OK, done);
       }
     });
   });

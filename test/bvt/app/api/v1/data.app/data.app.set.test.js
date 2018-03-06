@@ -1,4 +1,3 @@
-import chai from 'chai';
 import sizeof from 'object-sizeof';
 
 import http from '../../../../../common/helpers/http';
@@ -7,8 +6,6 @@ import paths from '../../../../../common/helpers/paths';
 import tokens from '../../../../../common/helpers/tokens';
 import errors from '../../../../../../app/models/errors';
 import constants from '../../../../../../app/utils/constants';
-
-const expect = chai.expect;
 
 const app = `uds.bvt.data.app.set.app.${seed.buildNumber}`;
 const key = `uds.bvt.data.app.set.test.${seed.buildNumber}`;
@@ -65,7 +62,7 @@ describe('data.app.set', () => {
     await seed.apps.removeApps([app]);
   });
 
-  it('throws invalid_app when the app contains invalid characters', (done) => {
+  it('throws invalid_app when the app contains invalid characters', done => {
     const params = {
       app: 'invalid-app-name',
       data,
@@ -77,7 +74,7 @@ describe('data.app.set', () => {
   });
 
   [constants.HMH_APP].forEach((reservedApp) => {
-    it(`throws invalid_app when the app is the reserved app "${reservedApp}"`, (done) => {
+    it(`throws invalid_app when the app is the reserved app "${reservedApp}"`, done => {
       const params = {
         app: reservedApp,
         data,
@@ -89,7 +86,7 @@ describe('data.app.set', () => {
     });
   });
 
-  it('throws app_not_found when the app has not been registered in the system', (done) => {
+  it('throws app_not_found when the app has not been registered in the system', done => {
     const params = {
       app: 'non.existent.app',
       data,
@@ -100,7 +97,7 @@ describe('data.app.set', () => {
     http.sendPostRequestError(path, token, params, errorCode, done);
   });
 
-  it('throws an error when data is not JSON', (done) => {
+  it('throws an error when data is not JSON', done => {
     const params = {
       app,
       data: 'some invalid data',
@@ -111,92 +108,63 @@ describe('data.app.set', () => {
     http.sendPostRequestError(path, token, params, errorCode, done);
   });
 
-  it('successfully stores data', (done) => {
-    http.sendPostRequest(path, token, {
-      app,
-      data,
-      key,
-      requestor,
-    }, (err, response) => {
-      expect(err).to.equal(null);
-      expect(response.body).to.deep.equal({
+  it('successfully stores data', done => {
+    const params = { app, data, key, requestor };
+    http.sendPostRequestSuccess(path, token, params, OK, () => {
+      const result = {
         ok: true,
-      });
-
-      http.sendPostRequest(paths.DATA_APP_GET, token, {
-        app,
-        key,
-        requestor,
-      }, (err2, response2) => {
-        expect(err2).to.equal(null);
-        expect(response2.body).to.deep.equal({
-          ok: true,
-          result: {
-            createdBy: requestor,
-            data,
-            key,
-          },
-        });
-        done();
-      });
+        result: {
+          createdBy: requestor,
+          data,
+          key,
+        },
+      };
+      const getParams = { app, key, requestor };
+      http.sendPostRequestSuccess(paths.DATA_APP_GET, token, getParams, result, done);
     });
   });
 
-  it('will not store data if the new data exceeds the quota by itself', (done) => {
-    http.sendPostRequest(path, token, {
+  it('will not store data if the new data exceeds the quota by itself', done => {
+    const params = {
       app,
       data: largeData,
       key,
       requestor,
-    }, (err, response) => {
-      expect(err).to.equal(null);
-      expect(response.body).to.deep.equal({
-        error: errors.codes.ERROR_CODE_QUOTA_EXCEEDED,
-        ok: false,
-      });
-      done();
-    });
+    };
+    const errorCode = errors.codes.ERROR_CODE_QUOTA_EXCEEDED;
+    http.sendPostRequestError(path, token, params, errorCode, done);
   });
 
-  it('will not store data if the new data plus previously stored data exceeds the quota', (done) => {
+  it('will not store data if the new data plus previously stored data exceeds the quota', done => {
     // Since data is just less than half of the quota, we should be able to store it once.
     // A second store would theoretically take up less than the quota, except we
     // consider the other fields to count against quota
     // (eg, appKey, apprequestor, requestor, and key).
     // Those add just enough overhead that a second attempt to store will fail.
-    http.sendPostRequest(path, token, {
+    const params = {
       app,
       data: halfQuotaData,
       key,
       requestor: `${requestor}.2`,
-    }, (err, response) => {
-      expect(err).to.equal(null);
-      expect(response.body).to.deep.equal({
-        ok: true,
-      });
-
-      http.sendPostRequest(path, token, {
+    };
+    http.sendPostRequestSuccess(path, token, params, OK, () => {
+      const errorParams = {
         app,
         data: halfQuotaData,
         key: `${key}.2`,
         requestor: `${requestor}.2`,
-      }, (err2, response2) => {
-        expect(err2).to.equal(null);
-        expect(response2.body).to.deep.equal({
-          error: errors.codes.ERROR_CODE_QUOTA_EXCEEDED,
-          ok: false,
-        });
-        done();
-      });
+      };
+      const errorCode = errors.codes.ERROR_CODE_QUOTA_EXCEEDED;
+      http.sendPostRequestError(path, token, errorParams, errorCode, done);
     });
   });
 
-  it('can remove the user quota from the app', (done) => {
+  it('can remove the user quota from the app', done => {
     const p = paths.APPS_REMOVE_PER_USER_QUOTA;
     http.sendPostRequestSuccess(p, token, { name: app }, OK, done);
   });
 
-  it('will store large data if the app quota has been removed', (done) => {
+  it('will store large data if the app quota has been removed', done => {
     const params = {
       app,
       data: largeData,

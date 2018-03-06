@@ -1,90 +1,68 @@
 import chai from 'chai';
 
+import errors from '../../../../../../app/models/errors';
+
+import cb from '../../../../../common/helpers/cb';
 import http from '../../../../../common/helpers/http';
 import seed from '../../../../../common/seed';
 import paths from '../../../../../common/helpers/paths';
 import tokens from '../../../../../common/helpers/tokens';
-import errors from '../../../../../../app/models/errors';
 
 const expect = chai.expect;
 
 const key = `uds.bvt.data.cb.merge.test.${seed.buildNumber}`;
 const requestor = `data.admin.test.requestor.${seed.buildNumber}`;
+const params = { key, requestor };
+
+const path = paths.DATA_CB_MERGE;
+const token = tokens.serviceToken;
+const OK = { ok: true };
+
 
 describe('data.cb.merge', () => {
-  after((done) => {
+  const store = cb.store(token, key, requestor);
+  const retrieve = cb.retrieve(token, params);
+
+  after(done => {
     seed.calculatedBehavior.unset({
       key,
       user: requestor,
     }, done);
   });
 
-  function store(value) {
-    return new Promise((resolve, reject) => {
-      http.sendPostRequestSuccess(paths.DATA_CB_SET, tokens.serviceToken, {
-        data: value,
-        key,
-        requestor,
-      }, { ok: true }, (err) => {
-        if (err) {
-          return reject(err);
-        }
-        return resolve();
-      });
-    });
-  }
-
   function merge(data) {
     return new Promise((resolve, reject) => {
-      http.sendPostRequestSuccess(paths.DATA_CB_MERGE, tokens.serviceToken, {
+      http.sendPostRequestSuccess(path, token, {
         data,
         key,
         requestor,
-      }, { ok: true }, (err) => {
+      }, OK, err => {
         if (err) {
           return reject(err);
         }
         return resolve();
-      });
-    });
-  }
-
-  function retrieve() {
-    return new Promise((resolve, reject) => {
-      http.sendPostRequest(paths.DATA_CB_GET, tokens.serviceToken, {
-        key,
-        requestor,
-      }, (err, res) => {
-        if (err) {
-          return reject(err);
-        }
-        if (!res.ok) {
-          return reject(new Error(res.error));
-        }
-        return resolve(res.body);
       });
     });
   }
 
   it('fails if the "key" parameter is not present', done => {
-    http.sendPostRequestErrorDetails(paths.DATA_CB_MERGE, tokens.serviceToken, {
-      data: {},
-      requestor,
-    }, 'missing_arg', 'Required argument "key" missing.', done);
+    const invalidParams = { data: {}, requestor };
+    const errorCode = errors.codes.ERROR_CODE_MISSING_ARG;
+    const errorDetails = 'Required argument "key" missing.';
+    http.sendPostRequestErrorDetails(path, token, invalidParams, errorCode, errorDetails, done);
   });
 
   it('fails if the "requestor" parameter is not present while using a service token', done => {
-    http.sendPostRequestError(paths.DATA_CB_MERGE, tokens.serviceToken, {
-      data: {},
-      key,
-    }, errors.codes.ERROR_CODE_USER_NOT_FOUND, done);
+    const invalidParams = { data: {}, key };
+    const errorCode = errors.codes.ERROR_CODE_USER_NOT_FOUND;
+    http.sendPostRequestError(path, token, invalidParams, errorCode, done);
   });
 
   it('fails if the "data" parameter is not present', done => {
-    http.sendPostRequestErrorDetails(paths.DATA_CB_MERGE, tokens.serviceToken, {
-      key,
-      requestor,
-    }, 'missing_arg', 'Required argument "data" missing.', done);
+    const invalidParams = { key, requestor };
+    const errorCode = errors.codes.ERROR_CODE_MISSING_ARG;
+    const errorDetails = 'Required argument "data" missing.';
+    http.sendPostRequestErrorDetails(path, token, invalidParams, errorCode, errorDetails, done);
   });
 
   it('merges correctly when there is no pre-existing value', done => {
@@ -150,7 +128,7 @@ describe('data.cb.merge', () => {
       // Delay to allow propagation of merged change. This appears to be necessary
       // on the local DynamoDB even if ConsistentRead is set to true on retrieve
       // operations
-      return new Promise((resolve) => {
+      return new Promise(resolve => {
         setTimeout(resolve, DELAY);
       });
     })
@@ -194,13 +172,13 @@ describe('data.cb.merge', () => {
       // Delay to allow propagation of merged change. This appears to be necessary
       // on the local DynamoDB even if ConsistentRead is set to true on retrieve
       // operations
-      return new Promise((resolve) => {
+      return new Promise(resolve => {
         setTimeout(resolve, DELAY);
       });
     })
     /* eslint-enable arrow-body-style */
     .then(retrieve)
-    .then((retrieved) => {
+    .then(retrieved => {
       expect(retrieved.result.data).to.deep.equal({
         aBoolean: false,
         aListOfBooleans: [true, false],
@@ -224,80 +202,56 @@ describe('data.cb.merge', () => {
     .catch(done);
   });
 
-  it('fails when the existing value is a boolean', done => {
-    store(true)
+  function testMergeError(initialValue, data, errorCode, done) {
+    // Helper function to store some initial data value and then attempt
+    //  to merge a new data value where the type does not match and fails
+    store(initialValue)
     .then(() => {
-      http.sendPostRequestError(paths.DATA_CB_MERGE, tokens.serviceToken, {
-        data: {},
+      http.sendPostRequestError(path, token, {
+        data,
         key,
         requestor,
-      }, errors.codes.ERROR_CODE_INVALID_DATA_TYPE, done);
+      }, errorCode, done);
     });
+  }
+
+  function testMergeDataTypeError(initialValue, done) {
+    // Try to merge an empty object into an existing non-object value
+    const errorCode = errors.codes.ERROR_CODE_INVALID_DATA_TYPE;
+    testMergeError(initialValue, {}, errorCode, done);
+  }
+
+  it('fails when the existing value is a boolean', done => {
+    testMergeDataTypeError(true, done);
   });
 
   it('fails when the existing value is a string', done => {
-    store('string value')
-    .then(() => {
-      http.sendPostRequestError(paths.DATA_CB_MERGE, tokens.serviceToken, {
-        data: {},
-        key,
-        requestor,
-      }, errors.codes.ERROR_CODE_INVALID_DATA_TYPE, done);
-    });
+    testMergeDataTypeError('string value', done);
   });
 
   it('fails when the existing value is a number', done => {
-    store(4)
-    .then(() => {
-      http.sendPostRequestError(paths.DATA_CB_MERGE, tokens.serviceToken, {
-        data: {},
-        key,
-        requestor,
-      }, errors.codes.ERROR_CODE_INVALID_DATA_TYPE, done);
-    });
+    testMergeDataTypeError(4, done);
   });
 
+  function testMergeDataError(data, done) {
+    // Try to merge a non-object value into an existing object
+    const errorCode = errors.codes.ERROR_CODE_INVALID_DATA;
+    testMergeError({}, data, errorCode, done);
+  }
+
   it('fails when the new data is a number', done => {
-    store({})
-    .then(() => {
-      http.sendPostRequestError(paths.DATA_CB_MERGE, tokens.serviceToken, {
-        data: 4,
-        key,
-        requestor,
-      }, errors.codes.ERROR_CODE_INVALID_DATA, done);
-    });
+    testMergeDataError(4, done);
   });
 
   it('fails when the new data is a boolean', done => {
-    store({})
-    .then(() => {
-      http.sendPostRequestError(paths.DATA_CB_MERGE, tokens.serviceToken, {
-        data: true,
-        key,
-        requestor,
-      }, errors.codes.ERROR_CODE_INVALID_DATA, done);
-    });
+    testMergeDataError(true, done);
   });
 
   it('fails when the new data is a float', done => {
-    store({})
-    .then(() => {
-      http.sendPostRequestError(paths.DATA_CB_MERGE, tokens.serviceToken, {
-        data: 12.45,
-        key,
-        requestor,
-      }, errors.codes.ERROR_CODE_INVALID_DATA, done);
-    });
+    testMergeDataError(12.45, done);
   });
 
   it('fails when the new data is a string', done => {
-    store({})
-    .then(() => {
-      http.sendPostRequestError(paths.DATA_CB_MERGE, tokens.serviceToken, {
-        data: 'some string that we are trying to merge',
-        key,
-        requestor,
-      }, errors.codes.ERROR_CODE_INVALID_DATA, done);
-    });
+    testMergeDataError('some string that we are trying to merge', done);
   });
 });

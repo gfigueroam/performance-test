@@ -12,10 +12,11 @@ const key3 = `${keyPrefix}.key.3`;
 const requestor = 'data.user.query.test.requestor.1';
 
 const path = paths.DATA_USER_QUERY;
-const serviceToken = tokens.serviceToken;
+const token = tokens.serviceToken;
+
 
 describe('data.user.query', () => {
-  before((done) => {
+  before(done => {
     seed.user.set({
       data: 'value 1',
       key: key1,
@@ -38,7 +39,7 @@ describe('data.user.query', () => {
     });
   });
 
-  after((done) => {
+  after(done => {
     seed.user.unset({
       key: key1,
       user: requestor,
@@ -65,19 +66,19 @@ describe('data.user.query', () => {
     const params = { requestor };
     const errorCode = 'missing_arg';
     const errorDetails = 'Required argument "keyPrefix" missing.';
-    http.sendPostRequestErrorDetails(path, serviceToken, params, errorCode, errorDetails, done);
+    http.sendPostRequestErrorDetails(path, token, params, errorCode, errorDetails, done);
   });
 
   it('fails if the "requestor" parameter is not present when using a service token', done => {
     const params = { keyPrefix };
     const errorCode = errors.codes.ERROR_CODE_USER_NOT_FOUND;
-    http.sendPostRequestError(path, serviceToken, params, errorCode, done);
+    http.sendPostRequestError(path, token, params, errorCode, done);
   });
 
   it('returns an empty list when no values match keyPrefix', done => {
     const params = { keyPrefix: 'something.else', requestor };
     const result = { ok: true, result: [] };
-    http.sendPostRequestSuccess(path, serviceToken, params, result, done);
+    http.sendPostRequestSuccess(path, token, params, result, done);
   });
 
   it('fails if the "owner" parameter doesnt match "requestor" parameter', done => {
@@ -87,7 +88,7 @@ describe('data.user.query', () => {
       requestor,
     };
     const errorCode = errors.codes.ERROR_CODE_AUTH_INVALID;
-    http.sendPostRequestError(path, serviceToken, params, errorCode, done);
+    http.sendPostRequestError(path, token, params, errorCode, done);
   });
 
   it('returns a list of results that match keyPrefix', done => {
@@ -109,6 +110,6 @@ describe('data.user.query', () => {
         },
       ],
     };
-    http.sendPostRequestSuccess(path, serviceToken, params, result, done);
+    http.sendPostRequestSuccess(path, token, params, result, done);
   });
 });

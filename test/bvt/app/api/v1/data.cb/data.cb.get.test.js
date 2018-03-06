@@ -1,66 +1,44 @@
 import chai from 'chai';
 
+import errors from '../../../../../../app/models/errors';
+
+import cb from '../../../../../common/helpers/cb';
 import http from '../../../../../common/helpers/http';
 import seed from '../../../../../common/seed';
 import paths from '../../../../../common/helpers/paths';
 import tokens from '../../../../../common/helpers/tokens';
-import errors from '../../../../../../app/models/errors';
 
 const expect = chai.expect;
 
 const key = `uds.bvt.data.cb.get.test.${seed.buildNumber}`;
 const requestor = 'data.admin.test.requestor.1';
+const params = { key, requestor };
+
+const path = paths.DATA_CB_GET;
+const token = tokens.serviceToken;
+const OK = { ok: true };
+
 
 describe('data.cb.get', () => {
-  after((done) => {
+  const store = cb.store(token, key, requestor);
+  const retrieve = cb.retrieve(token, params);
+
+  after(done => {
     seed.calculatedBehavior.unset({
       key,
       user: requestor,
     }, done);
   });
 
-  function store(value) {
-    return new Promise((resolve, reject) => {
-      http.sendPostRequestSuccess(paths.DATA_CB_SET, tokens.serviceToken, {
-        data: value,
-        key,
-        requestor,
-      }, { ok: true }, (err) => {
-        if (err) {
-          return reject(err);
-        }
-        return resolve();
-      });
-    });
-  }
-
-  function retrieve() {
-    return new Promise((resolve, reject) => {
-      http.sendPostRequest(paths.DATA_CB_GET, tokens.serviceToken, {
-        key,
-        requestor,
-      }, (err, res) => {
-        if (err) {
-          return reject(err);
-        }
-        if (!res.ok) {
-          return reject(new Error(res.error));
-        }
-        return resolve(res.body);
-      });
-    });
-  }
-
   it('fails if the "requestor" parameter is not present when using a service token', done => {
-    http.sendPostRequestError(paths.DATA_CB_GET, tokens.serviceToken, {
-      key,
-    }, errors.codes.ERROR_CODE_USER_NOT_FOUND, done);
+    const errorCode = errors.codes.ERROR_CODE_USER_NOT_FOUND;
+    http.sendPostRequestError(path, token, { key }, errorCode, done);
   });
 
   it('fails if the "key" parameter is not present', done => {
-    http.sendPostRequestErrorDetails(paths.DATA_CB_GET, tokens.serviceToken, {
-      requestor,
-    }, 'missing_arg', 'Required argument "key" missing.', done);
+    const errorCode = errors.codes.ERROR_CODE_MISSING_ARG;
+    const errorDetails = 'Required argument "key" missing.';
+    http.sendPostRequestErrorDetails(path, token, { requestor }, errorCode, errorDetails, done);
   });
 
   it('returns a stored boolean value', done => {
@@ -127,49 +105,29 @@ describe('data.cb.get', () => {
   });
 
   it('returns an error when the key contains invalid chars', done => {
-    new Promise((resolve, reject) => {
-      http.sendPostRequest(paths.DATA_CB_GET, tokens.serviceToken, {
-        key: 'invalid-key',
-        requestor,
-      }, (err, res) => {
-        if (err) {
-          return reject(err);
-        }
-        if (!res.ok) {
-          return reject(new Error(res.error));
-        }
-        return resolve(res.body);
-      });
-    }).then((response) => {
-      expect(response).to.deep.equal({
-        error: errors.codes.ERROR_CODE_INVALID_KEY,
-        ok: false,
-      });
-      done();
-    });
+    const invalidParams = {
+      key: 'invalid-key',
+      requestor,
+    };
+    const errorCode = errors.codes.ERROR_CODE_INVALID_KEY;
+    http.sendPostRequestError(path, token, invalidParams, errorCode, done);
+  });
+
+  it('returns an error when owner does not match requestor', done => {
+    const invalidParams = {
+      key,
+      owner: 'data.admin.test.owner.1',
+      requestor,
+    };
+    const errorCode = errors.codes.ERROR_CODE_AUTH_INVALID;
+    http.sendPostRequestError(path, token, invalidParams, errorCode, done);
   });
 
   it('returns undefined when there is no existing value', done => {
-    new Promise((resolve, reject) => {
-      http.sendPostRequest(paths.DATA_CB_GET, tokens.serviceToken, {
-        key: 'non.existent.bvt.key',
-        requestor,
-      }, (err, res) => {
-        if (err) {
-          return reject(err);
-        }
-        if (!res.ok) {
-          return reject(new Error(res.error));
-        }
-        return resolve(res.body);
-      });
-    })
-    .then((response) => {
-      expect(response).to.deep.equal({
-        ok: true,
-      });
-      done();
-    })
-    .catch(done);
+    const invalidParams = {
+      key: 'non.existent.bvt.key',
+      requestor,
+    };
+    http.sendPostRequestSuccess(path, token, invalidParams, OK, done);
   });
 });

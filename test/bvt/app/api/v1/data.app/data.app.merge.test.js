@@ -1,14 +1,12 @@
 import sizeof from 'object-sizeof';
-import chai from 'chai';
+
+import constants from '../../../../../../app/utils/constants';
+import errors from '../../../../../../app/models/errors';
 
 import http from '../../../../../common/helpers/http';
 import seed from '../../../../../common/seed';
 import paths from '../../../../../common/helpers/paths';
 import tokens from '../../../../../common/helpers/tokens';
-import errors from '../../../../../../app/models/errors';
-import constants from '../../../../../../app/utils/constants';
-
-const expect = chai.expect;
 
 const app = `uds.bvt.data.app.merge.app.${seed.buildNumber}`;
 const key = `uds.bvt.data.app.merge.test.${seed.buildNumber}`;
@@ -66,7 +64,7 @@ describe('data.app.merge', () => {
     await seed.apps.removeApps([app]);
   });
 
-  it('throws invalid_app when the app contains invalid characters', (done) => {
+  it('throws invalid_app when the app contains invalid characters', done => {
     const params = {
       app: 'invalid-app-name',
       data,
@@ -77,8 +75,8 @@ describe('data.app.merge', () => {
     http.sendPostRequestError(path, token, params, errorCode, done);
   });
 
-  [constants.HMH_APP].forEach((reservedApp) => {
-    it(`throws invalid_app when the app is the reserved app "${reservedApp}"`, (done) => {
+  [constants.HMH_APP].forEach(reservedApp => {
+    it(`throws invalid_app when the app is the reserved app "${reservedApp}"`, done => {
       const params = {
         app: reservedApp,
         data,
@@ -90,7 +88,7 @@ describe('data.app.merge', () => {
     });
   });
 
-  it('throws app_not_found when the app has not been registered in the system', (done) => {
+  it('throws app_not_found when the app has not been registered in the system', done => {
     const params = {
       app: 'non.existent.app',
       data,
@@ -101,7 +99,7 @@ describe('data.app.merge', () => {
     http.sendPostRequestError(path, token, params, errorCode, done);
   });
 
-  it('throws an error when data is not JSON', (done) => {
+  it('throws an error when data is not JSON', done => {
     const params = {
       app,
       data: 'some invalid data',
@@ -112,37 +110,24 @@ describe('data.app.merge', () => {
     http.sendPostRequestError(path, token, params, errorCode, done);
   });
 
-  it('successfully stores when there is nothing previously stored', (done) => {
-    http.sendPostRequest(path, token, {
-      app,
-      data,
-      key,
-      requestor,
-    }, (err, response) => {
-      expect(err).to.equal(null);
-      expect(response.body).to.deep.equal({ ok: true });
-
-      http.sendPostRequest(paths.DATA_APP_GET, token, {
-        app,
-        key,
-        requestor,
-      }, (err2, response2) => {
-        expect(err2).to.equal(null);
-        expect(response2.body).to.deep.equal({
-          ok: true,
-          result: {
-            createdBy: requestor,
-            data,
-            key,
-          },
-        });
-        done();
-      });
+  it('successfully stores when there is nothing previously stored', done => {
+    const params = { app, data, key, requestor };
+    http.sendPostRequestSuccess(path, token, params, OK, () => {
+      const getParams = { app, key, requestor };
+      const result = {
+        ok: true,
+        result: {
+          createdBy: requestor,
+          data,
+          key,
+        },
+      };
+      http.sendPostRequestSuccess(paths.DATA_APP_GET, token, getParams, result, done);
     });
   });
 
-  it('successfully merges a new key into the existing data', (done) => {
-    http.sendPostRequest(path, token, {
+  it('successfully merges a new key into the existing data', done => {
+    const params = {
       app,
       data: {
         key4: {
@@ -151,39 +136,31 @@ describe('data.app.merge', () => {
       },
       key,
       requestor,
-    }, (err, response) => {
-      expect(err).to.equal(null);
-      expect(response.body).to.deep.equal({ ok: true });
-
-      http.sendPostRequest(paths.DATA_APP_GET, token, {
-        app,
-        key,
-        requestor,
-      }, (err2, response2) => {
-        expect(err2).to.equal(null);
-        expect(response2.body).to.deep.equal({
-          ok: true,
-          result: {
-            createdBy: requestor,
-            data: {
-              key1: data.key1,
-              key2: data.key2,
-              key3: data.key3,
-              key4: {
-                s: 'some string here',
-              },
+    };
+    http.sendPostRequestSuccess(path, token, params, OK, () => {
+      const getParams = { app, key, requestor };
+      const result = {
+        ok: true,
+        result: {
+          createdBy: requestor,
+          data: {
+            key1: data.key1,
+            key2: data.key2,
+            key3: data.key3,
+            key4: {
+              s: 'some string here',
             },
-            key,
-            updatedBy: requestor,
           },
-        });
-        done();
-      });
+          key,
+          updatedBy: requestor,
+        },
+      };
+      http.sendPostRequestSuccess(paths.DATA_APP_GET, token, getParams, result, done);
     });
   });
 
-  it('successfully overwrites an existing key within existing data', (done) => {
-    http.sendPostRequest(path, token, {
+  it('successfully overwrites an existing key within existing data', done => {
+    const params = {
       app,
       data: {
         key4: {
@@ -192,39 +169,31 @@ describe('data.app.merge', () => {
       },
       key,
       requestor,
-    }, (err, response) => {
-      expect(err).to.equal(null);
-      expect(response.body).to.deep.equal({ ok: true });
-
-      http.sendPostRequest(paths.DATA_APP_GET, token, {
-        app,
-        key,
-        requestor,
-      }, (err2, response2) => {
-        expect(err2).to.equal(null);
-        expect(response2.body).to.deep.equal({
-          ok: true,
-          result: {
-            createdBy: requestor,
-            data: {
-              key1: data.key1,
-              key2: data.key2,
-              key3: data.key3,
-              key4: {
-                b: true,
-              },
+    };
+    http.sendPostRequestSuccess(path, token, params, OK, () => {
+      const getParams = { app, key, requestor };
+      const result = {
+        ok: true,
+        result: {
+          createdBy: requestor,
+          data: {
+            key1: data.key1,
+            key2: data.key2,
+            key3: data.key3,
+            key4: {
+              b: true,
             },
-            key,
-            updatedBy: requestor,
           },
-        });
-        done();
-      });
+          key,
+          updatedBy: requestor,
+        },
+      };
+      http.sendPostRequestSuccess(paths.DATA_APP_GET, token, getParams, result, done);
     });
   });
 
-  it('successfully overwrites an existing key and adds a new one within existing data', (done) => {
-    http.sendPostRequest(path, token, {
+  it('successfully overwrites an existing key and adds a new one within existing data', done => {
+    const params = {
       app,
       data: {
         key4: {
@@ -234,91 +203,64 @@ describe('data.app.merge', () => {
       },
       key,
       requestor,
-    }, (err, response) => {
-      expect(err).to.equal(null);
-      expect(response.body).to.deep.equal({ ok: true });
-
-      http.sendPostRequest(paths.DATA_APP_GET, token, {
-        app,
-        key,
-        requestor,
-      }, (err2, response2) => {
-        expect(err2).to.equal(null);
-        expect(response2.body).to.deep.equal({
-          ok: true,
-          result: {
-            createdBy: requestor,
-            data: {
-              key1: data.key1,
-              key2: data.key2,
-              key3: data.key3,
-              key4: {
-                i: 7,
-              },
-              key5: 'whatever',
+    };
+    http.sendPostRequestSuccess(path, token, params, OK, () => {
+      const getParams = { app, key, requestor };
+      const result = {
+        ok: true,
+        result: {
+          createdBy: requestor,
+          data: {
+            key1: data.key1,
+            key2: data.key2,
+            key3: data.key3,
+            key4: {
+              i: 7,
             },
-            key,
-            updatedBy: requestor,
+            key5: 'whatever',
           },
-        });
-        done();
-      });
+          key,
+          updatedBy: requestor,
+        },
+      };
+      http.sendPostRequestSuccess(paths.DATA_APP_GET, token, getParams, result, done);
     });
   });
 
-  it('will not store data if the new data exceeds the quota by itself', (done) => {
-    http.sendPostRequest(path, token, {
+  it('will not store data if the new data exceeds the quota by itself', done => {
+    const params = {
       app,
       data: largeData,
       key,
       requestor,
-    }, (err, response) => {
-      expect(err).to.equal(null);
-      expect(response.body).to.deep.equal({
-        error: errors.codes.ERROR_CODE_QUOTA_EXCEEDED,
-        ok: false,
-      });
-      done();
-    });
+    };
+    const errorCode = errors.codes.ERROR_CODE_QUOTA_EXCEEDED;
+    http.sendPostRequestError(path, token, params, errorCode, done);
   });
 
-  it('will not store data if the new data plus previously stored data exceeds the quota', (done) => {
+  it('will not store data if the new data plus previously stored data exceeds the quota', done => {
     // Since data is just less than half of the quota, we should be able to store it once.
     // A second store would theoretically take up less than the quota, except we
-    // consider the other fields to count against quota
-    // (eg, appKey, apprequestor, requestor, and key).
+    // consider the other fields to count against quota (eg, appKey, appRequestor, key, ...)
     // Those add just enough overhead that a second attempt to store will fail.
-    http.sendPostRequest(path, token, {
+    const params = {
       app,
       data: halfQuotaData,
       key,
       requestor: `${requestor}.2`,
-    }, (err, response) => {
-      expect(err).to.equal(null);
-      expect(response.body).to.deep.equal({ ok: true });
-
-      http.sendPostRequest(path, token, {
-        app,
-        data: halfQuotaData,
-        key,
-        requestor: `${requestor}.2`,
-      }, (err2, response2) => {
-        expect(err2).to.equal(null);
-        expect(response2.body).to.deep.equal({
-          error: errors.codes.ERROR_CODE_QUOTA_EXCEEDED,
-          ok: false,
-        });
-        done();
-      });
+    };
+    http.sendPostRequestSuccess(path, token, params, OK, () => {
+      const errorCode = errors.codes.ERROR_CODE_QUOTA_EXCEEDED;
+      http.sendPostRequestError(path, token, params, errorCode, done);
     });
   });
 
-  it('can remove the user quota from the app', (done) => {
+  it('can remove the user quota from the app', done => {
     const p = paths.APPS_REMOVE_PER_USER_QUOTA;
     http.sendPostRequestSuccess(p, token, { name: app }, OK, done);
   });
 
-  it('will store large data if the app quota has been removed', (done) => {
+  it('will store large data if the app quota has been removed', done => {
     const params = {
       app,
       data: largeData,

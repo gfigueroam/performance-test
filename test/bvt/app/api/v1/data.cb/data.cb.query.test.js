@@ -16,8 +16,13 @@ const key2 = `${keyPrefix}.key.2`;
 const key3 = `uds.bvt.data.cb.query.some.other.test.${seed.buildNumber}.value.3`;
 const requestor = 'data.cb.query.test.requestor.1';
 
+const path = paths.DATA_CB_QUERY;
+const token = tokens.serviceToken;
+const OK = { ok: true };
+
+
 describe('data.cb.query', () => {
-  after((done) => {
+  after(done => {
     seed.calculatedBehavior.unset({
       key: key1,
       user: requestor,
@@ -36,11 +41,11 @@ describe('data.cb.query', () => {
 
   function store(key, value) {
     return new Promise((resolve, reject) => {
-      http.sendPostRequestSuccess(paths.DATA_CB_SET, tokens.serviceToken, {
+      http.sendPostRequestSuccess(paths.DATA_CB_SET, token, {
         data: value,
         key,
         requestor,
-      }, { ok: true }, (err) => {
+      }, OK, err => {
         if (err) {
           return reject(err);
         }
@@ -51,7 +56,7 @@ describe('data.cb.query', () => {
 
   function retrieve(prefix) {
     return new Promise((resolve, reject) => {
-      http.sendPostRequest(paths.DATA_CB_QUERY, tokens.serviceToken, {
+      http.sendPostRequest(path, token, {
         keyPrefix: prefix,
         requestor,
       }, (err, res) => {
@@ -69,19 +74,18 @@ describe('data.cb.query', () => {
   it('fails if the request has no auth token', done => {
     const params = { keyPrefix, requestor };
     const errorCode = errors.codes.ERROR_CODE_AUTH_NO_TOKEN;
-    http.sendPostRequestError(paths.DATA_CB_QUERY, '', params, errorCode, done);
+    http.sendPostRequestError(path, '', params, errorCode, done);
   });
 
   it('fails if the "keyPrefix" parameter is not present', done => {
-    http.sendPostRequestErrorDetails(paths.DATA_CB_QUERY, tokens.serviceToken, {
-      requestor,
-    }, 'missing_arg', 'Required argument "keyPrefix" missing.', done);
+    const errorCode = errors.codes.ERROR_CODE_MISSING_ARG;
+    const errorDetails = 'Required argument "keyPrefix" missing.';
+    http.sendPostRequestErrorDetails(path, token, { requestor }, errorCode, errorDetails, done);
   });
 
   it('fails if the "requestor" parameter is not present when using a service token', done => {
-    http.sendPostRequestError(paths.DATA_CB_QUERY, tokens.serviceToken, {
-      keyPrefix,
-    }, errors.codes.ERROR_CODE_USER_NOT_FOUND, done);
+    const errorCode = errors.codes.ERROR_CODE_USER_NOT_FOUND;
+    http.sendPostRequestError(path, token, { keyPrefix }, errorCode, done);
   });
 
   it('fails if the "owner" parameter doesnt match "requestor" parameter', done => {
@@ -90,13 +94,8 @@ describe('data.cb.query', () => {
       owner: 'someone-else',
       requestor,
     };
-    http.sendPostRequestError(
-      paths.DATA_CB_QUERY,
-      tokens.serviceToken,
-      params,
-      errors.codes.ERROR_CODE_AUTH_INVALID,
-      done,
-    );
+    const errorCode = errors.codes.ERROR_CODE_AUTH_INVALID;
+    http.sendPostRequestError(path, token, params, errorCode, done);
   });
 
   it('returns an empty list when no values match keyPrefix', done => {
