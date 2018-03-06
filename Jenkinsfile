@@ -137,10 +137,6 @@ node {
     def failure_message = "Error deploying UDS version: $docker_tag"
     publish_status_message(failure_message, "danger", jenkins_env)
 
-    sh "docker logs uds-$docker_bvt_container_id"
-
-    sh "docker logs db-create-$docker_bvt_container_id"
-
     stop_docker_containers(docker_bvt_container_id)
 
     // After sending Slack message, throw the error to fail the build
