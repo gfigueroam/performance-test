@@ -104,8 +104,8 @@ function buildExternalAuthToken(ctx) {
   const tokenBody = decodedToken.split(':')[0];
   const tokenInfo = jwt.decode(tokenBody, { complete: true });
   if (!tokenInfo) {
-    ctx.swatchCtx.logger.warn('Failed to decode Authorization token');
-    throw errors.codes.ERROR_CODE_AUTH_INVALID;
+    ctx.swatchCtx.logger.warn('Failed to decode Authorization token. Trying internal auth token strategy.');
+    return buildInternalAuthToken(ctx);
   }
 
   // Log the user ID from the valid user token payload

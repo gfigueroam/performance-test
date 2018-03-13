@@ -13,7 +13,7 @@ const routes = Object.assign(
 );
 
 const internalPrefix = 'api/v1';
-const internalAuthAdapter = auth.adapter.internal;
+const internalAuthAdapter = auth.adapter.external;
 const internalConfig = {
   authAdapter: internalAuthAdapter,
   batchEndpoint,
@@ -21,7 +21,7 @@ const internalConfig = {
   routes,
 };
 
-logger.info(`routes: Adding ${internalPrefix} routes with internal auth`);
+logger.info(`routes: Adding ${internalPrefix} routes with external auth`);
 
 const externalPrefix = 'uds/api/v1';
 const externalAuthAdapter = auth.adapter.external;
