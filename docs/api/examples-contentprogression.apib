@@ -20,12 +20,12 @@ Each UDS Calculated Behavior message will have:
 * `user` - the user affected by this message
 * `key` - the key to use for this message
 * `operation` - the operation to perform. One of: `increment`, `decrement`, `merge`, `set`.
-* `value` - the value to use for `merge` and `set` operations.
+* `data` - the value to use for `merge` and `set` operations.
 
 ## Processing Content Progression Events
  UDS will have a kafka consumer listening for these events which will call the appropriate API, `data.cb.<operation>`. UDS will model content progression as a hierarchical key with a common prefix `contentProgression-`. The key will then have a `learningSpineID` followed by `contentID`. The content progression for all modules within the same piece of content will be stored under the same UDS key. This object has one entry for each module whose value will be coordinates of the user's progression through the content (and any other desired metadata, such as a mastery score). To update or store content progression, the UDS kafka message's operation will be `merge`, and the UDS API call will be:
 
-  `uds.data.cb.merge(user: <user>, key: "contentProgression-<learningSpineID>-<contentID>", object: {"module7": {"coords": {"page": 120}}})`
+  `uds.data.cb.merge(user: <user>, key: "contentProgression-<learningSpineID>-<contentID>", data: {"module7": {"coords": {"page": 120}}})`
 
 When a user first stores content progression, they will not have a value for the `contentProgression.<learningSpineID>.<contentID>` key; however the merge operation will behave as though the pre-existing value is `{}` and the resulting content progression will be
 
@@ -44,12 +44,12 @@ If the user then proceeds to read to page 32 of module 8, the spark worker will 
 user: <user>,
 key: "contentProgression.<learningSpineID>.<contentID>",
 operation: "merge",
-value: {"module8": {"coords": {"page": 32}}}
+data: {"module8": {"coords": {"page": 32}}}
 ```
 
 The UDS Kafka consumer will then place the following call to the UDS API:
 
-  `uds.data.cb.merge(user: <user>, key: "contentProgression.<learningSpineID>.<contentID>", object: {"module8": {"coords": {"page": 32}}})`
+  `uds.data.cb.merge(user: <user>, key: "contentProgression.<learningSpineID>.<contentID>", data: {"module8": {"coords": {"page": 32}}})`
 
 The resulting content progression will be
 
