@@ -7,6 +7,35 @@ import logger from '../monitoring/logger';
 import schemas from './schemas';
 
 
+function safeDeserializeMessage(buffer) {
+  try {
+    // First try to deserialize the message buffer exactly as received
+    //  Should succeed when serializer wrote only the bytes of data object
+    return schemas.cb.fromBuffer(buffer);
+  } catch (error) {
+    logger.warn('Kafka consumer: Failed to deserialize message!', error);
+    return undefined;
+  }
+}
+
+function deserializeMessage(buffer) {
+  // Try to deserialize message buffer exactly as received
+  const result = safeDeserializeMessage(buffer);
+  if (result !== undefined) {
+    return result;
+  }
+
+  if (buffer[0] === 0x00) {
+    // Confluence library have a wire format with a 0x00 as magic first byte
+    //  followed by a four byte sequence of the registered schema identifier
+    // Strip out the first five bytes from buffer and try to deserialize message
+    logger.warn('Kafka consumer: Deserializing without Confluence prefix...');
+    return safeDeserializeMessage(buffer.slice(5));
+  }
+
+  return undefined;
+}
+
 function start(config) {
   const consumer = config.initConsumer();
   const offset = config.initOffset(consumer);
@@ -18,7 +47,13 @@ function start(config) {
 
   consumer.on('message', message => {
     logger.info('Kafka consumer: Received a message!');
-    const decodedMessage = schemas.cb.fromBuffer(message.value);
+
+    const buffer = message.value;
+    const decodedMessage = deserializeMessage(buffer);
+    if (!decodedMessage) {
+      logger.error('Kafka consumer: Failed to deserialize message! Ignoring... ', buffer);
+      return;
+    }
 
     // Convert Kafka event into UDS payload for API request
     logger.info('Kafka consumer: Decoded value: ', decodedMessage);
