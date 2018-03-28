@@ -40,7 +40,7 @@ describe('data.app.delete', () => {
 
   it('throws invalid_app when the app contains invalid characters', done => {
     const params = {
-      app: 'invalid-app-name',
+      app: 'invalid-*-app-*-name',
       key,
       requestor,
     };

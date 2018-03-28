@@ -106,7 +106,7 @@ describe('data.cb.get', () => {
 
   it('returns an error when the key contains invalid chars', done => {
     const invalidParams = {
-      key: 'invalid-key',
+      key: 'invalid+key',
       requestor,
     };
     const errorCode = errors.codes.ERROR_CODE_INVALID_KEY;

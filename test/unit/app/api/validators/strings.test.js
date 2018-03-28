@@ -15,6 +15,8 @@ describe('String Validators', () => {
     '1.Test_Name_2',
     'hmh.eng.co.uds.111',
     'HMH.CO.UDS.',
+    'test-name-123',
+    'feedback.135176bd-1d0e-4af5-b6f0-e2295b1a4d24.f1522240191300',
   ];
 
   const invalidNames = [
@@ -25,7 +27,6 @@ describe('String Validators', () => {
     '_hmh.eng.*',
     'test name',
     'hmh.eng.*',
-    'test-name-123',
     'hmh\\/.test',
     '$[hmh.co.eng]',
     invalidLongName,

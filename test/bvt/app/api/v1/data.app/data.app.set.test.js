@@ -64,7 +64,7 @@ describe('data.app.set', () => {
 
   it('throws invalid_app when the app contains invalid characters', done => {
     const params = {
-      app: 'invalid-app-name',
+      app: '#fail invalid.app.name',
       data,
       key,
       requestor,
