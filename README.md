@@ -1,5 +1,17 @@
 User-Centric Data Service (UDS)
 
+# Operations
+
+* [Kibana production logs](https://kibana.br.hmheng.io/app/kibana#/discover/AWF8j2WRMmY0_W5X0fH3)
+
+* [Grafana metrics dashboard](http://grafana.prod.hmheng-infra.brnp.internal/dashboard/db/uds)
+
+* [Production Jenkins pipeline](http://jenkins.prod.hmheng-uds.brnp.internal/job/uds/)
+
+* [#UDS on Slack](https://hmhco.slack.com/messages/C6MP6P7NE)
+
+# Development Information
+
 ## Database
 UDS uses DynamoDB as its data store. See [the DB design documentation](./docs/design/db.md) for more details.
 
