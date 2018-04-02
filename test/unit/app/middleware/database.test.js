@@ -18,6 +18,8 @@ function createMockSwatchCtx() {
 }
 
 describe('middleware.database', () => {
+  afterEach(() => { noop.reset(); });
+
   it('should not set useMaster flag in standard requests', async () => {
     const mockCtx = createMockSwatchCtx();
     await middleware.database.ensureReadConsistency(mockCtx, noop);

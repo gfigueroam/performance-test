@@ -1,6 +1,6 @@
 import chai from 'chai';
 
-import metrics from '../../../../app/models/metrics';
+import metrics from '../../../../../app/models/metrics';
 
 const expect = chai.expect;
 
