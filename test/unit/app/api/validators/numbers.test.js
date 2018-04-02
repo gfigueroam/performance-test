@@ -5,7 +5,7 @@ import numbersValidators from '../../../../../app/api/validators/numbers';
 
 const expect = chai.expect;
 
-describe('Number Validators', () => {
+describe('validators.numbers', () => {
   describe('validateQuota', () => {
     it('should allow valid quota amounts', () => {
       expect(() => numbersValidators.validateQuota(1)).not.to.throw();

@@ -1,5 +1,7 @@
+import common from 'hmh-bfm-nodejs-common';
+
 import querystring from 'querystring';
-import request from 'request-promise';
+
 
 async function get(url, params, transform) {
   const uri = params ? `${url}?${querystring.stringify(params)}` : url;
@@ -16,18 +18,8 @@ async function get(url, params, transform) {
     transform,
   };
 
-  try {
-    const response = await request.get(uri, options);
-
-    this.logger.info(`HTTP GET request complete: ${uri}`);
-
-    return response;
-  } catch (error) {
-    this.logger.error(`HTTP GET request: ${uri}`);
-    this.logger.error(`HTTP GET request error: ${error}`);
-
-    throw error;
-  }
+  const response = await common.utils.rest.get.apply(this, [uri, options]);
+  return response;
 }
 
 export default {

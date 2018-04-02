@@ -17,6 +17,9 @@ describe('metrics', () => {
           expect(res.text).to.include('http_request_duration_seconds');
           expect(res.text).to.include('process_cpu_usage_percent');
           expect(res.text).to.include('process_memory_usage_bytes');
+          expect(res.text).to.include('ids_request_duration_seconds');
+          expect(res.text).to.include('db_query_duration_seconds');
+          expect(res.text).to.include('db_consumed_capacity_units');
           done(error);
         });
     });

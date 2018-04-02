@@ -1,16 +1,18 @@
+import common from 'hmh-bfm-nodejs-common';
+
 import http from '../helpers/http';
 import paths from '../helpers/paths';
-import tokens from '../helpers/tokens';
 
-const OK = {
-  ok: true,
-};
+
+const serviceToken = common.test.tokens.serviceToken;
+
+const OK = { ok: true };
 
 async function removeApp(name) {
   return new Promise((resolve, reject) => {
     http.sendPostRequestSuccess(
       paths.APPS_REMOVE,
-      tokens.serviceToken,
+      serviceToken,
       { name },
       { ok: true },
       (err) => {
@@ -38,12 +40,18 @@ function addApp(params) {
   }
 
   return new Promise((resolve, reject) => {
-    http.sendPostRequestSuccess(paths.APPS_REGISTER, tokens.serviceToken, params, OK, (err) => {
-      if (err) {
-        return reject(err);
-      }
-      return resolve();
-    });
+    http.sendPostRequestSuccess(
+      paths.APPS_REGISTER,
+      serviceToken,
+      params,
+      OK,
+      (err) => {
+        if (err) {
+          return reject(err);
+        }
+        return resolve();
+      },
+    );
   });
 }
 export default {

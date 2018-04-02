@@ -1,4 +1,7 @@
-export default {
+import common from 'hmh-bfm-nodejs-common';
+
+
+const udsPaths = {
   APPS_INFO: 'api/v1/apps.info',
   APPS_LIST: 'api/v1/apps.list',
   APPS_REGISTER: 'api/v1/apps.register',
@@ -10,8 +13,6 @@ export default {
   AUTHZ_LIST: 'api/v1/authz.list',
   AUTHZ_REGISTER: 'api/v1/authz.register',
   AUTHZ_REMOVE: 'api/v1/authz.remove',
-
-  BATCH_ENDPOINT: 'api/v1/batch',
 
   DATA_ADMIN_APPS: 'api/v1/data.admin.apps',
 
@@ -39,3 +40,13 @@ export default {
   DATA_USER_SHARE: 'api/v1/data.user.share',
   DATA_USER_UNSHARE: 'api/v1/data.user.unshare',
 };
+
+const commonPaths = common.test.paths;
+
+const paths = Object.assign(
+  {},
+  udsPaths,
+  commonPaths,
+);
+
+export default paths;

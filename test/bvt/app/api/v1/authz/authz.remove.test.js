@@ -1,12 +1,14 @@
+import common from 'hmh-bfm-nodejs-common';
+
 import errors from '../../../../../../app/models/errors';
 
 import http from '../../../../../common/helpers/http';
 import paths from '../../../../../common/helpers/paths';
 import seed from '../../../../../common/seed';
-import tokens from '../../../../../common/helpers/tokens';
+
 
 const path = paths.AUTHZ_REMOVE;
-const serviceToken = tokens.serviceToken;
+const serviceToken = common.test.tokens.serviceToken;
 
 const name = `uds.bvt.authz.remove.test.${seed.buildNumber}`;
 const url = 'https://hmheng-uds.test.app/callback';
@@ -22,7 +24,7 @@ describe('authz.remove', () => {
 
   it('should return error when the request has a user token', done => {
     const params = { name };
-    const userToken = tokens.userTokens.internal;
+    const userToken = common.test.tokens.userTokens.internal;
     const errorCode = errors.codes.ERROR_CODE_WRONG_TOKEN_TYPE;
     http.sendPostRequestError(path, userToken, params, errorCode, done);
   });

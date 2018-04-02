@@ -1,10 +1,12 @@
+import common from 'hmh-bfm-nodejs-common';
+
 import http from '../helpers/http';
 import paths from '../helpers/paths';
-import tokens from '../helpers/tokens';
 
-const OK = {
-  ok: true,
-};
+
+const serviceToken = common.test.tokens.serviceToken;
+
+const OK = { ok: true };
 
 function add(params) {
   if (!params.key) {
@@ -24,7 +26,7 @@ function add(params) {
   delete params.user;
 
   return new Promise((resolve, reject) => {
-    http.sendPostRequestSuccess(paths.DATA_APP_SET, tokens.serviceToken, params, OK, (err) => {
+    http.sendPostRequestSuccess(paths.DATA_APP_SET, serviceToken, params, OK, (err) => {
       if (err) {
         return reject(err);
       }
@@ -48,13 +50,12 @@ function remove(params) {
   delete params.user;
 
   return new Promise((resolve, reject) => {
-    http.sendPostRequestSuccess(paths.DATA_APP_DELETE,
-      tokens.serviceToken, params, OK, (err) => {
-        if (err) {
-          return reject(err);
-        }
-        return resolve();
-      });
+    http.sendPostRequestSuccess(paths.DATA_APP_DELETE, serviceToken, params, OK, (err) => {
+      if (err) {
+        return reject(err);
+      }
+      return resolve();
+    });
   });
 }
 

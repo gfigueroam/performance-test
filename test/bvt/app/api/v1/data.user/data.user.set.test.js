@@ -1,9 +1,11 @@
+import common from 'hmh-bfm-nodejs-common';
+
 import errors from '../../../../../../app/models/errors';
 
 import http from '../../../../../common/helpers/http';
 import seed from '../../../../../common/seed';
 import paths from '../../../../../common/helpers/paths';
-import tokens from '../../../../../common/helpers/tokens';
+
 
 const key = `uds.bvt.data.user.set.test.${seed.buildNumber}`;
 const annotationKey = `uds.bvt.data.user.set.annotation.test.${seed.buildNumber}`;
@@ -11,7 +13,7 @@ const requestor = 'data.user.test.requestor.1';
 const data = 'this is some data';
 
 const path = paths.DATA_USER_SET;
-const token = tokens.serviceToken;
+const token = common.test.tokens.serviceToken;
 
 const OK = { ok: true };
 

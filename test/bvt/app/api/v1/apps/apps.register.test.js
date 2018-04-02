@@ -1,10 +1,12 @@
+import common from 'hmh-bfm-nodejs-common';
+
 import constants from '../../../../../../app/utils/constants';
 import errors from '../../../../../../app/models/errors';
 
 import http from '../../../../../common/helpers/http';
 import paths from '../../../../../common/helpers/paths';
 import seed from '../../../../../common/seed';
-import tokens from '../../../../../common/helpers/tokens';
+
 
 const name1 = `uds.bvt.apps.register.test.${seed.buildNumber}.1`;
 const name2 = `uds.bvt.apps.register.test.${seed.buildNumber}.2`;
@@ -13,7 +15,7 @@ const quota = 1024;
 const OK = { ok: true };
 
 const path = paths.APPS_REGISTER;
-const token = tokens.serviceToken;
+const token = common.test.tokens.serviceToken;
 
 
 describe('apps.register', () => {
@@ -29,7 +31,7 @@ describe('apps.register', () => {
 
   it('should return error when the request has a user token', done => {
     const params = { name: name2, quota };
-    const userToken = tokens.userTokens.internal;
+    const userToken = common.test.tokens.userTokens.internal;
     const errorCode = errors.codes.ERROR_CODE_WRONG_TOKEN_TYPE;
     http.sendPostRequestError(path, userToken, params, errorCode, done);
   });

@@ -1,13 +1,15 @@
+import common from 'hmh-bfm-nodejs-common';
+
 import http from '../../../../../common/helpers/http';
 import seed from '../../../../../common/seed';
 import paths from '../../../../../common/helpers/paths';
-import tokens from '../../../../../common/helpers/tokens';
+
 
 const key = `uds.bvt.data.user.delete.test.${seed.buildNumber}`;
 const requestor = 'data.admin.test.requestor.1';
 const data = 'this is some data';
 
-const token = tokens.serviceToken;
+const token = common.test.tokens.serviceToken;
 const params = { key, requestor };
 
 const OK = { ok: true };

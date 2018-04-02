@@ -1,16 +1,17 @@
 import chai from 'chai';
 
+import common from 'hmh-bfm-nodejs-common';
+
 import auth from '../../../../app/auth';
 import config from '../../../../app/config';
 import constants from '../../../../app/utils/constants';
 import errors from '../../../../app/models/errors';
 import logger from '../../../../app/monitoring/logger';
 
-import tokens from '../../../common/helpers/tokens';
-
 const expect = chai.expect;
 
-describe('authAdapter', () => {
+
+describe('auth.adapter', () => {
   function createMockCtx(authorization, bvtHeader) {
     return {
       request: {
@@ -64,6 +65,7 @@ describe('authAdapter', () => {
       const result = auth.adapter.internal(mockCtx);
       expect(result.tokenType).to.equal('service');
       expect(result.token).to.equal(testServiceToken);
+      expect(result.userId).to.equal(undefined);
       expect(result.useStubAuth).to.equal(false);
     });
 
@@ -74,20 +76,22 @@ describe('authAdapter', () => {
       const result = auth.adapter.internal(mockCtx);
       expect(result.tokenType).to.equal('service');
       expect(result.token).to.equal(testServiceToken);
+      expect(result.userId).to.equal(undefined);
       expect(result.useStubAuth).to.equal(true);
     });
 
     it('should successfully validate a user token', () => {
-      const token = tokens.userTokens.internal;
+      const token = common.test.tokens.userTokens.internal;
       const mockCtx = createMockCtx(token);
 
       const result = auth.adapter.internal(mockCtx);
       expect(result.token).to.equal(token);
       expect(result.tokenType).to.equal('user');
+      expect(result.userId).to.equal('e0f96e77-55b5-493f-b347-42f8c7907072');
     });
 
     it('should reject an expired user token', () => {
-      const mockCtx = createMockCtx(tokens.expiredToken);
+      const mockCtx = createMockCtx(common.test.tokens.expiredToken);
 
       expect(() => auth.adapter.internal(mockCtx)).to.throw(errors.codes.ERROR_CODE_AUTH_INVALID);
     });
@@ -102,24 +106,27 @@ describe('authAdapter', () => {
 
       expect(result.tokenType).to.equal('service');
       expect(result.token).to.equal(token);
+      expect(result.userId).to.equal(undefined);
     });
 
     it('should decode and initialize a valid user token', () => {
-      const token = tokens.userTokens.external;
+      const token = common.test.tokens.userTokens.external;
       const mockCtx = createMockCtx(token);
 
       const result = auth.adapter.external(mockCtx);
       expect(result.tokenType).to.equal('user');
       expect(result.token).to.equal(token);
+      expect(result.userId).to.equal('cfc72467-0fe2-459f-89a2-29b8364957db');
     });
 
     it('should decode and initialize a valid user token with a hash attached', () => {
-      const token = tokens.userTokens.externalHash;
+      const token = common.test.tokens.userTokens.externalHash;
       const mockCtx = createMockCtx(token);
 
       const result = auth.adapter.external(mockCtx);
       expect(result.tokenType).to.equal('user');
       expect(result.token).to.equal(token);
+      expect(result.userId).to.equal('0143cc99-2a4c-4901-8405-1d4acfe4d4f2');
     });
   });
 });

@@ -1,10 +1,12 @@
+import common from 'hmh-bfm-nodejs-common';
+
 import constants from '../../../../../../app/utils/constants';
 import errors from '../../../../../../app/models/errors';
 
 import http from '../../../../../common/helpers/http';
 import paths from '../../../../../common/helpers/paths';
 import seed from '../../../../../common/seed';
-import tokens from '../../../../../common/helpers/tokens';
+
 
 const name = `uds.bvt.apps.info.test.${seed.buildNumber}`;
 const quota = 1024;
@@ -12,7 +14,7 @@ const quota = 1024;
 const OK = { ok: true };
 
 const path = paths.APPS_INFO;
-const token = tokens.serviceToken;
+const token = common.test.tokens.serviceToken;
 
 
 describe('apps.info', () => {

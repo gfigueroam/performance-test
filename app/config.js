@@ -1,6 +1,7 @@
 import nconf from 'nconf';
 
-import parseArgv from './utils/args';
+import common from 'hmh-bfm-nodejs-common';
+
 
 const env = process.env.NODE_ENV || 'local';
 
@@ -23,7 +24,7 @@ nconf.set('env', env);
 
 const args = process.argv;
 
-const serverPortParam = parseArgv(args, 'port', 5200);
+const serverPortParam = common.utils.args.parseArgv(args, 'port', 5200);
 nconf.set('server_port', serverPortParam.value);
 
 const externalEndpoint = nconf.get('uds:url:external');

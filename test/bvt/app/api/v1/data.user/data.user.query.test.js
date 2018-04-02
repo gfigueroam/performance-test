@@ -1,9 +1,11 @@
+import common from 'hmh-bfm-nodejs-common';
+
 import errors from '../../../../../../app/models/errors';
 
 import http from '../../../../../common/helpers/http';
 import seed from '../../../../../common/seed';
 import paths from '../../../../../common/helpers/paths';
-import tokens from '../../../../../common/helpers/tokens';
+
 
 const keyPrefix = `uds.bvt.data.user.query.test.${seed.buildNumber}`;
 const key1 = `${keyPrefix}.key.1`;
@@ -12,7 +14,7 @@ const key3 = `${keyPrefix}.key.3`;
 const requestor = 'data.user.query.test.requestor.1';
 
 const path = paths.DATA_USER_QUERY;
-const token = tokens.serviceToken;
+const token = common.test.tokens.serviceToken;
 
 
 describe('data.user.query', () => {

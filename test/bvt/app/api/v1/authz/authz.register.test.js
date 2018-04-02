@@ -1,11 +1,14 @@
+import common from 'hmh-bfm-nodejs-common';
+
 import errors from '../../../../../../app/models/errors';
 
 import http from '../../../../../common/helpers/http';
 import paths from '../../../../../common/helpers/paths';
 import seed from '../../../../../common/seed';
-import tokens from '../../../../../common/helpers/tokens';
+
 
 const path = paths.AUTHZ_REGISTER;
+const serviceToken = common.test.tokens.serviceToken;
 
 const name = `uds.bvt.authz.register.test.${seed.buildNumber}`;
 const url = 'https://hmheng-uds.test.app/callback';
@@ -22,7 +25,6 @@ describe('authz.register', () => {
       name: 'invalid-fail*name',
       url,
     };
-    const serviceToken = tokens.serviceToken;
     const errorCode = errors.codes.ERROR_CODE_INVALID_NAME;
 
     http.sendPostRequestError(path, serviceToken, params, errorCode, done);
@@ -33,15 +35,12 @@ describe('authz.register', () => {
       name,
       url: '',
     };
-    const serviceToken = tokens.serviceToken;
     const errorCode = errors.codes.ERROR_CODE_INVALID_URL;
 
     http.sendPostRequestError(path, serviceToken, params, errorCode, done);
   });
 
   it('should successfully register an authz configuration', done => {
-    const serviceToken = tokens.serviceToken;
-
     http.sendPostRequestSuccess(path, serviceToken, mockAuthz, OK, done);
   });
 
@@ -50,7 +49,6 @@ describe('authz.register', () => {
       name,
       url: 'https://hmheng-uds.test.app/another',
     };
-    const serviceToken = tokens.serviceToken;
     const errorCode = errors.codes.ERROR_CODE_NAME_IN_USE;
 
     http.sendPostRequestError(path, serviceToken, params, errorCode, done);

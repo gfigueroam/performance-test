@@ -1,15 +1,18 @@
-import Prometheus from 'prom-client';
 import util from 'util';
+
+import common from 'hmh-bfm-nodejs-common';
 
 import dynamo from './dynamo';
 
-import labels from '../../metrics/labels';
+import metrics from '../../models/metrics';
 import logger from '../../monitoring/logger';
 
 
 // Track the duration of DB queries to biuld summary
+const labels = metrics.labels;
 const labelKeys = Object.keys(labels);
 
+const Prometheus = common.metrics.client;
 const queryDuration = new Prometheus.Summary(
   'db_query_duration_seconds',
   'DB Query Duration',

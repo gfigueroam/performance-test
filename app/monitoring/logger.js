@@ -1,12 +1,12 @@
-import bunyan from 'bunyan';
-import config from '../config';
+import common from 'hmh-bfm-nodejs-common';
 
-const logger = bunyan.createLogger({
-  application: 'uds',
-  component: 'uds',
-  environment: config.get('env'),
-  level: config.get('logger:level'),
-  name: 'uds',
-});
+import nconf from '../config';
+
+const config = {
+  env: nconf.get('env'),
+  level: nconf.get('logger:level'),
+};
+
+const logger = common.monitoring.logger.init('uds', config);
 
 export default logger;

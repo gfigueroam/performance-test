@@ -3,9 +3,11 @@ import jwt from 'jsonwebtoken';
 import jwtSecret from 'grid-framework/lib/token_validator/secrets';
 import { hmhclients } from 'idm-nodejs-common';
 
+import common from 'hmh-bfm-nodejs-common';
+
 import constants from '../utils/constants';
 import errors from '../models/errors';
-import tokens from './tokens';
+
 
 function getAuthHeader(ctx) {
   // Token must be passed in the Authorization header
@@ -70,7 +72,7 @@ function buildInternalAuthToken(ctx) {
 
     // Getting here means token was verified and did not throw
     const userId = getTokenUserId(metadata);
-    const userToken = new tokens.UserToken(token, userId);
+    const userToken = new common.auth.tokens.UserToken(token, userId);
     ctx.swatchCtx.logger.info(`Successfully validated user token: ${userId}`);
 
     return userToken;
@@ -90,7 +92,7 @@ function buildInternalAuthToken(ctx) {
     }
 
     ctx.swatchCtx.logger.info(`Successfully validated service token: ${serviceId}`);
-    return new tokens.ServiceToken(token);
+    return new common.auth.tokens.ServiceToken(token);
   }
 }
 
@@ -110,7 +112,7 @@ function buildExternalAuthToken(ctx) {
 
   // Log the user ID from the valid user token payload
   const userId = getTokenUserId(tokenInfo.payload);
-  const userToken = new tokens.UserToken(header, userId);
+  const userToken = new common.auth.tokens.UserToken(header, userId);
   ctx.swatchCtx.logger.info(`Successfully validated user token: ${userId}`);
 
   return userToken;

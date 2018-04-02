@@ -4,7 +4,8 @@ import system from '../../../../../app/models/system';
 
 const expect = chai.expect;
 
-describe('Ajv Types', () => {
+
+describe('system.types', () => {
   it('should have loaded schemas for each type with validators', () => {
     expect(Object.keys(system.types)).to.deep.equal(
       ['text', 'annotation', 'document', 'image', 'video'],

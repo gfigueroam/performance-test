@@ -1,17 +1,19 @@
+import common from 'hmh-bfm-nodejs-common';
+
 import constants from '../../../../../../app/utils/constants';
 import errors from '../../../../../../app/models/errors';
 
 import http from '../../../../../common/helpers/http';
 import paths from '../../../../../common/helpers/paths';
 import seed from '../../../../../common/seed';
-import tokens from '../../../../../common/helpers/tokens';
+
 
 const quota = 1024;
 const NEW_QUOTA = 2345;
 const name = `uds.bvt.apps.setPerUserQuota.test.${seed.buildNumber}`;
 
 const path = paths.APPS_SET_PER_USER_QUOTA;
-const token = tokens.serviceToken;
+const token = common.test.tokens.serviceToken;
 
 const initialParams = { name, quota };
 const newParams = { name, quota: NEW_QUOTA };
@@ -47,7 +49,7 @@ describe('apps.setPerUserQuota', () => {
   });
 
   it('should return error when the request has a user token', done => {
-    const userToken = tokens.userTokens.internal;
+    const userToken = common.test.tokens.userTokens.internal;
     const errorCode = errors.codes.ERROR_CODE_WRONG_TOKEN_TYPE;
     http.sendPostRequestError(path, userToken, initialParams, errorCode, done);
   });

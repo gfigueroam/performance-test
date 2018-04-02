@@ -4,7 +4,7 @@ import swatchRoutes from '../../../app/router';
 
 const expect = chai.expect;
 
-describe('All Routes', () => {
+describe('router', () => {
   it('should have expected number of routes declared', () => {
     expect(swatchRoutes.length).to.equal(3);
 

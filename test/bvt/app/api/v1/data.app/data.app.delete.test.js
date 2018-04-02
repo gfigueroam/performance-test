@@ -1,10 +1,12 @@
+import common from 'hmh-bfm-nodejs-common';
+
 import constants from '../../../../../../app/utils/constants';
 import errors from '../../../../../../app/models/errors';
 
 import http from '../../../../../common/helpers/http';
 import seed from '../../../../../common/seed';
 import paths from '../../../../../common/helpers/paths';
-import tokens from '../../../../../common/helpers/tokens';
+
 
 const app = `uds.bvt.data.app.delete.app.${seed.buildNumber}`;
 const key = `uds.bvt.data.app.delete.test.${seed.buildNumber}`;
@@ -16,7 +18,7 @@ const data = {
 };
 
 const path = paths.DATA_APP_DELETE;
-const token = tokens.serviceToken;
+const token = common.test.tokens.serviceToken;
 
 
 describe('data.app.delete', () => {

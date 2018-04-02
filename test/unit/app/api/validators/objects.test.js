@@ -5,7 +5,7 @@ import objectValidators from '../../../../../app/api/validators/objects';
 
 const expect = chai.expect;
 
-describe('Object Validators', () => {
+describe('validators.objects', () => {
   describe('validateTextData', () => {
     it('should allow valid text data', () => {
       expect(() => objectValidators.validateTextData('text')).not.to.throw();

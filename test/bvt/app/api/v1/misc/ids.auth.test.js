@@ -1,15 +1,17 @@
+import common from 'hmh-bfm-nodejs-common';
+
 import errors from '../../../../../../app/models/errors';
 
 import http from '../../../../../common/helpers/http';
 import idsMock from '../../../../../common/helpers/ids';
 import seed from '../../../../../common/seed';
 import paths from '../../../../../common/helpers/paths';
-import tokens from '../../../../../common/helpers/tokens';
+
 
 const keyPrefix = `uds.bvt.ids.auth.test.${seed.buildNumber}`;
 
 const path = paths.DATA_USER_QUERY;
-const token = tokens.serviceToken;
+const token = common.test.tokens.serviceToken;
 const error = errors.codes.ERROR_CODE_AUTH_INVALID;
 
 describe('ids.auth', () => {

@@ -1,10 +1,12 @@
+import common from 'hmh-bfm-nodejs-common';
+
+import constants from '../../../../../../app/utils/constants';
 import errors from '../../../../../../app/models/errors';
 
 import http from '../../../../../common/helpers/http';
 import seed from '../../../../../common/seed';
 import paths from '../../../../../common/helpers/paths';
-import tokens from '../../../../../common/helpers/tokens';
-import constants from '../../../../../../app/utils/constants';
+
 
 const keyPrefix = `uds.bvt.data.app.query.test.${seed.buildNumber}`;
 const key1 = `uds.bvt.data.app.query.some.other.test.${seed.buildNumber}.value.1`;
@@ -15,7 +17,7 @@ const app2 = `uds.bvt.data.app.query.app.${seed.buildNumber}.2`;
 const requestor = 'data.app.query.test.requestor.1';
 
 const path = paths.DATA_APP_QUERY;
-const token = tokens.serviceToken;
+const token = common.test.tokens.serviceToken;
 
 
 describe('data.app.query', () => {

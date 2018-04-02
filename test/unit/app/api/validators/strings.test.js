@@ -6,7 +6,7 @@ import stringValidators from '../../../../../app/api/validators/strings';
 
 const expect = chai.expect;
 
-describe('String Validators', () => {
+describe('validators.strings', () => {
   const invalidLongName = new Array(300).join('a');
 
   const validNames = [

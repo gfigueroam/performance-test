@@ -5,7 +5,7 @@ import objectParsers from '../../../../../app/api/parsers/objects';
 
 const expect = chai.expect;
 
-describe('Object Parsers', () => {
+describe('parsers.objects', () => {
   describe('parseData', () => {
     it('should parse and return an arbitrary data value', () => {
       function checkTargetObject(obj) {

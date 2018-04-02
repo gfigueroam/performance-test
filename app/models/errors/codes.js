@@ -1,13 +1,10 @@
-export default {
-  ERROR_CODE_APP_NOT_FOUND: 'app_not_found',
+import common from 'hmh-bfm-nodejs-common';
 
-  ERROR_CODE_AUTH_INVALID: 'invalid_auth',
-  ERROR_CODE_AUTH_NO_TOKEN: 'not_authed',
+const udsErrorCodes = {
+  ERROR_CODE_APP_NOT_FOUND: 'app_not_found',
 
   ERROR_CODE_AUTHZ_ACCESS_DENIED: 'authz_access_denied',
   ERROR_CODE_AUTHZ_NOT_FOUND: 'authz_not_found',
-
-  ERROR_CODE_INTERNAL_ERROR: 'internal_error',
 
   ERROR_CODE_INVALID_APP: 'invalid_app',
   ERROR_CODE_INVALID_ARG_NAME: 'invalid_arg_name',
@@ -29,6 +26,14 @@ export default {
   ERROR_CODE_QUOTA_EXCEEDED: 'quota_exceeded',
   ERROR_CODE_SHARE_ID_NOT_FOUND: 'share_id_not_found',
   ERROR_CODE_USER_NOT_FOUND: 'user_not_found',
-
-  ERROR_CODE_WRONG_TOKEN_TYPE: 'wrong_token_type',
 };
+
+const commonErrorCodes = common.utils.errors.codes;
+
+const codes = Object.assign(
+  {},
+  udsErrorCodes,
+  commonErrorCodes,
+);
+
+export default codes;

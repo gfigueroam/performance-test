@@ -1,12 +1,12 @@
+import common from 'hmh-bfm-nodejs-common';
 import gridFramework from 'grid-framework';
 
 import server from './server';
-import health from './monitoring/health';
 
 
 // Boot the server using shared HMH Grid framework
 const app = gridFramework({
-  health,
+  health: common.monitoring.health,
   helmet: {
     csp: {
       connectSrc: ["'self' file:", 'http://localhost:5200/*'],

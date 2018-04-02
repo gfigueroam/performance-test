@@ -1,20 +1,20 @@
 import chai from 'chai';
+import sinon from 'sinon';
 
-import auth from '../../../../app/auth';
+import common from 'hmh-bfm-nodejs-common';
+
 import errors from '../../../../app/models/errors';
 import logger from '../../../../app/monitoring/logger';
 import middleware from '../../../../app/middleware';
 
-import runner from '../../../common/helpers/runner';
-
 const expect = chai.expect;
 
 
-describe('Auth Middleware', () => {
+describe('middleware.auth', () => {
   const requestor = 'some.test.user.guid.1';
 
-  // Test function that does nothing for cases that throw
-  const noop = () => {};
+  // Stub function to test when it is called
+  const noop = sinon.stub();
 
   const mockRequest = {
     url: 'https://hmh.uds.test.com',
@@ -35,7 +35,7 @@ describe('Auth Middleware', () => {
   const mockUserTokenCtx = {
     auth: {
       token: 'test_user_token',
-      tokenType: auth.tokens.USER_TOKEN,
+      tokenType: common.auth.tokens.USER_TOKEN,
       useStubAuth: false,
     },
     logger,
@@ -47,7 +47,7 @@ describe('Auth Middleware', () => {
   const mockWrongUserTokenCtx = {
     auth: {
       token: 'test_user_token',
-      tokenType: auth.tokens.USER_TOKEN,
+      tokenType: common.auth.tokens.USER_TOKEN,
       userId: 'wrong_test_user_id',
       useStubAuth: false,
     },
@@ -59,7 +59,7 @@ describe('Auth Middleware', () => {
   // Service token context with a valid requestor param
   const mockServiceTokenCtx = {
     auth: {
-      tokenType: auth.tokens.SERVICE_TOKEN,
+      tokenType: common.auth.tokens.SERVICE_TOKEN,
       useStubAuth: false,
     },
     logger,
@@ -70,150 +70,83 @@ describe('Auth Middleware', () => {
   // Service token context with no requestor param
   const mockInvalidServiceTokenCtx = {
     auth: {
-      tokenType: auth.tokens.SERVICE_TOKEN,
+      tokenType: common.auth.tokens.SERVICE_TOKEN,
       useStubAuth: false,
     },
     logger,
     params: {},
   };
 
+  afterEach(() => { noop.reset(); });
+
 
   describe('requireUserTokenOrRequestorParameter', () => {
     const authFn = middleware.auth.requireUserTokenOrRequestorParameter;
 
-    it('should throw an error without auth ctx', done => {
-      authFn(undefined, noop).catch(error => {
+    it('should throw an error without auth ctx', async () => {
+      try {
+        await authFn(undefined, noop);
+      } catch (error) {
         expect(error).to.equal(errors.codes.ERROR_CODE_AUTH_NO_TOKEN);
-        done();
-      });
+      }
+      expect(noop.called).to.equal(false);
     });
 
-    it('should throw an error with an empty swatch ctx', done => {
-      authFn({}, noop).catch(error => {
+    it('should throw an error with an empty swatch ctx', async () => {
+      try {
+        await authFn({}, noop);
+      } catch (error) {
         expect(error).to.equal(errors.codes.ERROR_CODE_AUTH_NO_TOKEN);
-        done();
-      });
+      }
+      expect(noop.called).to.equal(false);
     });
 
-    it('should throw an error with no token type', done => {
-      authFn(mockEmptyCtx, noop).catch(error => {
+    it('should throw an error with no token type', async () => {
+      try {
+        await authFn(mockEmptyCtx, noop);
+      } catch (error) {
         expect(error).to.equal(errors.codes.ERROR_CODE_AUTH_NO_TOKEN);
-        done();
-      });
+      }
+      expect(noop.called).to.equal(false);
     });
 
-    it('should throw an error with an invalid token type', done => {
-      authFn(mockInvalidCtx, noop).catch(error => {
+    it('should throw an error with an invalid token type', async () => {
+      try {
+        await authFn(mockInvalidCtx, noop);
+      } catch (error) {
         expect(error).to.equal(errors.codes.ERROR_CODE_AUTH_NO_TOKEN);
-        done();
-      });
+      }
+      expect(noop.called).to.equal(false);
     });
 
-    it('should throw an error when requestor doesnt match user from token', done => {
-      authFn(mockWrongUserTokenCtx, noop).catch(error => {
+    it('should throw an error when requestor doesnt match user from token', async () => {
+      try {
+        await authFn(mockWrongUserTokenCtx, noop);
+      } catch (error) {
         expect(error).to.equal(errors.codes.ERROR_CODE_INVALID_USER);
-        done();
-      });
+      }
+      expect(noop.called).to.equal(false);
     });
 
-    it('should call next function in chain after verifying user token', () => {
-      runner.asyncRunMiddleware(authFn, mockUserTokenCtx, () => {
-        expect(mockUserTokenCtx.params.requestor).to.equal(mockUserTokenCtx.auth.userId);
-      });
+    it('should call next function in chain after verifying user token', async () => {
+      await authFn(mockUserTokenCtx, noop);
+
+      expect(mockUserTokenCtx.params.requestor).to.equal(mockUserTokenCtx.auth.userId);
+      expect(noop.called).to.equal(true);
     });
 
-    it('should throw an error with a server token but no user param', done => {
-      authFn(mockInvalidServiceTokenCtx, noop).catch(error => {
+    it('should throw an error with a server token but no user param', async () => {
+      try {
+        await authFn(mockInvalidServiceTokenCtx, noop);
+      } catch (error) {
         expect(error).to.equal(errors.codes.ERROR_CODE_USER_NOT_FOUND);
-        done();
-      });
+      }
+      expect(noop.called).to.equal(false);
     });
 
-    it('should call next function in chain after verifying service token with user', () => {
-      runner.syncRunMiddleware(authFn, mockServiceTokenCtx);
-    });
-  });
-
-  describe('requireServiceToken', () => {
-    const authFn = middleware.auth.requireServiceToken;
-
-    it('should throw an error without auth ctx', done => {
-      authFn(undefined, noop).catch(error => {
-        expect(error).to.equal(errors.codes.ERROR_CODE_AUTH_NO_TOKEN);
-        done();
-      });
-    });
-
-    it('should throw an error with an empty ctx', done => {
-      authFn({}, noop).catch(error => {
-        expect(error).to.equal(errors.codes.ERROR_CODE_AUTH_NO_TOKEN);
-        done();
-      });
-    });
-
-    it('should throw an error with no token type', done => {
-      authFn(mockEmptyCtx, noop).catch(error => {
-        expect(error).to.equal(errors.codes.ERROR_CODE_WRONG_TOKEN_TYPE);
-        done();
-      });
-    });
-
-    it('should throw an error with an invalid token type', done => {
-      authFn(mockInvalidCtx, noop).catch(error => {
-        expect(error).to.equal(errors.codes.ERROR_CODE_WRONG_TOKEN_TYPE);
-        done();
-      });
-    });
-
-    it('should throw an error with user token type', done => {
-      authFn(mockUserTokenCtx, noop).catch(error => {
-        expect(error).to.equal(errors.codes.ERROR_CODE_WRONG_TOKEN_TYPE);
-        done();
-      });
-    });
-
-    it('should call next function in chain after verifying service token', () => {
-      runner.syncRunMiddleware(authFn, mockServiceTokenCtx);
-    });
-  });
-
-  describe('requireUserOrServiceToken', () => {
-    const authFn = middleware.auth.requireUserOrServiceToken;
-
-    it('should throw an error without auth ctx', done => {
-      authFn(undefined, noop).catch(error => {
-        expect(error).to.equal(errors.codes.ERROR_CODE_AUTH_NO_TOKEN);
-        done();
-      });
-    });
-
-    it('should throw an error with an empty swatch ctx', done => {
-      authFn({}, noop).catch(error => {
-        expect(error).to.equal(errors.codes.ERROR_CODE_AUTH_NO_TOKEN);
-        done();
-      });
-    });
-
-    it('should throw an error with no token type', done => {
-      authFn(mockEmptyCtx, noop).catch(error => {
-        expect(error).to.equal(errors.codes.ERROR_CODE_AUTH_NO_TOKEN);
-        done();
-      });
-    });
-
-    it('should throw an error with an invalid token type', done => {
-      authFn(mockInvalidCtx, noop).catch(error => {
-        expect(error).to.equal(errors.codes.ERROR_CODE_AUTH_NO_TOKEN);
-        done();
-      });
-    });
-
-    it('should call next function in chain after verifying user token', () => {
-      runner.syncRunMiddleware(authFn, mockUserTokenCtx);
-    });
-
-    it('should call next function in chain after verifying service token', () => {
-      runner.syncRunMiddleware(authFn, mockServiceTokenCtx);
+    it('should call next function in chain after verifying service token with user', async () => {
+      await authFn(mockServiceTokenCtx, noop);
+      expect(noop.called).to.equal(true);
     });
   });
 });

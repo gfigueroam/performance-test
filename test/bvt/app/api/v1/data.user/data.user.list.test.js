@@ -1,9 +1,11 @@
 import chai from 'chai';
 
+import common from 'hmh-bfm-nodejs-common';
+
 import http from '../../../../../common/helpers/http';
 import seed from '../../../../../common/seed';
 import paths from '../../../../../common/helpers/paths';
-import tokens from '../../../../../common/helpers/tokens';
+
 
 const expect = chai.expect;
 
@@ -13,7 +15,7 @@ const requestor = `data.user.test.requestor.${seed.buildNumber}`;
 const data = 'this is some data';
 
 const path = paths.DATA_USER_LIST;
-const token = tokens.serviceToken;
+const token = common.test.tokens.serviceToken;
 
 const OK = { ok: true };
 

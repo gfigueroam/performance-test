@@ -4,7 +4,7 @@ import stringParsers from '../../../../../app/api/parsers/strings';
 
 const expect = chai.expect;
 
-describe('String Parsers', () => {
+describe('parsers.strings', () => {
   describe('parseString', () => {
     it('should parse and coerce params to string', () => {
       expect(stringParsers.parseString()).to.equal('');

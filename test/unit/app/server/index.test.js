@@ -1,9 +1,9 @@
 import chai from 'chai';
 import sinon from 'sinon';
 
+import common from 'hmh-bfm-nodejs-common';
 import http from 'http';
 
-import metrics from '../../../../app/metrics';
 import server from '../../../../app/server';
 
 const expect = chai.expect;
@@ -20,12 +20,12 @@ describe('server', () => {
   };
 
   before(() => {
-    sinon.stub(metrics.gauges, 'initialize');
+    sinon.stub(common.metrics.gauges, 'init');
     sinon.stub(http, 'createServer').returns(serverStub);
   });
 
   after(() => {
-    metrics.gauges.initialize.restore();
+    common.metrics.gauges.init.restore();
     http.createServer.restore();
   });
 
@@ -66,6 +66,6 @@ describe('server', () => {
 
     server.start(koaStub);
 
-    expect(metrics.gauges.initialize.called).to.equal(true);
+    expect(common.metrics.gauges.init.called).to.equal(true);
   });
 });

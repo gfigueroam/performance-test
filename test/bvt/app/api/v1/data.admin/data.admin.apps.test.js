@@ -1,9 +1,11 @@
+import common from 'hmh-bfm-nodejs-common';
+
 import errors from '../../../../../../app/models/errors';
 
 import http from '../../../../../common/helpers/http';
 import seed from '../../../../../common/seed';
 import paths from '../../../../../common/helpers/paths';
-import tokens from '../../../../../common/helpers/tokens';
+
 
 const app1 = `uds.bvt.data.admin.apps.app.${seed.buildNumber}.1`;
 const app2 = `uds.bvt.data.admin.apps.app.${seed.buildNumber}.2`;
@@ -17,7 +19,7 @@ const data = {
 };
 
 const path = paths.DATA_ADMIN_APPS;
-const token = tokens.serviceToken;
+const token = common.test.tokens.serviceToken;
 
 
 describe('data.admin.apps', () => {
@@ -39,7 +41,7 @@ describe('data.admin.apps', () => {
 
   it('should return error when the request has a user token', done => {
     const params = { user };
-    const userToken = tokens.userTokens.internal;
+    const userToken = common.test.tokens.userTokens.internal;
     const errorCode = errors.codes.ERROR_CODE_WRONG_TOKEN_TYPE;
     http.sendPostRequestError(path, userToken, params, errorCode, done);
   });

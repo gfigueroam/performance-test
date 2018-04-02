@@ -1,11 +1,13 @@
+import common from 'hmh-bfm-nodejs-common';
+
 import errors from '../../../../../../app/models/errors';
 
 import http from '../../../../../common/helpers/http';
 import seed from '../../../../../common/seed';
-import tokens from '../../../../../common/helpers/tokens';
 
-const token = tokens.serviceToken;
-const userToken = tokens.userTokens.internal;
+
+const token = common.test.tokens.serviceToken;
+const userToken = common.test.tokens.userTokens.internal;
 
 const authzName1 = `uds.bvt.authz.batch.1.test.${seed.buildNumber}`;
 const authzParams1 = {

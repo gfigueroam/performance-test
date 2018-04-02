@@ -1,12 +1,14 @@
 import chai from 'chai';
 
+import common from 'hmh-bfm-nodejs-common';
+
 import constants from '../../../../../../app/utils/constants';
 import errors from '../../../../../../app/models/errors';
 
 import http from '../../../../../common/helpers/http';
 import seed from '../../../../../common/seed';
 import paths from '../../../../../common/helpers/paths';
-import tokens from '../../../../../common/helpers/tokens';
+
 
 const expect = chai.expect;
 
@@ -17,7 +19,7 @@ const key3 = `uds.bvt.data.cb.query.some.other.test.${seed.buildNumber}.value.3`
 const requestor = 'data.cb.query.test.requestor.1';
 
 const path = paths.DATA_CB_QUERY;
-const token = tokens.serviceToken;
+const token = common.test.tokens.serviceToken;
 const OK = { ok: true };
 
 

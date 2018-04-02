@@ -11,7 +11,7 @@ import rest from '../../../../app/utils/rest';
 
 const expect = chai.expect;
 
-describe('ids', () => {
+describe('auth.ids', () => {
   const owner = 'owner.user.test.1';
   const requestor = 'requestor.user.test.1';
 

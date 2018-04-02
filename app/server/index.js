@@ -4,6 +4,7 @@ import koaBunyanLogger from 'koa-bunyan-logger';
 import mount from 'koa-mount';
 import serve from 'koa-static';
 
+import common from 'hmh-bfm-nodejs-common';
 import swagger from 'swagger-koa';
 import swatchKoa from 'swatchjs-koa';
 
@@ -11,19 +12,15 @@ import http from 'http';
 
 import routes from '../router';
 import config from '../config';
-import metrics from '../metrics';
 import logger from '../monitoring/logger';
-
-import errorHandler from '../utils/error';
-import uncaughtExceptionHandler from '../utils/exceptions';
 
 
 function start(app) {
   // Initialize Prometheus gauges for CPU and system usage
-  metrics.gauges.initialize();
+  common.metrics.gauges.init();
 
   // Add Prometheus metrics middleware to all inbound requests
-  app.use(metrics.middleware);
+  app.use(common.metrics.requests.middleware);
 
   // Set up compress behavior for server responses
   app.use(compress({}));
@@ -79,9 +76,10 @@ function start(app) {
     logger.info(`Server is now listening on port: ${serverPort}`);
   });
 
-  server.on('error', errorHandler);
-
-  process.on('uncaughtException', uncaughtExceptionHandler);
+  // Set up the error and exception handlers for node process
+  const handlers = common.utils.handler.init(logger);
+  server.on('error', handlers.error);
+  process.on('uncaughtException', handlers.exception);
 }
 
 export default {

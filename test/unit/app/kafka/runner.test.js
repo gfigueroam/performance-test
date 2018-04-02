@@ -1,6 +1,7 @@
 import chai from 'chai';
-import mute from 'mute';
 import sinon from 'sinon';
+
+import common from 'hmh-bfm-nodejs-common';
 
 import kafka from 'kafka-node';
 import request from 'request-promise';
@@ -65,15 +66,11 @@ describe('runner', () => {
   };
 
 
-  let unmute;
-
   before(() => {
-    unmute = mute();
     sinon.stub(request, 'post');
   });
 
   after(() => {
-    unmute();
     request.post.restore();
   });
 
@@ -148,7 +145,10 @@ describe('runner', () => {
       fn(mockConfluenceMessage);
     });
 
-    runner.start(mockConfig);
+    // Mute the actual test execution but check post-conditions
+    common.test.mute.muteTest(() => {
+      runner.start(mockConfig);
+    });
 
     expect(request.post.callCount).to.equal(4);
     expect(consumerStub.on.callCount).to.equal(2);

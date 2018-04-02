@@ -1,15 +1,17 @@
+import common from 'hmh-bfm-nodejs-common';
+
 import errors from '../../../../../../app/models/errors';
 
 import http from '../../../../../common/helpers/http';
 import seed from '../../../../../common/seed';
 import paths from '../../../../../common/helpers/paths';
-import tokens from '../../../../../common/helpers/tokens';
+
 
 const key = `uds.bvt.cb.app.data.test.${seed.buildNumber}`;
 const data = 10;
 const requestor = 'cb.app.test.requestor.1';
 
-const token = tokens.serviceToken;
+const token = common.test.tokens.serviceToken;
 
 const OK = { ok: true };
 

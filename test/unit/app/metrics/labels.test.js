@@ -1,12 +1,13 @@
 import chai from 'chai';
 
-import labels from '../../../../app/metrics/labels';
+import metrics from '../../../../app/models/metrics';
 
 const expect = chai.expect;
 
-describe('Metrics Labels', () => {
-  it('should have expected number of routes declared', () => {
-    expect(labels.application).to.equal('uds');
-    expect(labels.stage).to.equal('test');
+
+describe('system.metrics', () => {
+  it('should have basic labels defined', () => {
+    expect(metrics.labels.application).to.equal('uds');
+    expect(metrics.labels.stage).to.equal('test');
   });
 });

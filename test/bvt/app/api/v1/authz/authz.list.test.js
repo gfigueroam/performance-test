@@ -1,9 +1,11 @@
 import chai from 'chai';
 
+import common from 'hmh-bfm-nodejs-common';
+
 import http from '../../../../../common/helpers/http';
 import paths from '../../../../../common/helpers/paths';
 import seed from '../../../../../common/seed';
-import tokens from '../../../../../common/helpers/tokens';
+
 
 const expect = chai.expect;
 
@@ -19,6 +21,9 @@ const twoAuthz = {
   url: `${baseUrl}/2`,
 };
 
+const path = paths.AUTHZ_LIST;
+const serviceToken = common.test.tokens.serviceToken;
+
 
 describe('authz.list', () => {
   before(async () => {
@@ -30,7 +35,7 @@ describe('authz.list', () => {
 
   it('should return the correct list of registered authz configurations', done => {
     new Promise((resolve, reject) => {
-      http.sendPostRequest(paths.AUTHZ_LIST, tokens.serviceToken, {}, (err, response) => {
+      http.sendPostRequest(path, serviceToken, {}, (err, response) => {
         if (err) {
           return reject(err);
         }

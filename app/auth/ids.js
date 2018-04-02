@@ -1,14 +1,18 @@
-import Prometheus from 'prom-client';
+import common from 'hmh-bfm-nodejs-common';
 
 import mockIds from '../../test/common/helpers/ids';
 
 import config from '../config';
 import errors from '../models/errors';
-import labels from '../metrics/labels';
+import metrics from '../models/metrics';
 import rest from '../utils/rest';
+
+
+const labels = metrics.labels;
 
 const idsGridApiHost = config.get('ids:api_host_name');
 
+const Prometheus = common.metrics.client;
 const idsRequestDuration = new Prometheus.Summary(
   'ids_request_duration_seconds',
   'IDS Request Duration',

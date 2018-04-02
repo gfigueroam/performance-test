@@ -1,12 +1,14 @@
 import chai from 'chai';
 
+import common from 'hmh-bfm-nodejs-common';
+
 import errors from '../../../../../../app/models/errors';
 
 import cb from '../../../../../common/helpers/cb';
 import http from '../../../../../common/helpers/http';
 import seed from '../../../../../common/seed';
 import paths from '../../../../../common/helpers/paths';
-import tokens from '../../../../../common/helpers/tokens';
+
 
 const expect = chai.expect;
 
@@ -15,7 +17,7 @@ const requestor = 'data.admin.test.requestor.1';
 const params = { key, requestor };
 
 const path = paths.DATA_CB_UNSET;
-const token = tokens.serviceToken;
+const token = common.test.tokens.serviceToken;
 const OK = { ok: true };
 
 

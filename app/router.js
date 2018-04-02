@@ -1,10 +1,12 @@
+import common from 'hmh-bfm-nodejs-common';
 import swatchjs from 'swatchjs';
 
 import apiConfig from './api/v1/routes';
-import metricsConfig from './metrics/routes';
 
 import onException from './utils/swatch';
 
+
+const metricsConfig = common.metrics.routes;
 const allConfigs = apiConfig.concat([metricsConfig]);
 
 const allRoutes = allConfigs.map(config => ({

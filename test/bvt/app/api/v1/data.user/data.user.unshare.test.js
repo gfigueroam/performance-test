@@ -1,17 +1,19 @@
 import chai from 'chai';
 import uuid from 'uuid';
 
+import common from 'hmh-bfm-nodejs-common';
+
 import errors from '../../../../../../app/models/errors';
 
 import http from '../../../../../common/helpers/http';
 import seed from '../../../../../common/seed';
 import paths from '../../../../../common/helpers/paths';
-import tokens from '../../../../../common/helpers/tokens';
+
 
 const expect = chai.expect;
 
 const path = paths.DATA_USER_UNSHARE;
-const token = tokens.serviceToken;
+const token = common.test.tokens.serviceToken;
 
 const key = `uds.bvt.data.user.unshare.test.${seed.buildNumber}`;
 const data = 'authz.unshare.test.data';

@@ -1,15 +1,17 @@
+import common from 'hmh-bfm-nodejs-common';
+
 import errors from '../../../../../../app/models/errors';
 import http from '../../../../../common/helpers/http';
 import paths from '../../../../../common/helpers/paths';
 import seed from '../../../../../common/seed';
-import tokens from '../../../../../common/helpers/tokens';
+
 
 const path = paths.AUTHZ_INFO;
 
 const name = `uds.bvt.authz.info.test.${seed.buildNumber}`;
 const url = 'http://localhost:5200/authz';
 
-const serviceToken = tokens.serviceToken;
+const serviceToken = common.test.tokens.serviceToken;
 
 const params = { name };
 const OK = { ok: true };
@@ -24,7 +26,7 @@ describe('authz.info', () => {
   });
 
   it('should return error when the request has a user token', done => {
-    const userToken = tokens.userTokens.internal;
+    const userToken = common.test.tokens.userTokens.internal;
     const errorCode = errors.codes.ERROR_CODE_WRONG_TOKEN_TYPE;
     http.sendPostRequestError(path, userToken, params, errorCode, done);
   });

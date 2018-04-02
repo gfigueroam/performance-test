@@ -1,14 +1,16 @@
+import common from 'hmh-bfm-nodejs-common';
+
 import http from '../../../../../common/helpers/http';
 import seed from '../../../../../common/seed';
 import paths from '../../../../../common/helpers/paths';
-import tokens from '../../../../../common/helpers/tokens';
+
 
 const key = `uds.bvt.data.user.get.test.${seed.buildNumber}`;
 const requestor = 'data.user.test.requestor.1';
 const data = 'this is some data';
 
 const path = paths.DATA_USER_GET;
-const token = tokens.serviceToken;
+const token = common.test.tokens.serviceToken;
 
 const OK = { ok: true };
 

@@ -5,7 +5,7 @@ import numberParsers from '../../../../../app/api/parsers/numbers';
 
 const expect = chai.expect;
 
-describe('Number Parsers', () => {
+describe('parsers.numbers', () => {
   describe('parseQuota', () => {
     it('should throw an error for invalid number param', () => {
       expect(() => numberParsers.parseQuota()).to.throw(
