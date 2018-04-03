@@ -5,6 +5,7 @@ import common from 'hmh-bfm-nodejs-common';
 import http from 'http';
 
 import server from '../../../../app/server';
+import metrics from '../../../../app/models/metrics';
 
 const expect = chai.expect;
 
@@ -30,6 +31,9 @@ describe('server', () => {
   });
 
   it('should start a server with correct env', () => {
+    common.metrics.gauges.init.callsFake(labels => {
+      expect(labels).to.deep.equal(metrics.labels);
+    });
     koaStub.use.onCall(0).callsFake(metricsMiddleware => {
       expect(typeof metricsMiddleware).to.equal('function');
     });

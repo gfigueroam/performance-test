@@ -10,17 +10,19 @@ import swatchKoa from 'swatchjs-koa';
 
 import http from 'http';
 
-import routes from '../router';
 import config from '../config';
 import logger from '../monitoring/logger';
+import metrics from '../models/metrics';
+import routes from '../router';
 
 
 function start(app) {
   // Initialize Prometheus gauges for CPU and system usage
-  common.metrics.gauges.init();
+  common.metrics.gauges.init(metrics.labels);
 
   // Add Prometheus metrics middleware to all inbound requests
-  app.use(common.metrics.requests.middleware);
+  const requests = common.metrics.requests.init(metrics.labels);
+  app.use(requests.middleware);
 
   // Set up compress behavior for server responses
   app.use(compress({}));
