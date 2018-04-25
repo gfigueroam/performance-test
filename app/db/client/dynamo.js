@@ -60,8 +60,10 @@ async function initClient() {
       dynamoDbParams.secretAccessKey = assumedData.Credentials.SecretAccessKey;
       dynamoDbParams.sessionToken = assumedData.Credentials.SessionToken;
 
-      // Re-create the DynamoDB client 100 seconds before the credentials expire.
-      setTimeout(initClient, 3500);
+      // DynamoDB client credentials are set to expire after 1 hour (3600 seconds)
+      //  Trigger refresh approx five minutes before they expire (3300000 milliseconds)
+      // https://aws.amazon.com/premiumsupport/knowledge-center/security-token-expired/
+      setTimeout(initClient, 3300000);
     } catch (err) {
       logger.error(`Unable to assume IAM role with STS Params ${stsParams}`, err);
       throw err;
