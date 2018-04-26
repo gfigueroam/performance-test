@@ -53,7 +53,7 @@ async function get(params) {
   // Authorize that requestor has access to owner data
   await utils.verifyOwnerAccess.call(this, params);
 
-  const getResult = dynamodbClient.instrumented('get', {
+  const getResult = await dynamodbClient.instrumented('get', {
     ConsistentRead: this.database && this.database.consistentRead,
     Key: {
       key: params.key,

@@ -12,7 +12,8 @@ async function get(params) {
   await utils.verifyOwnerAccess.call(this, params);
 
   params.app = constants.HMH_APP;
-  return appData.get.apply(this, [params]);
+  const result = await appData.get.apply(this, [params]);
+  return result;
 }
 
 async function query(params) {
@@ -23,7 +24,8 @@ async function query(params) {
   await utils.verifyOwnerAccess.call(this, params);
 
   params.app = constants.HMH_APP;
-  return appData.query.apply(this, [params]);
+  const result = await appData.query.apply(this, [params]);
+  return result;
 }
 
 async function set(params) {
@@ -37,7 +39,8 @@ async function set(params) {
   await utils.verifyOwnerAccess.call(this, params);
 
   params.app = constants.HMH_APP;
-  return appData.set.apply(this, [params]);
+  const result = await appData.set.apply(this, [params]);
+  return result;
 }
 
 async function unset(params) {
@@ -48,7 +51,8 @@ async function unset(params) {
   await utils.verifyOwnerAccess.call(this, params);
 
   params.app = constants.HMH_APP;
-  return appData.unset.apply(this, [params]);
+  const result = await appData.unset.apply(this, [params]);
+  return result;
 }
 
 async function list(params) {

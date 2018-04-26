@@ -346,25 +346,15 @@ async function list(params) {
   }
 
   // If we are querying for user data, we need to return shareIds. Otherwise we
-  // shouldn't query the share table at all, as it is throwaway work since app
-  // data cannot be shared.
+  // shouldn't query the share table at all, since app  data cannot be shared
+  const allResults = {};
+  allResults.keys = await getUserDataKeys.apply(this);
+
   if (params.app === constants.HMH_APP) {
-    // Wait for both functions running in parallel.
-    const userDataKeys = getUserDataKeys.apply(this);
-    const shareIds = getSharedIds.apply(this);
-
-    return {
-      keys: await userDataKeys,
-      shared: await shareIds,
-    };
-    // eslint-disable-next-line no-else-return
-  } else {
-    const userDataKeys = getUserDataKeys.apply(this);
-
-    return {
-      keys: await userDataKeys,
-    };
+    allResults.shared = await getSharedIds.apply(this);
   }
+
+  return allResults;
 }
 
 async function getApps(params) {
