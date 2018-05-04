@@ -8,10 +8,6 @@
   "logger": {
     "level": "info"
   },
-  "kafka": {
-    "topic": "hmheng-uds.prod.calculated-behavior-events.schema.calculated.behavior",
-    "group_id": "uds-calculated-behavior-group-prod"
-  },
   "iamRole": "arn:aws:iam::711638685743:role/uds/uds-iam-ddb-role-prod",
   "ids": {
     "api_host_name": "https://idm-ids-grid-api.br.hmheng.io"

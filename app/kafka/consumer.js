@@ -1,4 +1,3 @@
-/*
 import util from 'util';
 
 import config from './config';
@@ -13,4 +12,3 @@ if (config.kafkaTopic && config.kafkaGroupId) {
 
   runner.start(config);
 }
-*/
