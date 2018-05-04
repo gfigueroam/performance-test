@@ -110,7 +110,9 @@ describe('calculatedBehavior', () => {
           key,
           user: requestor,
         });
-        expect(params).to.have.all.keys('Key', 'ReturnConsumedCapacity', 'TableName');
+        expect(params).to.have.all.keys(
+          'ConsistentRead', 'Key', 'ReturnConsumedCapacity', 'TableName',
+        );
         return {
           promise: () => (Promise.resolve({})),
         };
@@ -155,7 +157,9 @@ describe('calculatedBehavior', () => {
           key,
           user: requestor,
         });
-        expect(params).to.have.all.keys('Key', 'ReturnConsumedCapacity', 'TableName');
+        expect(params).to.have.all.keys(
+          'ConsistentRead', 'Key', 'ReturnConsumedCapacity', 'TableName',
+        );
         return {
           promise: () => (Promise.resolve({
             Item: {

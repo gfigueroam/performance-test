@@ -189,6 +189,7 @@ async function merge(params) {
 
   // Look up the current value that already exists.
   const currentValue = await dynamodbClient.instrumented('get', {
+    ConsistentRead: this.database && this.database.consistentRead,
     Key: {
       key: params.key,
       user: params.owner,
