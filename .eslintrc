@@ -7,9 +7,6 @@
         "promise"
     ],
     "settings": {
-        "import/resolver": {
-            "eslint-import-resolver-babel-root-import": {}
-        }
     },
     "parserOptions": {
         "ecmaVersion": 8,

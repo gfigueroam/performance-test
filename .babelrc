@@ -5,6 +5,5 @@
   ],
   "plugins": [
     "transform-runtime",
-    ["babel-root-import", {}]
   ]
 }
