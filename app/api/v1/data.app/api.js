@@ -28,6 +28,7 @@ export default {
       },
       {
         name: 'requestor',
+        optional: true,
         parse: parsers.strings.parseOptionalString,
         validate: validators.strings.validateOptionalUser,
       },
@@ -67,6 +68,7 @@ export default {
       },
       {
         name: 'requestor',
+        optional: true,
         parse: parsers.strings.parseOptionalString,
         validate: validators.strings.validateOptionalUser,
       },
@@ -101,6 +103,7 @@ export default {
       },
       {
         name: 'requestor',
+        optional: true,
         parse: parsers.strings.parseOptionalString,
         validate: validators.strings.validateOptionalUser,
       },
@@ -129,6 +132,7 @@ export default {
       },
       {
         name: 'requestor',
+        optional: true,
         parse: parsers.strings.parseOptionalString,
         validate: validators.strings.validateOptionalUser,
       },
@@ -163,6 +167,7 @@ export default {
       },
       {
         name: 'requestor',
+        optional: true,
         parse: parsers.strings.parseOptionalString,
         validate: validators.strings.validateOptionalUser,
       },
@@ -202,6 +207,7 @@ export default {
       },
       {
         name: 'requestor',
+        optional: true,
         parse: parsers.strings.parseOptionalString,
         validate: validators.strings.validateOptionalUser,
       },

@@ -93,9 +93,8 @@ describe('data.app.query', () => {
 
   it('fails if the "requestor" parameter is not present when using a service token', done => {
     const params = { app: app1, keyPrefix };
-    const errorCode = 'missing_arg';
-    const errorDetails = 'Required argument "requestor" missing.';
-    http.sendPostRequestErrorDetails(path, token, params, errorCode, errorDetails, done);
+    const errorCode = errors.codes.ERROR_CODE_USER_NOT_FOUND;
+    http.sendPostRequestError(path, token, params, errorCode, done);
   });
 
   it('fails if the "owner" parameter doesnt match "requestor" parameter', done => {
