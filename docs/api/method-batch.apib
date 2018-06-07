@@ -1,0 +1,156 @@
+FORMAT: 1A
+
+# batch
+
+A method to invoke multiple API methods at once.
+
+The methods are not guaranteed to be executed in any particular order, and they succeed or fail independently.
+
+All [UDS API](index.html) methods are supported.
+
+:[](common-args.md url:"batch" token:"Can be used with either a service token or a user token.")
+
+Batch request:
+| Argument      | Example             | Required  | Description
+|:---           |:---                 |:---       |:---
+| `ops`         | `[op1, op2]`        | Required  | The list containing one or more operation definitions.
+
+Operation Object:
+| Argument      | Example                           | Required  | Description
+|:---           |:---                               |:---       |:---
+| `method`      | `data.app.get`                    | Required  | The name of the method to invoke.
+| `arg`         | `{"app": "app1", "key": "key1"}`  | Required  | The object containing arguments the method requires.
+
+## Examples
+
+Note: In the following examples we are passing the service token in the header, hence the requestor parameter is required.
+If the user token is passed, then the user-id is read from the token and the requestor parameter is not required.
+
+### Example 1: Request multiple documents from data.app by their key
+
+#### Request:
+
+POST to uds/api/v1/batch
+```javascript
+{
+    "ops": [{
+            "method": "data.app.get",
+            "args": {
+                "requestor": "teacher-123",
+                "app": "teacher-reports-app",
+                "key": "tapp.reports.3df73d24-559e-4881-8e3c-b40deeb7e549"
+            }
+        },
+        {
+            "method": "data.app.get",
+            "args": {
+                "requestor": "teacher-123",
+                "app": "teacher-reports-app",
+                "key": "tapp.reports.97f764e7-2ce5-4f80-9bea-faab540243b2"
+            }
+        }
+    ]
+}
+```
+
+
+#### Result:
+
+```javascript
+{
+    "ok": true,
+    "result": [
+        {
+            "ok": true,
+            "result": {
+                "createdBy": "teacher-123",
+                "data": {
+                    "badgeId": 3,
+                    "assessmentScore": 12
+                },
+                "key": "tapp.reports.3df73d24-559e-4881-8e3c-b40deeb7e549"
+            }
+        },
+        {
+            "ok": true,
+            "result": {
+                "createdBy": "teacher-123",
+                "data": {
+                  "badgeId": 2,
+                  "assessmentScore": 158
+                },
+                "key": "tapp.reports.97f764e7-2ce5-4f80-9bea-faab540243b2"
+            }
+        }
+    ]
+}
+```
+
+### Example 2: Batch with completely unrelated operations on different methods
+
+The first operation sets the new document in the data.app and the second one queries for annotations impersonating a student.
+
+Note: The first operation is going to fail with the "invalid data" error as the data parameter in data.app.set is intended to be a JSON object and we are passing a string instead.
+
+#### Request:
+
+POST to uds/api/v1/batch
+```javascript
+{
+    "ops": [{
+            "method": "data.app.set",
+            "args": {
+                "requestor": "teacher-123",
+                "app": "reports",
+                "key": "tapp.reports.3df73d24-559e-4881-8e3c-b40deeb7e549",
+                "data": "{\"hello\": \"world\"}"
+            }
+        },
+        {
+            "method": "data.user.query",
+            "args": {
+                "requestor": "teacher-123",
+                "owner": "student-abc"
+                "keyPrefix": "annotation"
+            }
+        }
+    ]
+}
+```
+
+
+#### Result:
+
+Example of the result where the first operation fails and the second succeeds.
+
+```javascript
+{
+    "ok": true,
+    "result": [
+        {
+            "ok": false,
+            "error": "invalid_data"
+        },
+        {
+            "ok": true,
+            "result": []
+        }
+    ]
+}
+```
+
+
+
+
+## Errors
+
+### Batch API specific errors
+
+| Error                 | Description
+|:---                   |:---
+| `invalid_request`     | `ops` parameter was not valid.
+| `invalid_method`      | Specified method was not declared in the UDS API.
+
+### Method specific errors
+
+:[](common-errors.md)
