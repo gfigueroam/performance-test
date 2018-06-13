@@ -13,7 +13,6 @@ function safeDeserializeMessage(buffer) {
     //  Should succeed when serializer wrote only the bytes of data object
     return schemas.cb.fromBuffer(buffer);
   } catch (error) {
-    logger.warn('Kafka consumer: Failed to deserialize message!', error);
     return undefined;
   }
 }
@@ -46,17 +45,17 @@ function start(config) {
   });
 
   consumer.on('message', message => {
-    logger.info('Kafka consumer: Received a message!');
+    logger.info('Kafka consumer: Received a message:', message.offset);
 
     const buffer = message.value;
     const decodedMessage = deserializeMessage(buffer);
     if (!decodedMessage) {
-      logger.error('Kafka consumer: Failed to deserialize message! Ignoring... ', buffer);
+      logger.error('Kafka consumer: Failed to deserialize message! Ignoring... ', message.offset, buffer);
       return;
     }
 
     // Convert Kafka event into UDS payload for API request
-    logger.info('Kafka consumer: Decoded value: ', decodedMessage);
+    logger.info('Kafka consumer: Decoded value: ', message.offset, decodedMessage);
     const udsPayload = {
       key: decodedMessage.key,
       owner: decodedMessage.user,
@@ -76,26 +75,26 @@ function start(config) {
     }).then(body => {
       if (body.ok) {
         // Commit the event by offset after processing successfully
-        logger.info(`Kafka consumer: UDS call succeeded! Commit processed event: ${udsPayload}`);
+        logger.info('Kafka consumer: UDS call succeeded! Commit processed event:', message.offset, udsPayload);
         const commit = {
           offset: message.offset + 1,
           partition: message.partition,
           topic: config.kafkaTopic,
         };
-        offset.commit(config.kafkaGroupId, [commit], (err, data) => {
+        offset.commit(config.kafkaGroupId, [commit], (err) => {
           if (err) {
-            logger.error('Kafka consumer: Error committing offsets: ', err);
+            logger.error('Kafka consumer: Error committing offset: ', message.offset, err);
           } else {
-            logger.info('Kafka consumer: Commit of offset was successful. Data:', data);
+            logger.info('Kafka consumer: Commit of offset was successful:', message.offset);
           }
         });
       } else {
         // TODO: Confirm Kafka will re-send the message after some visibility timeout
-        logger.error('Kafka consumer: UDS call returned an error result!', body);
+        logger.error('Kafka consumer: UDS call returned an error result!', message.offset, body);
       }
     }).catch(err => {
       // TODO: Confirm Kafka will re-send the message after some visibility timeout
-      logger.error('Kafka consumer: UDS called failed!', err);
+      logger.error('Kafka consumer: UDS called failed!', message.offset, err);
     });
   });
 }
