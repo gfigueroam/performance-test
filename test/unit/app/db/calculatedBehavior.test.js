@@ -1,4 +1,3 @@
-import AWS from 'aws-sdk';
 import chai from 'chai';
 import sinon from 'sinon';
 
@@ -14,8 +13,6 @@ import logger from '../../../../app/monitoring/logger';
 
 const expect = chai.expect;
 
-const documentClientStub = sinon.createStubInstance(AWS.DynamoDB.DocumentClient);
-
 const requestor = 'unittest.calculatedBehavior.user';
 const key = 'unittest.calculatedBehavior.key';
 const keyPrefix = 'unittest.calculatedBehavior.keyPrefix';
@@ -26,7 +23,16 @@ const swatchCtx = {
   logger,
 };
 
-describe('calculatedBehavior', () => {
+const documentClientStub = {
+  delete: sinon.stub(),
+  get: sinon.stub(),
+  put: sinon.stub(),
+  query: sinon.stub(),
+  update: sinon.stub(),
+};
+
+
+describe('db.calculatedBehavior', () => {
   before(() => {
     sinon.stub(dynamoDBClient, 'instrumented').callsFake((method, params) => (
       documentClientStub[method](params).promise()

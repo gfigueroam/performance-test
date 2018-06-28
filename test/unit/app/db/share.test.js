@@ -1,4 +1,3 @@
-import AWS from 'aws-sdk';
 import chai from 'chai';
 import sinon from 'sinon';
 
@@ -14,10 +13,6 @@ import userDB from '../../../../app/db/userData';
 
 const expect = chai.expect;
 
-const documentClientStub = sinon.createStubInstance(
-  AWS.DynamoDB.DocumentClient,
-);
-
 const shareTableName = config.get('database').shareTableName;
 const appDataTableName = config.get('database').appDataJsonTableName;
 
@@ -31,14 +26,17 @@ const swatchCtx = {
   logger,
 };
 
-let authzStub;
-let userDataStub;
+const documentClientStub = {
+  delete: sinon.stub(),
+  get: sinon.stub(),
+  put: sinon.stub(),
+};
 
 
-describe('share', () => {
+describe('db.share', () => {
   before(() => {
-    authzStub = sinon.stub(authz, 'exists');
-    userDataStub = sinon.stub(userDB, 'get');
+    sinon.stub(authz, 'exists');
+    sinon.stub(userDB, 'get');
 
     sinon.stub(auth.ids, 'hasAccessTo').returns(true);
     sinon.stub(dynamoDBClient, 'instrumented').callsFake((method, params) => (
@@ -47,8 +45,8 @@ describe('share', () => {
   });
 
   after(() => {
-    authzStub.restore();
-    userDataStub.restore();
+    authz.exists.restore();
+    userDB.get.restore();
 
     auth.ids.hasAccessTo.restore();
     dynamoDBClient.instrumented.restore();
@@ -275,10 +273,10 @@ describe('share', () => {
       auth.ids.hasAccessTo.returns(true);
 
       // Mock the case where the authz name does not exist
-      authzStub.callsFake(() => {
+      authz.exists.callsFake(() => {
         throw errors.codes.ERROR_CODE_AUTHZ_NOT_FOUND;
       });
-      userDataStub.callsFake(() => ({ key: 'key-whatever' }));
+      userDB.get.callsFake(() => ({ key: 'key-whatever' }));
 
       try {
         await share.share.apply(swatchCtx, [{
@@ -296,8 +294,8 @@ describe('share', () => {
 
     it('should throw an error if the key is not found', async () => {
       // Mock the case where the data key does not exist
-      authzStub.callsFake(() => (true));
-      userDataStub.callsFake(() => (undefined));
+      authz.exists.callsFake(() => (true));
+      userDB.get.callsFake(() => (undefined));
 
       try {
         await share.share.apply(swatchCtx, [{
@@ -321,12 +319,12 @@ describe('share', () => {
         requestor: 'owner-id',
       };
 
-      authzStub.callsFake(params => {
+      authz.exists.callsFake(params => {
         expect(params).to.deep.equal('authz-whatever');
         return true;
       });
 
-      userDataStub.callsFake(params => {
+      userDB.get.callsFake(params => {
         expect(params).to.deep.equal({
           key: 'key-whatever',
           owner: 'owner-id',

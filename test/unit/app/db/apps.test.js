@@ -1,4 +1,3 @@
-import AWS from 'aws-sdk';
 import chai from 'chai';
 import sinon from 'sinon';
 
@@ -13,8 +12,6 @@ import errors from '../../../../app/models/errors';
 
 const expect = chai.expect;
 
-const documentClientStub = sinon.createStubInstance(AWS.DynamoDB.DocumentClient);
-
 const name = 'unittest.apps.appname';
 const quota = 1024;
 const swatchCtx = {
@@ -23,7 +20,15 @@ const swatchCtx = {
   },
 };
 
-describe('apps', () => {
+const documentClientStub = {
+  delete: sinon.stub(),
+  get: sinon.stub(),
+  put: sinon.stub(),
+  scan: sinon.stub(),
+};
+
+
+describe('db.apps', () => {
   before(() => {
     sinon.stub(dynamoDBClient, 'instrumented').callsFake((method, params) => (
       documentClientStub[method](params).promise()

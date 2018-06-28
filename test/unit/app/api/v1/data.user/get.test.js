@@ -12,11 +12,10 @@ const requestor = 'hmh-test-user.123';
 const data = 'some data';
 const swatchCtx = { logger };
 
-let getStub;
 
 describe('data.user.get', () => {
   before(() => {
-    getStub = sinon.stub(userData, 'get');
+    sinon.stub(userData, 'get');
   });
 
   after(() => {
@@ -24,7 +23,7 @@ describe('data.user.get', () => {
   });
 
   it('returns an empty value when no item is returned', done => {
-    getStub.callsFake((params) => {
+    userData.get.callsFake((params) => {
       expect(params).to.deep.equal({
         key,
         owner: undefined,
@@ -42,7 +41,7 @@ describe('data.user.get', () => {
   });
 
   it('returns an the data value when an item is returned', done => {
-    getStub.callsFake((params) => {
+    userData.get.callsFake((params) => {
       expect(params).to.deep.equal({
         key,
         owner: undefined,

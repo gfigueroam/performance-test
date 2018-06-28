@@ -11,11 +11,10 @@ const key = 'test.data.user.list.name';
 const requestor = 'hmh-test-user.123';
 const swatchCtx = { logger };
 
-let listStub;
 
 describe('data.user.list', () => {
   before(() => {
-    listStub = sinon.stub(userData, 'list');
+    sinon.stub(userData, 'list');
   });
 
   after(() => {
@@ -23,7 +22,7 @@ describe('data.user.list', () => {
   });
 
   it('handles an empty array', done => {
-    listStub.callsFake((params) => {
+    userData.list.callsFake((params) => {
       expect(params).to.deep.equal({
         owner: undefined,
         requestor,
@@ -43,7 +42,7 @@ describe('data.user.list', () => {
   });
 
   it('handles an array with an item', done => {
-    listStub.callsFake((params) => {
+    userData.list.callsFake((params) => {
       expect(params).to.deep.equal({
         owner: undefined,
         requestor,

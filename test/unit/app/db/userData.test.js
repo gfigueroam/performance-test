@@ -22,9 +22,8 @@ const swatchCtx = {
   logger,
 };
 
-let appDataQueryStub;
 
-describe('userData', () => {
+describe('db.userData', () => {
   before(() => {
     sinon.stub(appData, 'set').callsFake(params => {
       expect(params).to.deep.equal({
@@ -66,12 +65,12 @@ describe('userData', () => {
       };
     });
 
-    appDataQueryStub = sinon.stub(appData, 'query');
+    sinon.stub(appData, 'query');
 
     sinon.stub(auth.ids, 'hasAccessTo').returns(true);
   });
   after(() => {
-    appDataQueryStub.restore();
+    appData.query.restore();
 
     appData.get.restore();
     appData.set.restore();
@@ -250,7 +249,7 @@ describe('userData', () => {
     it('calls appData.get with "hmh" as the app name and no results', (done) => {
       auth.ids.hasAccessTo.returns(true);
 
-      appDataQueryStub.callsFake(params => {
+      appData.query.callsFake(params => {
         expect(params).to.deep.equal({
           app: 'hmh',
           keyPrefix,
@@ -272,7 +271,7 @@ describe('userData', () => {
     });
 
     it('calls appData.get with "hmh" as the app name and list of results', (done) => {
-      appDataQueryStub.callsFake(params => {
+      appData.query.callsFake(params => {
         expect(params).to.deep.equal({
           app: 'hmh',
           keyPrefix,

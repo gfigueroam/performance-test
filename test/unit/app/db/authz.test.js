@@ -1,4 +1,3 @@
-import AWS from 'aws-sdk';
 import chai from 'chai';
 import sinon from 'sinon';
 
@@ -11,10 +10,6 @@ import errors from '../../../../app/models/errors';
 
 const expect = chai.expect;
 
-const documentClientStub = sinon.createStubInstance(
-  AWS.DynamoDB.DocumentClient,
-);
-
 const name = 'unittest.authz.authzname';
 const url = 'http://localhost:5200/authz';
 const swatchCtx = {
@@ -23,7 +18,15 @@ const swatchCtx = {
   },
 };
 
-describe('authz', () => {
+const documentClientStub = {
+  delete: sinon.stub(),
+  get: sinon.stub(),
+  put: sinon.stub(),
+  scan: sinon.stub(),
+};
+
+
+describe('db.authz', () => {
   before(() => {
     sinon.stub(dynamoDBClient, 'instrumented').callsFake((method, params) => (
       documentClientStub[method](params).promise()

@@ -1,9 +1,6 @@
-import AWS from 'aws-sdk';
 import chai from 'chai';
 import sinon from 'sinon';
 
-// We can import appData before we set the DocumentClient stub
-// because appData uses lazy initialization. See details in appData.js
 import auth from '../../../../app/auth';
 import appData from '../../../../app/db/appData';
 import quota from '../../../../app/db/quota';
@@ -15,8 +12,6 @@ import errors from '../../../../app/models/errors';
 import logger from '../../../../app/monitoring/logger';
 
 const expect = chai.expect;
-
-const documentClientStub = sinon.createStubInstance(AWS.DynamoDB.DocumentClient);
 
 const requestor = 'unittest.userData.user';
 const key = 'unittest.userData.key';
@@ -30,7 +25,16 @@ const swatchCtx = {
   logger,
 };
 
-describe('appData', () => {
+const documentClientStub = {
+  delete: sinon.stub(),
+  get: sinon.stub(),
+  put: sinon.stub(),
+  query: sinon.stub(),
+  update: sinon.stub(),
+};
+
+
+describe('db.appData', () => {
   before(() => {
     sinon.stub(dynamoDBClient, 'instrumented').callsFake((method, params) => (
       documentClientStub[method](params).promise()

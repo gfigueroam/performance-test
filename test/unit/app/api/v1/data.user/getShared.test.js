@@ -18,11 +18,10 @@ const mockDataItem = {
   type: 'text',
 };
 
-let getSharedStub;
 
 describe('data.user.getShared', () => {
   before(() => {
-    getSharedStub = sinon.stub(share, 'getShared');
+    sinon.stub(share, 'getShared');
   });
 
   after(() => {
@@ -30,7 +29,7 @@ describe('data.user.getShared', () => {
   });
 
   it('returns the data value when an item is returned', done => {
-    getSharedStub.callsFake((params) => {
+    share.getShared.callsFake((params) => {
       expect(params).to.deep.equal({
         id: shareId,
         requestor,

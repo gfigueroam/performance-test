@@ -13,11 +13,11 @@ const APP = {
 
 const swatchCtx = { logger };
 const name = 'test.apps.info.name';
-let infoStub;
+
 
 describe('apps.info', () => {
   before(() => {
-    infoStub = sinon.stub(apps, 'info');
+    sinon.stub(apps, 'info');
   });
 
   after(() => {
@@ -25,7 +25,7 @@ describe('apps.info', () => {
   });
 
   it('returns no value when there is no matching app', done => {
-    infoStub.callsFake((params) => {
+    apps.info.callsFake((params) => {
       expect(params).to.deep.equal({
         name,
       });
@@ -40,7 +40,7 @@ describe('apps.info', () => {
   });
 
   it('returns app information when there is a matching app', done => {
-    infoStub.callsFake((params) => {
+    apps.info.callsFake((params) => {
       expect(params).to.deep.equal({
         name,
       });

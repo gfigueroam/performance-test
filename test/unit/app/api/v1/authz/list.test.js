@@ -16,12 +16,10 @@ const mockAuthzResults = [{
 }];
 const swatchCtx = { logger };
 
-let listStub;
-
 
 describe('authz.list', () => {
   before(() => {
-    listStub = sinon.stub(authz, 'list');
+    sinon.stub(authz, 'list');
   });
 
   after(() => {
@@ -29,7 +27,7 @@ describe('authz.list', () => {
   });
 
   it('returns empty set when there are no authz configurations in the database', done => {
-    listStub.callsFake(() => (Promise.resolve([])));
+    authz.list.callsFake(() => (Promise.resolve([])));
     listHandler.apply(swatchCtx).then(result => {
       expect(result).to.deep.equal([]);
       expect(authz.list.called).to.equal(true);
@@ -38,7 +36,7 @@ describe('authz.list', () => {
   });
 
   it('returns authz information when there are authz configurations in the database', done => {
-    listStub.callsFake(() => (Promise.resolve(mockAuthzResults)));
+    authz.list.callsFake(() => (Promise.resolve(mockAuthzResults)));
     listHandler.apply(swatchCtx).then(result => {
       expect(result).to.deep.equal(mockAuthzResults);
       expect(authz.list.called).to.equal(true);

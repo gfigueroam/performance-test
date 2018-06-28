@@ -5,15 +5,20 @@ import runner from '../../../../app/kafka/runner';
 
 const expect = chai.expect;
 
-describe('consumer', () => {
-  it('should skip starting the kafka consumer', () => {
-    const startStub = sinon.stub(runner, 'start');
 
+describe('consumer', () => {
+  before(() => {
+    sinon.stub(runner, 'start');
+  });
+
+  after(() => {
+    runner.start.restore();
+  });
+
+  it('should skip starting the kafka consumer', () => {
     // eslint-disable-next-line global-require
     require('../../../../app/kafka/consumer');
 
-    expect(startStub.called).to.equal(false);
-
-    startStub.restore();
+    expect(runner.start.called).to.equal(false);
   });
 });

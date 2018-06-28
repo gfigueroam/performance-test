@@ -11,11 +11,10 @@ const keyPrefix = 'test.data.user.query.name.prefix.';
 const requestor = 'hmh-test-user.123';
 const swatchCtx = { logger };
 
-let queryStub;
 
 describe('data.user.query', () => {
   before(() => {
-    queryStub = sinon.stub(userData, 'query');
+    sinon.stub(userData, 'query');
   });
 
   after(() => {
@@ -29,7 +28,7 @@ describe('data.user.query', () => {
     ];
 
     const expected = items.map((item) => { delete item.user; return item; });
-    queryStub.callsFake((params) => {
+    userData.query.callsFake((params) => {
       expect(params).to.deep.equal({
         keyPrefix,
         owner: undefined,
@@ -47,7 +46,7 @@ describe('data.user.query', () => {
   });
 
   it('returns undefined if there is no DynamoDB item', done => {
-    queryStub.callsFake((params) => {
+    userData.query.callsFake((params) => {
       expect(params).to.deep.equal({
         keyPrefix,
         owner: undefined,

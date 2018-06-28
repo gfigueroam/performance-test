@@ -1,4 +1,3 @@
-import AWS from 'aws-sdk';
 import chai from 'chai';
 import sinon from 'sinon';
 import sizeof from 'object-sizeof';
@@ -9,8 +8,6 @@ import dynamoDBClient from '../../../../app/db/client';
 
 const expect = chai.expect;
 
-const documentClientStub = sinon.createStubInstance(AWS.DynamoDB.DocumentClient);
-
 const requestor = 'unittest.userData.user';
 const app = 'unittestapp';
 const swatchCtx = {
@@ -19,7 +16,11 @@ const swatchCtx = {
   },
 };
 
-describe('quota', () => {
+const documentClientStub = {
+  query: sinon.stub(),
+};
+
+describe('db.quota', () => {
   before(() => {
     sinon.stub(auth.ids, 'hasAccessTo').returns(true);
     sinon.stub(dynamoDBClient, 'instrumented').callsFake((method, params) => (

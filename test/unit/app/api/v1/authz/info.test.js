@@ -14,11 +14,11 @@ const mockAuthzResult = {
 
 const swatchCtx = { logger };
 const name = 'test.authz.info.name';
-let infoStub;
+
 
 describe('authz.info', () => {
   before(() => {
-    infoStub = sinon.stub(authz, 'info');
+    sinon.stub(authz, 'info');
   });
 
   after(() => {
@@ -26,7 +26,7 @@ describe('authz.info', () => {
   });
 
   it('returns no value when there is no matching authz configuration', done => {
-    infoStub.callsFake((params) => {
+    authz.info.callsFake((params) => {
       expect(params).to.deep.equal({ name });
 
       return Promise.resolve(undefined);
@@ -39,7 +39,7 @@ describe('authz.info', () => {
   });
 
   it('returns authz information when there is a matching authz configuration', done => {
-    infoStub.callsFake((params) => {
+    authz.info.callsFake((params) => {
       expect(params).to.deep.equal({ name });
       return Promise.resolve(mockAuthzResult);
     });

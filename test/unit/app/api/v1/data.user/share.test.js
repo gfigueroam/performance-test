@@ -15,11 +15,10 @@ const requestor = 'hmh-test-user.123';
 
 const swatchCtx = { logger };
 
-let shareStub;
 
 describe('data.user.share', () => {
   before(() => {
-    shareStub = sinon.stub(share, 'share');
+    sinon.stub(share, 'share');
   });
 
   after(() => {
@@ -27,7 +26,7 @@ describe('data.user.share', () => {
   });
 
   it('returns the new share id when sharing is successful', done => {
-    shareStub.callsFake((params) => {
+    share.share.callsFake((params) => {
       expect(params).to.deep.equal({
         authz,
         ctx,

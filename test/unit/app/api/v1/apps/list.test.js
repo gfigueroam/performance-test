@@ -15,11 +15,10 @@ const EXISTING_APPS = [{
 }];
 const swatchCtx = { logger };
 
-let listStub;
 
 describe('apps.list', () => {
   before(() => {
-    listStub = sinon.stub(apps, 'list');
+    sinon.stub(apps, 'list');
   });
 
   after(() => {
@@ -27,7 +26,7 @@ describe('apps.list', () => {
   });
 
   it('returns empty set when there are no apps in the database', done => {
-    listStub.callsFake(() => (Promise.resolve([])));
+    apps.list.callsFake(() => (Promise.resolve([])));
     listHandler.apply(swatchCtx).then(result => {
       expect(result).to.deep.equal([]);
       expect(apps.list.called).to.equal(true);
@@ -36,7 +35,7 @@ describe('apps.list', () => {
   });
 
   it('returns app information when there are apps in the database', done => {
-    listStub.callsFake(() => (Promise.resolve(EXISTING_APPS)));
+    apps.list.callsFake(() => (Promise.resolve(EXISTING_APPS)));
     listHandler.apply(swatchCtx).then(result => {
       expect(result).to.deep.equal(EXISTING_APPS);
       expect(apps.list.called).to.equal(true);
