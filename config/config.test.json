@@ -1,5 +1,6 @@
 {
   "ids": {
     "api_host_name": "http://idm-ids-grid-api.test"
-  }
+  },
+  "iamRole": "test:arn:aws:iam::711638685743:role/uds/uds-iam-ddb-role-test"
 }
