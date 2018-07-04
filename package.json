@@ -180,13 +180,14 @@
     "yaml-js": "^0.2.3"
   },
   "dependencies": {
+    "aguid": "2.0.0",
     "ajv": "^6.0.1",
     "avsc": "^5.0.7",
     "aws-sdk": "^2.134.0",
     "bunyan": "^1.8.10",
     "glob": "^7.1.2",
     "grid-framework": "github:hmhco/hmh.grid.framework#v1.0.2",
-    "hmh-bfm-nodejs-common": "github:hmhco/hmh-bfm-nodejs-common#v1.1.3",
+    "hmh-bfm-nodejs-common": "github:hmhco/hmh-bfm-nodejs-common#v1.1.5",
     "idm-nodejs-common": "hmhco/idm-nodejs-common#v1.0.14",
     "jsonwebtoken": "^7.4.2",
     "kafka-node": "^2.2.3",
