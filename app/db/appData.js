@@ -146,29 +146,29 @@ async function merge(params) {
     }
   }
 
-  // Look up the current value that already exists.
-  const currentValue = await dynamodbClient.instrumented('get', {
-    ConsistentRead: this.database && this.database.consistentRead,
-    Key: {
-      appUser: `${params.app}${constants.DELIMITER}${params.owner}`,
-      key: params.key,
-    },
-    ReturnConsumedCapacity: 'TOTAL',
-    TableName: nconf.get('database').appDataJsonTableName,
-  });
+  async function getCurrentValue() {
+    const currentValue = await dynamodbClient.instrumented('get', {
+      ConsistentRead: this.database && this.database.consistentRead,
+      Key: {
+        appUser: `${params.app}${constants.DELIMITER}${params.owner}`,
+        key: params.key,
+      },
+      ReturnConsumedCapacity: 'TOTAL',
+      TableName: nconf.get('database').appDataJsonTableName,
+    });
 
-  let newValue;
-  let conditionExpression;
-  // Is there an existing item?
-  if (currentValue.Item) {
+    return currentValue.Item;
+  }
+
+  async function updateExistingItem(item) {
     this.logger.info(`App DB: App data merge on existing data item: ${params.key}`);
 
     // merge only works on objects
     // This logic is based in part on underscore.js' implementation of isObject.
     // (underscore.js is MIT licensed.)
-    if (typeof currentValue.Item.data === 'object' && !!currentValue.Item.data) {
-      // Clone currentValue.Item.data
-      newValue = Object.assign({}, currentValue.Item.data);
+    if (typeof item.data === 'object' && !!item.data) {
+      // Clone item.data
+      const newValue = Object.assign({}, item.data);
       // Merge - updates newValue with properties from params.data
       Object.assign(newValue, params.data);
 
@@ -178,7 +178,7 @@ async function merge(params) {
           '#data': 'data',
         },
         ExpressionAttributeValues: {
-          ':oldval': currentValue.Item.data,
+          ':oldval': item.data,
           ':requestor': params.requestor,
           ':value': newValue,
         },
@@ -195,16 +195,16 @@ async function merge(params) {
     }
 
     // Not an object value - this should never happen.
-    this.logger.error(`App DB: App data merge failed on non-object data: ${currentValue.Item.data}`);
+    this.logger.error(`App DB: App data merge failed on non-object data: ${item.data}`);
     throw errors.codes.ERROR_CODE_INVALID_DATA_TYPE;
-  } else {
+  }
+
+  async function createNewItem() {
     this.logger.info(`App DB: App data merge creating new data item with key: ${params.key}`);
 
     // There is not an existing value, so store the new value as though the previous value was {}.
-    newValue = params.data;
-    conditionExpression = 'attribute_not_exists(#data)';
     await dynamodbClient.instrumented('put', {
-      ConditionExpression: conditionExpression,
+      ConditionExpression: 'attribute_not_exists(#data)',
       ExpressionAttributeNames: {
         '#data': 'data',
       },
@@ -212,7 +212,7 @@ async function merge(params) {
         appKey: `${params.app}${constants.DELIMITER}${params.key}`,
         appUser: `${params.app}${constants.DELIMITER}${params.owner}`,
         createdBy: params.requestor,
-        data: newValue,
+        data: params.data,
         key: params.key,
         type: params.type,
         user: params.owner,
@@ -223,6 +223,8 @@ async function merge(params) {
 
     return undefined;
   }
+
+  await utils.insertOrUpdate.call(this, getCurrentValue, createNewItem, updateExistingItem);
 }
 
 async function unset(params) {

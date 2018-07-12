@@ -31,7 +31,27 @@ async function verifyOwnerAccess(params) {
   }
 }
 
+async function insertOrUpdate(getFn, conditionalCreateFn, conditionalUpdateFn) {
+  let data = await getFn.call(this);
+  if (!data) {
+    try {
+      const setResult = await conditionalCreateFn.call(this);
+      return setResult;
+    } catch (err) {
+      // Do nothing; we will fall back and execute the getFn again and call updateFn.
+    }
+  }
+  try {
+    data = await getFn.call(this);
+    const result = await conditionalUpdateFn.call(this, data);
+    return result;
+  } catch (err) {
+    return Promise.reject(err);
+  }
+}
+
 export default {
+  insertOrUpdate,
   rejectHiddenApp,
   validateParams,
   verifyOwnerAccess,

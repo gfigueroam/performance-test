@@ -256,7 +256,7 @@ describe('db.calculatedBehavior', () => {
       }
     });
 
-    it('calls throws an error if there is an existing non-numeric value', async () => {
+    it('throws an error if there is an existing non-numeric value', async () => {
       // dynamodb.get is called to check the existing value
       documentClientStub.get.callsFake(() => ({
         promise: () => (Promise.resolve({
@@ -365,6 +365,88 @@ describe('db.calculatedBehavior', () => {
           promise: () => (Promise.resolve()),
         };
       });
+      calculatedBehavior.atomicUpdate.apply(swatchCtx, [{
+        key,
+        requestor,
+        value: 1,
+      }])
+      .then(done)
+      .catch(done);
+    });
+
+    it('calls dynamoDB.put if there is no existing value but falls back to dynamoDB.update', (done) => {
+      // dynamodb.get is called to check the existing value
+      let getCalls = 0;
+      documentClientStub.get.callsFake(params => {
+        expect(params.Key).to.deep.equal({
+          key,
+          user: requestor,
+        });
+        expect(params).to.have.all.keys(
+          'ConsistentRead',
+          'Key',
+          'ReturnConsumedCapacity',
+          'TableName',
+        );
+        // Return an item on the second call
+        if (getCalls === 0) {
+          getCalls += 1;
+          return {
+            promise: () => (Promise.resolve({
+              Item: undefined,
+            })),
+          };
+        }
+        return {
+          promise: () => (Promise.resolve({
+            Item: {
+              data: 10,
+            },
+          })),
+        };
+      });
+
+      documentClientStub.put.callsFake(params => {
+        expect(params).to.have.all.keys(
+          'ConditionExpression',
+          'ExpressionAttributeNames',
+          'Item',
+          'ReturnConsumedCapacity',
+          'TableName',
+        );
+        expect(params.Item).to.deep.equal({
+          createdBy: requestor,
+          data: 1,
+          key,
+          user: requestor,
+        });
+
+        return {
+          promise: () => (Promise.reject(new Error('Fake error'))),
+        };
+      });
+
+      documentClientStub.update.callsFake(params => {
+        expect(params).to.have.all.keys(
+          'ConditionExpression',
+          'ExpressionAttributeNames',
+          'ExpressionAttributeValues',
+          'Key',
+          'ReturnConsumedCapacity',
+          'TableName',
+          'UpdateExpression',
+        );
+        expect(params.Key).to.deep.equal({
+          key,
+          user: requestor,
+        });
+        expect(params.ExpressionAttributeValues[':value']).to.equal(1);
+
+        return {
+          promise: () => (Promise.resolve()),
+        };
+      });
+
       calculatedBehavior.atomicUpdate.apply(swatchCtx, [{
         key,
         requestor,

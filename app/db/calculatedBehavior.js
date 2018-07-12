@@ -110,29 +110,26 @@ async function atomicUpdate(params) {
   // Authorize that requestor has access to owner data
   await utils.verifyOwnerAccess.call(this, params);
 
-  // Look up the current value that already exists.
-  const currentValue = await dynamodbClient.instrumented('get', {
-    ConsistentRead: this.database && this.database.consistentRead,
-    Key: {
-      key: params.key,
-      user: params.owner,
-    },
-    ReturnConsumedCapacity: 'TOTAL',
-    TableName: nconf.get('database').calculatedBehaviorTableName,
-  });
+  async function getCurrentValue() {
+    const result = await dynamodbClient.instrumented('get', {
+      ConsistentRead: this.database && this.database.consistentRead,
+      Key: {
+        key: params.key,
+        user: params.owner,
+      },
+      ReturnConsumedCapacity: 'TOTAL',
+      TableName: nconf.get('database').calculatedBehaviorTableName,
+    });
 
-  let newValue;
-  let conditionExpression;
-  // Is there an existing item?
-  if (currentValue.Item) {
+    return result.Item;
+  }
+
+  async function updateExistingItem(existingItem) {
     this.logger.info(`CB DB: Running atomic update on existing data item (${params.key})`);
     // atomic update only works on numeric values
-    if (Object.prototype.toString.call(currentValue.Item.data) === '[object Number]') {
-      newValue = currentValue.Item.data + params.value;
-      conditionExpression = 'attribute_exists(#data)';
-
+    if (Object.prototype.toString.call(existingItem.data) === '[object Number]') {
       await dynamodbClient.instrumented('update', {
-        ConditionExpression: conditionExpression,
+        ConditionExpression: 'attribute_exists(#data)',
         ExpressionAttributeNames: {
           '#data': 'data',
         },
@@ -153,22 +150,22 @@ async function atomicUpdate(params) {
     }
 
     // else
-    this.logger.error(`CB DB: Atomic update failed on non-numeric data: ${currentValue.Item.data}`);
+    this.logger.error(`CB DB: Atomic update failed on non-numeric data: ${existingItem.data}`);
     throw errors.codes.ERROR_CODE_INVALID_DATA_TYPE;
-  } else {
+  }
+
+  async function createNewItem() {
     this.logger.info(`CB DB: Atomic update creating new data item with key: ${params.key}`);
 
     // There is not an existing value, so store the new value as though the previous value was 0.
-    newValue = params.value;
-    conditionExpression = 'attribute_not_exists(#data)';
     await dynamodbClient.instrumented('put', {
-      ConditionExpression: conditionExpression,
+      ConditionExpression: 'attribute_not_exists(#data)',
       ExpressionAttributeNames: {
         '#data': 'data',
       },
       Item: {
         createdBy: params.requestor,
-        data: newValue,
+        data: params.value,
         key: params.key,
         user: params.owner,
       },
@@ -178,6 +175,8 @@ async function atomicUpdate(params) {
 
     return undefined;
   }
+
+  await utils.insertOrUpdate.call(this, getCurrentValue, createNewItem, updateExistingItem);
 }
 
 async function merge(params) {
@@ -187,29 +186,29 @@ async function merge(params) {
   // Authorize that requestor has access to owner data
   await utils.verifyOwnerAccess.call(this, params);
 
-  // Look up the current value that already exists.
-  const currentValue = await dynamodbClient.instrumented('get', {
-    ConsistentRead: this.database && this.database.consistentRead,
-    Key: {
-      key: params.key,
-      user: params.owner,
-    },
-    ReturnConsumedCapacity: 'TOTAL',
-    TableName: nconf.get('database').calculatedBehaviorTableName,
-  });
+  async function getCurrentValue() {
+    const currentValue = await dynamodbClient.instrumented('get', {
+      ConsistentRead: this.database && this.database.consistentRead,
+      Key: {
+        key: params.key,
+        user: params.owner,
+      },
+      ReturnConsumedCapacity: 'TOTAL',
+      TableName: nconf.get('database').calculatedBehaviorTableName,
+    });
 
-  let newValue;
-  let conditionExpression;
-  // Is there an existing item?
-  if (currentValue.Item) {
+    return currentValue.Item;
+  }
+
+  async function updateExistingItem(item) {
     this.logger.info(`CB DB: Calculated behavior merge on existing data item: ${params.key}`);
 
     // merge only works on objects
     // This logic is based in part on underscore.js' implementation of isObject.
     // (underscore.js is MIT licensed.)
-    if (typeof currentValue.Item.data === 'object' && !!currentValue.Item.data) {
-      // Clone currentValue.Item.data
-      newValue = Object.assign({}, currentValue.Item.data);
+    if (typeof item.data === 'object' && !!item.data) {
+      // Clone item.data
+      const newValue = Object.assign({}, item.data);
       // Merge - updates newValue with properties from params.data
       Object.assign(newValue, params.data);
 
@@ -219,7 +218,7 @@ async function merge(params) {
           '#data': 'data',
         },
         ExpressionAttributeValues: {
-          ':oldval': currentValue.Item.data,
+          ':oldval': item.data,
           ':requestor': params.requestor,
           ':value': newValue,
         },
@@ -236,16 +235,16 @@ async function merge(params) {
     }
 
     // Not an object value
-    this.logger.error(`CB DB: Calculated behavior merge failed on non-object data: ${currentValue.Item.data}`);
+    this.logger.error(`CB DB: Calculated behavior merge failed on non-object data: ${item.data}`);
     throw errors.codes.ERROR_CODE_INVALID_DATA_TYPE;
-  } else {
+  }
+
+  async function createNewItem() {
     this.logger.info(`CB DB: Calculated behavior merge creating new data item with key: ${params.key}`);
 
     // There is not an existing value, so store the new value as though the previous value was {}.
-    newValue = params.data;
-    conditionExpression = 'attribute_not_exists(#data)';
     await dynamodbClient.instrumented('put', {
-      ConditionExpression: conditionExpression,
+      ConditionExpression: 'attribute_not_exists(#data)',
       ExpressionAttributeNames: {
         '#data': 'data',
       },
@@ -261,6 +260,8 @@ async function merge(params) {
 
     return undefined;
   }
+
+  await utils.insertOrUpdate.call(this, getCurrentValue, createNewItem, updateExistingItem);
 }
 
 module.exports = {
