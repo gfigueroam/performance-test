@@ -3,6 +3,7 @@ import swatchjs from 'swatchjs';
 
 import apiConfig from './api/v1/routes';
 
+import constants from './utils/constants';
 import onException from './utils/swatch';
 
 
@@ -15,6 +16,7 @@ const allRoutes = allConfigs.map(config => ({
     onException,
     prefix: config.prefix,
     rawResponse: config.rawResponse,
+    requestIdProp: constants.UDS_REQUEST_ID_PROPERTY_NAME,
   },
   routes: swatchjs(config.routes),
 }));

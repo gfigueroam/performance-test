@@ -11,6 +11,7 @@ import swatchKoa from 'swatchjs-koa';
 import http from 'http';
 
 import config from '../config';
+import constants from '../utils/constants';
 import logger from '../monitoring/logger';
 import metrics from '../models/metrics';
 import routes from '../router';
@@ -30,9 +31,9 @@ function start(app) {
   // Set up custom request logger using Bunyan
   app.use(koaBunyanLogger(logger));
   app.use(koaBunyanLogger.requestIdContext({
-    field: 'correlationId',
-    prop: 'correlationId',
-    requestProp: 'correlationId',
+    field: constants.UDS_REQUEST_ID_PROPERTY_NAME,
+    prop: constants.UDS_REQUEST_ID_PROPERTY_NAME,
+    requestProp: constants.UDS_REQUEST_ID_PROPERTY_NAME,
   }));
   app.use(koaBunyanLogger.requestLogger({
     updateLogFields(fields) {

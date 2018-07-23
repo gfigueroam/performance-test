@@ -187,7 +187,7 @@
     "bunyan": "^1.8.10",
     "glob": "^7.1.2",
     "grid-framework": "github:hmhco/hmh.grid.framework#v1.0.2",
-    "hmh-bfm-nodejs-common": "github:hmhco/hmh-bfm-nodejs-common#v1.1.5",
+    "hmh-bfm-nodejs-common": "github:hmhco/hmh-bfm-nodejs-common#v1.2.0",
     "idm-nodejs-common": "hmhco/idm-nodejs-common#v1.0.14",
     "jsonwebtoken": "^7.4.2",
     "kafka-node": "^2.2.3",

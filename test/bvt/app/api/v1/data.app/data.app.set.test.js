@@ -16,6 +16,7 @@ const data = {
   key1: true,
   key2: 'some string',
   key3: [1, 2, 3],
+  key4: '',
 };
 const quota = 1024;
 
@@ -110,14 +111,19 @@ describe('data.app.set', () => {
     http.sendPostRequestError(path, token, params, errorCode, done);
   });
 
-  it('successfully stores data', done => {
+  it('successfully stores data with empty strings as null', done => {
     const params = { app, data, key, requestor };
     http.sendPostRequestSuccess(path, token, params, OK, () => {
       const result = {
         ok: true,
         result: {
           createdBy: requestor,
-          data,
+          data: {
+            key1: true,
+            key2: 'some string',
+            key3: [1, 2, 3],
+            key4: null,
+          },
           key,
         },
       };
