@@ -4,53 +4,25 @@ import request from 'request-promise';
 
 import logger from '../monitoring/logger';
 
-import schemas from './schemas';
+import buffer from './buffer';
 
 
-function safeDeserializeMessage(buffer) {
-  try {
-    // First try to deserialize the message buffer exactly as received
-    //  Should succeed when serializer wrote only the bytes of data object
-    return schemas.cb.fromBuffer(buffer);
-  } catch (error) {
-    return undefined;
-  }
-}
-
-function deserializeMessage(buffer) {
-  // Try to deserialize message buffer exactly as received
-  const result = safeDeserializeMessage(buffer);
-  if (result !== undefined) {
-    return result;
-  }
-
-  if (buffer[0] === 0x00) {
-    // Confluence library have a wire format with a 0x00 as magic first byte
-    //  followed by a four byte sequence of the registered schema identifier
-    // Strip out the first five bytes from buffer and try to deserialize message
-    logger.warn('Kafka consumer: Deserializing without Confluence prefix...');
-    return safeDeserializeMessage(buffer.slice(5));
-  }
-
-  return undefined;
-}
-
+// Kafka consumer intialization and message handlers
 function start(config) {
   const consumer = config.initConsumer();
   const offset = config.initOffset(consumer);
 
   consumer.on('offsetOutOfRange', err => {
-    // TODO: Handle this properly, warn on missed events, ensure offset is updated
-    logger.warn('Kafka consumer: Warning! Offset out-of-range. Need to adjust client offset.', err);
+    // TODO: Handle properly, warn on missed events, ensure offset is updated
+    logger.warn('Kafka consumer: Warning! Offset out-of-range.', err);
   });
 
   consumer.on('message', message => {
     logger.info('Kafka consumer: Received a message:', message.offset);
 
-    const buffer = message.value;
-    const decodedMessage = deserializeMessage(buffer);
+    const decodedMessage = buffer.deserialize(message.value);
     if (!decodedMessage) {
-      logger.error('Kafka consumer: Failed to deserialize message! Ignoring... ', message.offset, buffer);
+      logger.error('Kafka consumer: Failed to deserialize message! Ignoring... ', message.offset);
       return;
     }
 

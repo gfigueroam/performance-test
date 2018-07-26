@@ -5,6 +5,7 @@ import runner from './runner';
 
 import logger from '../monitoring/logger';
 
+// Main file to startup and initialize Kafka consumer
 logger.info('Kafka consumer: Checking configuration...');
 
 if (config.kafkaTopic && config.kafkaGroupId) {

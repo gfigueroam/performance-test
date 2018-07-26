@@ -2,6 +2,7 @@ import kafka from 'kafka-node';
 
 import config from '../config';
 
+// Environment-level configurations for Kafka consumer
 const kafkaHost = config.get('kafka:host');
 const kafkaTopic = config.get('kafka:topic');
 const kafkaGroupId = config.get('kafka:group_id');
