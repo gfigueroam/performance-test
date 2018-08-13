@@ -53,7 +53,7 @@ CERTRV = Profile(
 )
 
 CERT = Profile(
-    instances=1,
+    instances=2,
     stage="cert",
     environment="staging1",
     cluster=CLUSTER_NAME + "-" + AWS_REGION,
@@ -79,7 +79,7 @@ DEV = Profile(
 )
 
 jobs = []
-task_res = Resources(cpu=1, ram=1 * GB, disk=5 * GB)
+task_res = Resources(cpu=1, ram=2 * GB, disk=5 * GB)
 
 for profile in [DEV, INT, CERT, CERTRV, PRODRV, PRODUCTION]:
     server_task = Task(
