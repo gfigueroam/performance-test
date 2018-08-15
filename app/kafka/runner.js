@@ -10,7 +10,6 @@ import buffer from './buffer';
 // Kafka consumer intialization and message handlers
 function start(config) {
   const consumer = config.initConsumer();
-  const offset = config.initOffset(consumer);
 
   consumer.on('offsetOutOfRange', err => {
     // TODO: Handle properly, warn on missed events, ensure offset is updated
@@ -46,20 +45,8 @@ function start(config) {
       uri,
     }).then(body => {
       if (body.ok) {
-        // Commit the event by offset after processing successfully
-        logger.info('Kafka consumer: UDS call succeeded! Commit processed event:', message.offset, udsPayload);
-        const commit = {
-          offset: message.offset + 1,
-          partition: message.partition,
-          topic: config.kafkaTopic,
-        };
-        offset.commit(config.kafkaGroupId, [commit], (err) => {
-          if (err) {
-            logger.error('Kafka consumer: Error committing offset: ', message.offset, err);
-          } else {
-            logger.info('Kafka consumer: Commit of offset was successful:', message.offset);
-          }
-        });
+        // Event should have auto-committed and was processed successfully
+        logger.info('Kafka consumer: UDS call succeeded! Autocommitted:', message.offset);
       } else {
         // TODO: Confirm Kafka will re-send the message after some visibility timeout
         logger.error('Kafka consumer: UDS call returned an error result!', message.offset, body);

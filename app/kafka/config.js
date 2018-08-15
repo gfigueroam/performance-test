@@ -15,7 +15,7 @@ const udsBaseUrl = `http://localhost:${serverPort}/api/v1/data.cb`;
 const serviceToken = config.get('uds:service_token');
 const udsHeaders = { Authorization: serviceToken };
 
-const autoCommit = false;
+const autoCommit = true;
 const encoding = 'buffer';
 const keyEncoding = 'utf8';
 
@@ -30,13 +30,8 @@ function initConsumer() {
   }, kafkaTopic);
 }
 
-function initOffset(consumer) {
-  return new kafka.Offset(consumer.client);
-}
-
 export default {
   initConsumer,
-  initOffset,
 
   kafkaGroupId,
   kafkaTopic,

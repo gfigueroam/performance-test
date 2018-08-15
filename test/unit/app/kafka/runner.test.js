@@ -11,14 +11,12 @@ import schemas from '../../../../app/kafka/schemas';
 
 const expect = chai.expect;
 
-const offsetStub = sinon.createStubInstance(kafka.Offset);
 const consumerStub = sinon.createStubInstance(kafka.ConsumerGroup);
 
 
 describe('runner', () => {
   const mockConfig = {
     initConsumer: () => (consumerStub),
-    initOffset: () => (offsetStub),
 
     kafkaGroupId: 'test-group-id',
     kafkaTopic: 'test-kafka-topic',
@@ -76,7 +74,7 @@ describe('runner', () => {
 
   it('should initialize kafka client and handle calls to UDS', () => {
     // Test calls four mock messages with different UDS responses
-    //  First UDS call errors, next call fails, third/fourth call succeed
+    //  First UDS call errors, next call fails, third call succeeds
     request.post.onCall(0).callsFake(() => (Promise.reject('uds_call_failed')));
     request.post.onCall(1).callsFake(() => (Promise.resolve({ ok: false })));
     request.post.onCall(2).callsFake(params => {
@@ -91,44 +89,6 @@ describe('runner', () => {
       });
       return Promise.resolve({ ok: true });
     });
-    request.post.onCall(3).callsFake(params => {
-      expect(params).to.have.all.keys('headers', 'json', 'uri');
-      expect(params.headers).to.deep.equal(mockConfig.udsHeaders);
-      expect(params.uri).to.equal('http://localhost:5200/api/v1/data.cb.set');
-      expect(params.json).to.deep.equal({
-        data: mockDecodedMessage.data,
-        key: mockDecodedMessage.key,
-        owner: mockDecodedMessage.user,
-        requestor: mockDecodedMessage.user,
-      });
-      return Promise.resolve({ ok: true });
-    });
-
-    // Stub the offset commit calls
-    offsetStub.commit.onCall(0).callsFake((groupId, commits, fn) => {
-      expect(groupId).to.equal(mockConfig.kafkaGroupId);
-      expect(commits.length).to.equal(1);
-      expect(commits[0]).to.deep.equal({
-        offset: 11,
-        partition: 'mock-partition',
-        topic: 'test-kafka-topic',
-      });
-
-      // Call the callback function once for success
-      fn(undefined, { commit: '11' });
-    });
-    offsetStub.commit.onCall(1).callsFake((groupId, commits, fn) => {
-      expect(groupId).to.equal(mockConfig.kafkaGroupId);
-      expect(commits.length).to.equal(1);
-      expect(commits[0]).to.deep.equal({
-        offset: 31,
-        partition: 'mock-confluence',
-        topic: 'test-kafka-topic',
-      });
-
-      // Call the callback function once for failure
-      fn('offset_commit_error');
-    });
 
     // Stub the first call and execute callback log function
     consumerStub.on.onFirstCall().callsFake((evt, fn) => {
@@ -140,7 +100,6 @@ describe('runner', () => {
       expect(evt).to.equal('message');
       fn(mockMessage);
       fn(mockMessage);
-      fn(mockMessage);
       fn(mockErrorMessage);
       fn(mockConfluenceMessage);
     });
@@ -150,7 +109,7 @@ describe('runner', () => {
       runner.start(mockConfig);
     });
 
-    expect(request.post.callCount).to.equal(4);
+    expect(request.post.callCount).to.equal(3);
     expect(consumerStub.on.callCount).to.equal(2);
   });
 });

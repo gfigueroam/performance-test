@@ -17,12 +17,12 @@ describe('config', () => {
     expect(config.udsBaseUrl).to.equal('http://localhost:5200/api/v1/data.cb');
   });
 
-  it('should initialize a consumer and offset', () => {
+  it('should initialize a consumer', () => {
     sinon.stub(kafka, 'ConsumerGroup').callsFake((c, t) => {
       // No kafka topic or group defined in test config
       expect(t).to.equal(undefined);
       expect(c).to.deep.equal({
-        autoCommit: false,
+        autoCommit: true,
         encoding: 'buffer',
         groupId: undefined,
         kafkaHost: 'kafka.brcore01.internal:9092',
@@ -30,14 +30,10 @@ describe('config', () => {
       });
       return { client: { mock: true } };
     });
-    sinon.stub(kafka, 'Offset').callsFake(c => {
-      expect(c).to.deep.equal({ mock: true });
-    });
 
     const consumer = config.initConsumer();
-    config.initOffset(consumer);
+    expect(consumer).not.to.equal(undefined);
 
     kafka.ConsumerGroup.restore();
-    kafka.Offset.restore();
   });
 });

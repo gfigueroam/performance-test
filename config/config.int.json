@@ -9,7 +9,7 @@
   },
   "kafka": {
     "topic": "hmheng-uds.int.calculated-behavior-events.schema.calculated.behavior",
-    "group_id": "uds-calculated-behavior-group-int"
+    "group_id": "uds-calculated-behavior-consumer-group-int"
   },
   "iamRole": "arn:aws:iam::711638685743:role/uds/uds-iam-ddb-role-int",
   "ids": {
