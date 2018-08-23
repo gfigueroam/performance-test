@@ -42,14 +42,16 @@ function start(config) {
     request.post({
       headers: config.udsHeaders,
       json: udsPayload,
+      resolveWithFullResponse: true,
       uri,
-    }).then(body => {
-      if (body.ok) {
+    }).then(response => {
+      const correlationId = response.headers['x-swatch-request-id'];
+      if (response.body.ok) {
         // Event should have auto-committed and was processed successfully
-        logger.info('Kafka consumer: UDS call succeeded! Autocommitted:', message.offset);
+        logger.info(`Kafka consumer: UDS call succeeded! (${correlationId}) Autocommitted: ${message.offset}`);
       } else {
         // TODO: Confirm Kafka will re-send the message after some visibility timeout
-        logger.error('Kafka consumer: UDS call returned an error result!', message.offset, body);
+        logger.error(`Kafka consumer: UDS call returned an error result! (${correlationId}) ${message.offset}`, response.body);
       }
     }).catch(err => {
       // TODO: Confirm Kafka will re-send the message after some visibility timeout

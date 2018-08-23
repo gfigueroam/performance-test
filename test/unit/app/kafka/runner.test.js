@@ -76,18 +76,25 @@ describe('runner', () => {
     // Test calls four mock messages with different UDS responses
     //  First UDS call errors, next call fails, third call succeeds
     request.post.onCall(0).callsFake(() => (Promise.reject('uds_call_failed')));
-    request.post.onCall(1).callsFake(() => (Promise.resolve({ ok: false })));
+    request.post.onCall(1).callsFake(() => (Promise.resolve({
+      body: { ok: false },
+      headers: {},
+    })));
     request.post.onCall(2).callsFake(params => {
-      expect(params).to.have.all.keys('headers', 'json', 'uri');
+      expect(params).to.have.all.keys('headers', 'json', 'resolveWithFullResponse', 'uri');
       expect(params.headers).to.deep.equal(mockConfig.udsHeaders);
       expect(params.uri).to.equal('http://localhost:5200/api/v1/data.cb.set');
+      expect(params.resolveWithFullResponse).to.equal(true);
       expect(params.json).to.deep.equal({
         data: mockDecodedMessage.data,
         key: mockDecodedMessage.key,
         owner: mockDecodedMessage.user,
         requestor: mockDecodedMessage.user,
       });
-      return Promise.resolve({ ok: true });
+      return Promise.resolve({
+        body: { ok: true },
+        headers: {},
+      });
     });
 
     // Stub the first call and execute callback log function
