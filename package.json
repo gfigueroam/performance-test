@@ -203,9 +203,9 @@
     "request-promise": "^4.2.2",
     "swagger": "^0.7.5",
     "swagger-koa": "^1.0.10",
-    "swatchjs": "^3.1.0",
-    "swatchjs-batch-koa": "0.0.2",
-    "swatchjs-koa": "^2.1.0",
+    "swatchjs": "^3.1.5",
+    "swatchjs-batch-koa": "0.0.4",
+    "swatchjs-koa": "^2.1.5",
     "uuid": "^3.0.1"
   }
 }
