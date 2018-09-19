@@ -205,7 +205,7 @@
     "swagger-koa": "^1.0.10",
     "swatchjs": "^3.1.5",
     "swatchjs-batch-koa": "0.0.4",
-    "swatchjs-koa": "^2.1.5",
+    "swatchjs-koa": "^2.2.1",
     "uuid": "^3.0.1"
   }
 }
