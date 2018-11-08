@@ -53,7 +53,7 @@ CERTRV = Profile(
 )
 
 CERT = Profile(
-    instances=2,
+    instances=3,
     stage="cert",
     environment="staging1",
     cluster=CLUSTER_NAME + "-" + AWS_REGION,
