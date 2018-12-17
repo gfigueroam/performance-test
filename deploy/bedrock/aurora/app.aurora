@@ -5,6 +5,7 @@ APP_ROLE = "hmheng-uds"
 DOCKER_GROUP = "com-hmhco-uds"
 DOCKER_REGISTRY = "docker.br.hmheng.io"
 AWS_REGION = "us-east-1"
+TEAM_CONTACT = "bifrost-team@hmhco.com"                     # ie. team-email@hmhco.com
 
 try:
     import getpass
@@ -15,7 +16,7 @@ class Profile(Struct):
     cluster = Default(String, CLUSTER_NAME + "-" + AWS_REGION)
     stage = Default(String, "prod")
     environment = Default(String, "prod")
-    contact = Default(String, "")
+    contact = Default(String, TEAM_CONTACT)
     instances = Default(Integer, 3)
     version = Default(String, "n/a")
     tier = Default(String, "preferred")
