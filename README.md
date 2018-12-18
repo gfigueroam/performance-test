@@ -42,7 +42,7 @@ $ aws dynamodb get-item --endpoint http://localhost:5201 --region us-east-1 --ta
 
 Note: If you get errors relating to the _key_ param json value you may need to escape the double quotes.
 
-## Running in Docker
+## Running UDS in Docker Containers
 Initially you will need to run all these steps. Unless you change the code, subsequent runs can be done by running steps 3 & 4 only.
 1. Build the App
 ```$ npm run build:app```
@@ -97,13 +97,13 @@ If after running the list-tables command you dont see the docker tables as expec
 
 When running against a local version of aws dynamoDb it will use your credentials username + region to form a scope. 
 
-So in the dynamoDb container the scope that is targeted is defined by the credentials used, which can be found in the 2 files _database\config\config.json_ and _database\config\config.docker.json_. So for the dynamoDb docker container the scope is _fakeAccessKey_us-east-1.db_
+So in the dynamoDb container the scope that is targeted is defined by the credentials used, which can be found in the 2 files _database\config\db.json_ and _database\config\db.docker.json_. So for the dynamoDb docker container the scope is _fakeAccessKey_us-east-1.db_
 
 If you want to target this same scope (from you local pc, ie outside any container) and access the uds docker tables, you must set the same credentials before running the "Commandline Access" or list-tables examples above. You can do this by running 
 ```
 $ aws configure
 ```
-Enter the details as per the config.docker.json & config.json
+Enter the details as per the db.docker.json & db.json
 ```
 AWS Access Key ID: fakeAccessKey
 AWS Secret Access Key: fakeSecretAccessKey
