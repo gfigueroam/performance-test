@@ -62,6 +62,10 @@ node {
       publish_status_message(start_message, "good", jenkins_env)
     }
 
+    if (!jenkins_env.equalsIgnoreCase("prod")) {
+      sonarqube_analysis()
+    }
+
     docker.image(dind_image_name).inside(dind_cmd_line_params) {
       stage("Build + Test") {
         sshagent([ssh_agent_git_credentials]) {
@@ -194,3 +198,19 @@ def publish_status_message(String status_message, String status_color, String bu
     echo "Skipping Slack message in non-production Jenkins environment: $build_env"
   }
 }
+
+def sonarqube_analysis() {
+  stage('Code analysis') {
+    // requires SonarQube Scanner 2.8+
+    def scannerHome = tool 'sonarqube_scanner';
+    withSonarQubeEnv('SonarQubeServer') {
+      sh "${scannerHome}/bin/sonar-scanner"
+    }
+    timeout(time: 1, unit: 'HOURS') {
+      // For this to work correctly the Jenkins CI url must be entered in
+      // SonarQube -> Administration -> Configuration -> Webhooks
+      waitForQualityGate abortPipeline: true
+    }
+  }
+}
+

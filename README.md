@@ -142,3 +142,8 @@ to scrape Prometheus metrics and push them to HMH shared InfluxDB. Telegraf serv
 but is spun up in the Aurora configuration and run embedded in each UDS instance, tagging metrics in InfluxDB
 with links to each separate Mesos instance/shard. The latest UDS metrics dashboard is available on
 [Grafana](http://grafana.prod.hmheng-infra.brnp.internal/dashboard/db/uds).
+
+## SonarQube
+
+The code analysis stage of the CI process leverages a tool called SonarQube to scan for code smells, bugs, or vulnerabilities. The SonarQube project is hosted [https://sonarqubehmh.prod.hmheng-qe.br.internal/dashboard?id=io.hmheng.uds](https://sonarqubehmh.prod.hmheng-qe.br.internal/dashboard?id=io.hmheng.uds). Each time a push is made to the GitHub project that is not on the `master` branch the code will be run against SonarQube and must past the quality gates set within that project. The plugin [SonarQube Scanner for Jenkins](http://redirect.sonarsource.com/plugins/jenkins.html) is required.
+
