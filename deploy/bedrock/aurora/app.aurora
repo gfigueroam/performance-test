@@ -139,8 +139,8 @@ for profile in [DEV, INT, CERT, CERTRV, PRODRV, PRODUCTION]:
             ).bind(profile=profile)
         ),
         health_check_config={"health_checker": HealthCheckerConfig(
-            {"http": HttpHealthChecker({"expected_response_code": 200, "expected_response": ""})}
-        )},
+            {"http": HttpHealthChecker({"expected_response_code": 200 })}
+        ),"max_consecutive_failures": "3"},
         lifecycle=LifecycleConfig(http=HttpLifecycleConfig(
             port="health", graceful_shutdown_endpoint="/shutdown", shutdown_endpoint="/shutdown"
         ))
