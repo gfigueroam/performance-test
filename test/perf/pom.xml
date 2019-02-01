@@ -1,0 +1,112 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.hmhco.uds</groupId>
+    <artifactId>uds-performance-tests</artifactId>
+    <version>0.0.1</version>
+    <name>uds Scenarios and Simulations for Gatling Performance tests</name>
+
+
+    <properties>
+        <source.property>1.8</source.property>
+        <target.property>1.8</target.property>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <gatling.version>2.2.5</gatling.version>
+        <gatling-plugin.version>2.2.4</gatling-plugin.version>
+        <maven-scala-plugin.version>2.15.2</maven-scala-plugin.version>
+        <scala-maven-plugin.version>3.2.2</scala-maven-plugin.version>
+        <scala-library.version>2.11.8</scala-library.version>
+
+        <org.apache.httpcomponents.version>4.5.1</org.apache.httpcomponents.version>
+
+        <!-- HMH dependencies -->
+        <performance-base.version>0.1.0</performance-base.version>
+        <maven-scala-plugin.version>2.15.2</maven-scala-plugin.version>
+
+
+    </properties>
+
+    <dependencies>
+        <!-- Third party dependencies -->
+        <dependency>
+            <groupId>io.gatling.highcharts</groupId>
+            <artifactId>gatling-charts-highcharts</artifactId>
+            <version>${gatling.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+            <version>2.11.8</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>net.alchim31.maven</groupId>
+                <artifactId>scala-maven-plugin</artifactId>
+                <version>${scala-maven-plugin.version}</version>
+            </plugin>
+            <plugin>
+                <groupId>io.gatling</groupId>
+                <artifactId>gatling-maven-plugin</artifactId>
+                <version>${gatling-plugin.version}</version>
+                <configuration>
+                    <configFolder>src/test/resources</configFolder>
+                    <dataFolder>src/test/resources/data</dataFolder>
+                    <resultsFolder>target/gatling/results</resultsFolder>
+                    <bodiesFolder>src/test/resources/bodies</bodiesFolder>
+                    <simulationsFolder>src/test/scala</simulationsFolder>
+                    <runDescription>uds gatling performance tests</runDescription>
+                    <failOnError>false</failOnError>
+                    <runMultipleSimulations>true</runMultipleSimulations>
+                </configuration>
+            </plugin>
+            <plugin>
+
+                <groupId>org.scala-tools</groupId>
+                <artifactId>maven-scala-plugin</artifactId>
+                <version>${maven-scala-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>compile</goal>
+                            <goal>testCompile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <sourceDir>src/main/scala</sourceDir>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <repositories>
+        <repository>
+            <id>hmhco</id>
+            <url>https://repo.br.hmheng.io/artifactory/libs-release-local</url>
+        </repository>
+        <repository>
+            <id>dublin-sonatype-releases</id>
+            <name>dublin-sonatype-releases</name>
+            <url>https://repo.br.hmheng.io/artifactory/list/dublin-sonatype-releases/</url>
+        </repository>
+        <repository>
+            <id>remote-repos</id>
+            <name>remote-repos</name>
+            <url>https://repo.br.hmheng.io/artifactory/remote-repos/</url>
+        </repository>
+    </repositories>
+    <distributionManagement>
+        <repository>
+            <id>hmhco</id>
+            <url>http://repo.br.hmheng.io/artifactory/libs-release-local</url>
+        </repository>
+        <snapshotRepository>
+            <id>hmhco</id>
+            <url>http://repo.br.hmheng.io/artifactory/libs-snapshot-local</url>
+        </snapshotRepository>
+    </distributionManagement>
+</project>

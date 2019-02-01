@@ -1,0 +1,153 @@
+# define application variables
+CLUSTER_NAME= "brnpb"                          # ie. brnpb
+APP_NAME = "uds-api_performance_tests"                                 # ie. idm-idp
+#ATTENTION!!! DOCKER GROUP needs to be updated to com-hmhco-qe but for some reason now it is taken from builder build as default com-hmhco-idm
+DOCKER_GROUP = "com-hmhco-uds"                         # ie. com-hmhco-idm or io-hmheng-demo
+DOCKER_REGISTRY = "docker.br.hmheng.io"                 # ie. docker.br.hmheng.io
+AWS_REGION = "us-east-1"                                # ie. us-east-1
+
+## aurora cli bind
+# aurora update start <cluster>/<role>/<stage>/<app-name> --bind tag=<docker-container-tag>
+# EXAMPLE: aurora update start brnpb-us-east-1/hmheng-idm/prod/idm-idp --bind tag=2a254670434a49ddd7e1651b74b08d770246c586
+try:
+    import getpass
+except ImportError:
+    print "Python Module `getpass` is required, please install it 'pip install -U getpass'."
+try:
+    import string
+except ImportError:
+    print "Python Module `string` is required, please install it 'pip install -U string'."
+class Profile(Struct):
+    docker_name = Default(String, "gatling_maven")
+    cluster = Default(String, CLUSTER_NAME + "-" + AWS_REGION)
+    stage = Default(String, "prod")
+    environment = Default(String, "prod")
+    contact = Default(String, "")
+    instances = Default(Integer, 1)
+    version = Default(String, "n/a")
+    production = Default(Boolean, True)
+    role = Default(String, getpass.getuser())
+    docker_container = Default(String, DOCKER_REGISTRY + "/" + DOCKER_GROUP + "/" + APP_NAME)
+    docker_tag = Default(String, "{{tag}}")
+    autoscaling=Default(String,"standard-prod")
+    app_name = Default(String, APP_NAME)
+    shared_storage_base = Default(String,"/mnt/efs/service/roles")
+    shared_storage = Default(Boolean, True)
+    shared_storage_mnt = Default(String, '/mnt/service/')
+    shared_storage_perm = Default(String, 'rw')
+    tier = Default(String, 'preemptible')
+    testrunid = Default(String, "{{runidtest}}")
+    jenkinsjobname = Default(String, "{{jenkins_job_name}}")
+    jenkinsbuildno = Default(String, "{{jenkins_build_number}}")
+
+    jenkins_jobs_base = Default(String,"/mnt/efs/service/roles/hmheng-uds/jenkins/dev/jobs")
+
+
+
+# -- profile mappings ---
+# prod|prod
+# prodrv|staging3
+# certrv|staging2
+# cert|staging1
+# int staging0
+# dev devel
+# -- profile instantiations (if any) ---
+PRODUCTION = Profile()
+PRODRV = Profile(
+    stage="prodrv",
+    environment="staging3",
+    tier="preferred",
+    autoscaling="standard-nonprod"
+)
+CERTRV = Profile(
+    stage="certrv",
+    environment="staging2",
+    tier="preferred",
+    autoscaling="standard-nonprod"
+)
+CERT = Profile(
+    stage="cert",
+    environment="staging1",
+    tier="preferred",
+    autoscaling="standard-nonprod"
+)
+INT = Profile(
+    stage="int",
+    environment="staging0",
+    tier="preemptible",
+    autoscaling="standard-nonprod"
+)
+DEV = Profile(
+    stage="dev",
+    environment="devel",
+    tier="preemptible",
+    autoscaling="standard-nonprod"
+)
+jobs = []
+task_res = Resources(cpu=0.5, ram=1 * GB, disk=512 * MB)
+for profile in [DEV, INT, CERT, CERTRV, PRODRV]:
+    task_processes = []
+    docker_params = []
+    # check profile to determine if shared storage should be enabled, define docker vol params, and confirm mount
+    if Boolean('{{profile.shared_storage}}').bind(profile = profile) == Boolean('True'):
+        vol_agent_base = "/mnt/efs/service/roles"
+        vol_agent_mount = "/".join([vol_agent_base, "{{profile.role}}", "{{profile.app_name}}", "{{profile.stage}}"])
+        docker_params_value = ":".join([vol_agent_mount, "{{profile.shared_storage_mnt}}", "{{profile.shared_storage_perm}}"])
+        docker_params_volume = Parameter(name='volume', value=docker_params_value)
+        docker_params.append(docker_params_volume)
+
+        jenkins_volume = "{{profile.jenkins_jobs_base}}/{{profile.jenkinsjobname}}"
+        jenkins_volume_value = ":".join([jenkins_volume, jenkins_volume, "{{profile.shared_storage_perm}}"])
+        docker_jenkins_mount = Parameter(name='volume', value=jenkins_volume_value)
+        docker_params.append(docker_jenkins_mount)
+
+        # confirm that inside container volume mount exists (fail job if not exist)
+        set_efs_permissions = Process(
+            name="set_efs_permissions",
+            cmdline="""
+                chown {{profile.role}}:{{profile.role}} /mnt/service;
+            """
+        )
+        #task_processes.append(set_efs_permissions)
+
+
+        consolidate_reports = Process(
+                    name="consolidate_reports",
+                    cmdline="""
+                        echo "Consolidating Gatling results";
+                        echo "** /usr/share/gatling/gatling-charts-highcharts-bundle-2.3.0/bin/gatling.sh -ro {{profile.shared_storage_mnt}}/{{profile.testrunid}} && echo "done" || echo "done"";
+
+                        /usr/share/gatling/gatling-charts-highcharts-bundle-2.3.0/bin/gatling.sh -ro {{profile.shared_storage_mnt}}/{{profile.testrunid}} && echo "done" || echo "done"
+
+                    """
+        )
+
+        task_processes.append(consolidate_reports)
+
+
+
+    # -- task config (combined processes in order) --
+    server_task = SequentialTask(
+        name = "run_report_tasks",
+        processes = task_processes,
+        resources=task_res
+    )
+    jobs.append(Job(
+        name=APP_NAME,
+        update_config=UpdateConfig(batch_size=1, watch_secs=30).bind(profile=profile),
+        task=server_task,
+        role="{{profile.role}}",
+        contact="{{profile.contact}}",
+        environment="{{profile.environment}}",
+        cluster="{{profile.cluster}}",
+        instances="{{profile.instances}}",
+        tier="{{profile.tier}}",
+        constraints={"host": "limit:1", "rack": "limit:3","autoscale-type": "{{profile.autoscaling}}"},
+        announce=Announcer(),
+        container=Container(
+            docker=Docker(
+                image="{{profile.docker_container}}:{{profile.docker_tag}}",
+                parameters=docker_params
+            ).bind(profile=profile)
+        )
+    ).bind(profile=profile))

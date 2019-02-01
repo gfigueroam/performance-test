@@ -120,11 +120,7 @@ node {
       deploy_container(app_name, docker_tag, "cert")
       run_bvt("cert", dind_image_name, dind_cmd_line_params)
 
-      docker.image(generated_docker_image_name).inside("--link uds-$docker_bvt_container_id:uds --link dynamodb-$docker_bvt_container_id:dynamodb $dind_cmd_line_params") {
-        stage("Run Perf Test: cert") {
-          sh "npm run perf:cert"
-        }
-      }
+      run_perf("cert", generated_docker_image_name, dind_cmd_line_params)
 
       deploy_container(app_name, docker_tag, "prod")
       run_bvt("prod", dind_image_name, dind_cmd_line_params)
@@ -178,6 +174,15 @@ def deploy_container(String app, String tag, String deploy_env) {
 
     sshagent([ssh_agent_deploy_credentials]) {
       sh "builder deploy -f $aurora_filename $role $app $tag $deploy_env"
+    }
+  }
+}
+
+def run_perf(String deploy_env, String image_name, String docker_params) {
+  // Launch containing docker image and run suite of Perfomance Tests for given environment
+  docker.image(image_name).inside(docker_params) {
+    stage("Run Perfomance: $deploy_env") {
+      sh "npm run perf:$deploy_env"
     }
   }
 }

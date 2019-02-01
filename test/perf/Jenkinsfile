@@ -1,0 +1,183 @@
+import groovy.json.JsonOutput
+
+node {
+
+    def perf_dir = "."
+    def maven_dir = '.'
+    def app_name = 'uds-api_performance_tests'
+    def aurora_role = 'hmheng-uds'
+    def docker_group = 'com-hmheng-uds'
+    def deployment_path = docker_group
+    def dockerfile_dir = './test/perf/bedrock/docker'
+    def aurorafile_dir = './test/perf/bedrock/aurora'
+    def ssh_agent_deploy_credentials = "hmheng-uds"
+    def git_commit
+    def simulation_foldername = "simulation-" + System.currentTimeMillis()
+    def docker_maven_gatling_version = 'gatling_2.2.5_maven_3.5.0'
+    def waitTimeForAuroraMinutes = 3
+    def timeToWaitForAurora = wait_for_aurora_secs(("${maxDuration}" as Integer) , waitTimeForAuroraMinutes)
+    def efs_results_folder = "/mnt/efs/service/roles/$aurora_role/$app_name/$HmhEnvironment/$simulation_foldername"
+    def num_of_az_zones = 3
+    def rack_limit = ((("${LoadInjectors}" as Integer) / num_of_az_zones) as Integer) + 1
+    def executionTime = "${maxDuration}"
+
+    echo "**** Build Parameters ****"
+    echo "Environment -> $HmhEnvironment"
+    echo "timeToWaitForAurora -> ${timeToWaitForAurora}"
+    echo "LoadInjectors -> $LoadInjectors"
+    echo "rampUp -> $rampUp"
+    echo "maxDuration -> $maxDuration"
+    echo "numberOfUsersMax -> $numberOfUsersMax"
+    echo "executionTime -> $executionTime"
+    echo "pauseNavigation -> $pauseNavigation"
+    echo "pauseRendering -> $pauseRendering"
+
+
+
+    echo "**** Aurora Parameters ****"
+    echo "app_name $app_name"
+    echo "aurora_role $aurora_role"
+    echo "docker_group $docker_group"
+    echo "deployment_path $deployment_path"
+    echo "dockerfile_dir $dockerfile_dir"
+    echo "aurorafile_dir $aurorafile_dir"
+    echo "maven_dir $maven_dir"
+    echo "simulation_foldername $simulation_foldername"
+    echo "docker_maven_gatling_version $docker_maven_gatling_version"
+    echo "num_of_az_zones $num_of_az_zones"
+    echo "rack_limit $rack_limit"
+    echo "ssh_agent_deploy_credentials $ssh_agent_deploy_credentials"
+
+    stage('Checkout') {
+
+
+        deleteDir()
+        checkout scm
+        sh "git rev-parse HEAD > commit"
+        git_commit = readFile('commit').trim()
+        echo "Building ${app_name}"
+        echo "git commit =  ${git_commit}"
+
+        notify_slack("BEFORE", "${HmhEnvironment}", "${numberOfUsersMax}", "${executionTime}", "${LoadInjectors}", "${rampUp}")
+    }
+
+
+
+
+    stage('Compile') {
+        def mvnHome = tool name: 'maven3.3.9', type: 'hudson.tasks.Maven$MavenInstallation'
+
+        sh "$mvnHome/bin/mvn -e -f $maven_dir/pom.xml clean"
+
+        stage('Build container') {
+            sh "builder build -f $dockerfile_dir/Dockerfile -l -p com-hmhco-uds/$app_name $git_commit"
+
+        }
+
+    }
+    stage('Deploy Load Generators') {
+
+        sshagent([ssh_agent_deploy_credentials]) {
+
+            def mavencmd = 'mvn -f /usr/local/maven_project/pom.xml clean gatling:execute -Dgatling.simulationClass=com.hmhco.uds.performance.simulations.BasicSimulation -Denv=$HmhEnvironment -Dgatling.noReports=true -Dgatling.failOnError=false -DrampUp=$rampUp -DmaxDuration=$maxDuration -DnumberOfUsersMax=$numberOfUsersMax -DexecutionTime=$maxDuration -DpauseNavigation=$pauseNavigation -DpauseRendering=$pauseRendering'
+
+
+            // The maven command string needs to be converted into a base64 encoded String and decoded in the loadgenerator.aurora file.
+            // This is because we cannot pass '-b' or '--bind' commands containing spaces to aurora.
+            // This has been logged with bedrock team - https://github.com/hmhco/io.hmheng.buildscripts/issues/24
+            def mavencmdEncoded = sh returnStdout: true, script: "echo -n ${mavencmd} | base64 -w 0"
+            echo "---- mavencmdEncoded ----"
+            echo "${mavencmdEncoded}"
+
+            echo "Command to Builder"
+            echo "builder --debug create -f ${aurorafile_dir}/loadgenerator.aurora ${aurora_role} ${app_name} ${git_commit} $HmhEnvironment -b noofinstances=$LoadInjectors -b runidtest=${simulation_foldername} -b tag=${git_commit}  -b rack_limit=${rack_limit} -b maven_command=\'${mavencmdEncoded}\'"
+
+            def exec = "builder --debug create -f ${aurorafile_dir}/loadgenerator.aurora ${aurora_role} ${app_name} ${git_commit} $HmhEnvironment -b noofinstances=$LoadInjectors -b runidtest=${simulation_foldername} -b tag=${git_commit}  -b rack_limit=${rack_limit} -b maven_command=\'${mavencmdEncoded}\'"
+
+            try {
+                sh exec
+            } catch(err) {
+
+            } finally {
+                echo "Workaround for bug in Builder script where scripts exits with error"
+                sleep timeToWaitForAurora
+            }
+
+
+        }
+    }
+
+
+
+    stage('Consolidate Reports') {
+
+        sshagent([ssh_agent_deploy_credentials]) {
+
+            echo "Command to Builder"
+            echo "builder --debug create -f ${aurorafile_dir}/reporthandling.aurora ${aurora_role} ${app_name} ${docker_maven_gatling_version} $HmhEnvironment -b runidtest=${simulation_foldername} -b jenkins_build_number=${BUILD_NUMBER} -b jenkins_job_name=${JOB_NAME}"
+
+            def exec = "builder --debug create -f ${aurorafile_dir}/reporthandling.aurora ${aurora_role} ${app_name} ${git_commit} $HmhEnvironment -b runidtest=${simulation_foldername} -b jenkins_build_number=${BUILD_NUMBER} -b jenkins_job_name=${JOB_NAME}"
+
+            try {
+                sh exec
+            } catch(err) {
+
+            } finally {
+                echo "Workaround for bug in Builder script where scripts exits with error"
+                sleep 60
+            }
+
+        }
+    }
+
+    stage('Results to Gatling Plugin') {
+
+        sh "pwd"
+        sh "mkdir simulations"
+
+        sshagent([ssh_agent_deploy_credentials]) {
+            sh "scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r $aurora_role@deploy.br.hmheng.io:$efs_results_folder ./simulations"
+        }
+
+        gatlingArchive()
+
+        notify_slack("END", "${HmhEnvironment}", "${numberOfUsersMax}", "${executionTime}", "${LoadInjectors}", "${rampUp}")
+
+    }
+
+
+
+}
+
+def wait_for_aurora_secs(timeInMins, waitTimeForAuroraInMins) {
+    def a = (timeInMins as Integer) + waitTimeForAuroraInMins
+
+    return a * 60
+}
+
+def send_to_slack(webhook_url, text) {
+    def payload = JsonOutput.toJson([text      : text])
+    sh "curl -X POST --data-urlencode \'payload=${payload}\' ${webhook_url}"
+}
+
+
+def notify_slack(stage, environment, users, duration, injectors, rampup) {
+
+    def totalusers = (("${users}" as Integer) * (injectors as Integer))
+    def message = ""
+    if ("${stage}" == 'BEFORE') {
+        message = "${env.JOB_NAME} job about to start on ${environment} \n" +
+                "URL - ${env.BUILD_URL} \n" +
+                "Load Parameters for this run : \n" +
+                "Users      -   ${totalusers} \n" +
+                "Duration   -   ${duration} min(s)\n" +
+                "Injectors  -   ${injectors} \n" +
+                "Rampup     -   ${rampup} min(s)\n" +
+                ""
+    } else {
+        message = "${env.JOB_NAME} job finished. Gatling Results ->  ${env.BUILD_URL}"
+    }
+    echo "Message : ${env.JOB_NAME}"
+    def  slack_webhook_url = 'https://hooks.slack.com/services/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'
+    send_to_slack(slack_webhook_url, message)
+}

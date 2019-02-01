@@ -1,0 +1,9 @@
+{
+  "key": "$CBKEY$",
+  "data":
+  { "description": "My test description 1", 
+    "location": "My test location 1",
+    "size": 1,
+    "title": "My test title 1"
+  }
+}

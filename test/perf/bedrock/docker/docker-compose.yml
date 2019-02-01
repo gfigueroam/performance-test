@@ -1,0 +1,13 @@
+version: '3'
+services:
+  ## perf test service
+  perf-test:
+    image: io.hmheng.planner-api-perf-test:latest
+    build:
+      context: ../../
+      dockerfile: test/perf/bedrock/docker/Dockerfile
+    container_name: io.hmheng.uds-api-perf-test
+    volumes:
+    - ../../target/gatling:/usr/local/maven_project/target/gatling/
+    ##  command: ["mvn","-f","usr/local/maven_project/pom.xml","gatling:execute","-Dgatling.simulationClass=com.hmhco.planner.performance.simulations.BasicSimulation","-Denv=cert","-Dgatling.noReports=true","-Dgatling.failOnError=false","-DrampUp=1","-DmaxDuration=4","-DnumberOfUsersMax=1","-DexecutionTime=3","-DpauseNavigation=4","-DpauseRendering=2"]
+    command: ["mvn","-f","usr/local/maven_project/pom.xml","gatling:execute","-Denv=cert"]

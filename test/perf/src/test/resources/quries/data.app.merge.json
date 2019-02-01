@@ -1,0 +1,8 @@
+{
+  "key": "$UNIQKEY$",
+  "app": "$APPNAME$",
+  "data":
+  {
+    "merge": 1
+  }
+}

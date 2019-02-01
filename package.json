@@ -35,7 +35,8 @@
     "bvt:cert": "better-npm-run bvt:cert",
     "bvt:prod": "better-npm-run bvt:prod",
     "perf:local": "better-npm-run perf:local",
-    "perf:cert": "better-npm-run perf:cert"
+    "perf:cert": "better-npm-run perf:cert",
+    "perf:clean": "better-npm-run perf:clean"
   },
   "betterScripts": {
     "db:create:local": {
@@ -122,14 +123,14 @@
         "REPLICATION_DELAY_TOLERANCE": 1000
       }
     },
-    "perf:local": {
-      "command": "./scripts/perf/gatling_test.sh",
+    "perf:clean": {
+      "command": "rm -fR test/perf/target/gatling/",
       "env": {
         "NODE_ENV": "local"
       }
     },
     "perf:cert": {
-      "command": "./scripts/perf/gatling_test.sh",
+      "command": "./test/perf/scripts/gatling_test.sh",
       "env": {
         "NODE_ENV": "cert"
       }

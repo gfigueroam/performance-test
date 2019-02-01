@@ -1,6 +1,7 @@
 # Log files and folders
 *.log
 npm-debug.log*
+*.swp
 
 # JSDoc output directory
 out
@@ -27,3 +28,18 @@ static/swagger/api-docs.json
 # Ignore Scala target folders in Gatling tests
 test/perf/target
 test/perf/**/target
+
+
+# Ignore Scala target folders in Gatling tests
+tests/target
+tests/**/target
+deploy/tests
+target/
+
+#Intelij
+*.log
+*.tmp
+.DS_Store
+.idea/*
+tests/project/
+*.iml
