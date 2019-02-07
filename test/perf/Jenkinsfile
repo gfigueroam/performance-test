@@ -67,7 +67,7 @@ node {
     stage('Compile') {
         def mvnHome = tool name: 'maven3.3.9', type: 'hudson.tasks.Maven$MavenInstallation'
 
-        sh "$mvnHome/bin/mvn -e -f $maven_dir/pom.xml clean"
+        sh "$mvnHome/bin/mvn -e -f $maven_dir/test/perf/pom.xml clean"
 
         stage('Build container') {
             sh "builder build -f $dockerfile_dir/Dockerfile -l -p com-hmhco-uds/$app_name $git_commit"

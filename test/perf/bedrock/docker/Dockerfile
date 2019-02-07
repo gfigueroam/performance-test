@@ -6,7 +6,7 @@ RUN adduser --disabled-password --gecos "" --uid 5019 hmheng-uds
 
 
 # Copy your gatling source to /usr/local/maven_project/
-COPY test /usr/local/maven_project/test
+COPY test/perf/src  /usr/local/maven_project/src
 COPY test/perf/pom.xml /usr/local/maven_project/pom.xml
 
 # VOLUME /usr/local/maven_project
