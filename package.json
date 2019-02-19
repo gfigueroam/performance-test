@@ -174,7 +174,7 @@
     "jsonfile": "^4.0.0",
     "mocha": "^3.4.2",
     "mocha-eslint": "^3.0.1",
-    "nodemon": "^1.11.0",
+    "nodemon": "^1.18.10",
     "nyc": "^11.0.1",
     "should": "^11.1.2",
     "sinon": "^2.3.8",

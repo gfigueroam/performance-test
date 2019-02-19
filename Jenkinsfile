@@ -5,11 +5,12 @@ def docker_folder = "com-hmhco-uds"
 // Jenkins needs a base HMH Node container to build and test UDS service
 //  Docker-in-Docker causes permission issues for the host user inside the container
 //  Use volumes to give container access to user info and permissions to home directory
-def node_version = "6.3.0"
-def dind_image_name = "docker.br.hmheng.io/dind-nodejs-git:${node_version}"
+def node_version = "10-latest"
+def dind_image_name = "docker.br.hmheng.io/com-hmhco-csl/bifrost-build-env:${node_version}"
 def dind_cmd_line_params = "--privileged -v /etc/passwd:/etc/passwd -v /home/ec2-user:/home/ec2-user"
 
 def dockerfile_filename = "Dockerfile"
+def dockerfile_perftest_filename = "perftest.Dockerfile"
 
 // GUID for 'hmheng-ci' Credentials configured on Jenkins instance (devel + prod)
 def ssh_agent_git_credentials = "66427afc-2571-4f67-b135-c9a4e6b50ca2"
@@ -17,11 +18,13 @@ def ssh_agent_git_credentials = "66427afc-2571-4f67-b135-c9a4e6b50ca2"
 
 def git_commit
 def docker_tag
+def docker_perftest_tag
 def jenkins_env
 def sem_version
 def package_version
 def docker_bvt_container_id
 def generated_docker_image_name
+def generated_docker_perftest_image_name
 
 node {
   try {
@@ -44,7 +47,13 @@ node {
       docker_tag = "$sem_version-$git_commit"
       echo "Docker Tag -> $docker_tag"
 
-      generated_docker_image_name = "docker.br.hmheng.io/com-hmhco-uds/uds:$docker_tag"
+      docker_perftest_tag = "$sem_version-$git_commit-perftest"
+      echo "Docker Perf Test Tag -> $docker_perftest_tag"      
+      
+      generated_docker_perftest_image_name = "docker.br.hmheng.io/com-hmhco-uds/$app_name:$docker_perftest_tag"
+      echo "Generated Docker Testing Image Name -> $generated_docker_perftest_image_name"
+
+      generated_docker_image_name = "docker.br.hmheng.io/com-hmhco-uds/$app_name:$docker_tag"
       echo "Generated Docker Image Name -> $generated_docker_image_name"
 
       // Jenkins builds are parameterized with Jenkins env (devel/prod)
@@ -62,6 +71,9 @@ node {
       publish_status_message(start_message, "good", jenkins_env)
     }
 
+    // build app and run unit test locally
+    // app_deploy folder will get populated
+    // all code for deployment will now be on the volume
     docker.image(dind_image_name).inside(dind_cmd_line_params) {
       stage("Build + Test") {
         sshagent([ssh_agent_git_credentials]) {
@@ -76,7 +88,10 @@ node {
       sonarqube_analysis()
     }
 
-    stage("Build Docker Image") {
+    // build Image using Dockerfile
+    // adds app_deploy folder into image that was created earlier
+    // if -p param then push to artifactory
+    stage("Build Docker Images") {
       if (jenkins_env.equalsIgnoreCase("prod")) {
         echo "Building Docker container in Jenkins production and pushing to HMH Artifactory"
         sh "builder build -p $docker_folder/$app_name $docker_tag -f $dockerfile_filename"
@@ -104,7 +119,7 @@ node {
       docker.image(generated_docker_image_name).inside("--link uds-$docker_bvt_container_id:uds --link dynamodb-$docker_bvt_container_id:dynamodb $dind_cmd_line_params") {
         stage("Run BVT: docker") {
           // sh "npm run db:create:docker"
-          sh "npm run bvt:docker"
+          sh "npm run bvt:docker"          
         }
       }
       sh "docker logs uds-$docker_bvt_container_id"
@@ -120,7 +135,7 @@ node {
       deploy_container(app_name, docker_tag, "cert")
       run_bvt("cert", dind_image_name, dind_cmd_line_params)
 
-      run_perf("cert", generated_docker_image_name, dind_cmd_line_params)
+      run_perf("cert", "$docker_folder/$app_name", dind_cmd_line_params, dockerfile_perftest_filename, "$docker_tag-perf")
 
       deploy_container(app_name, docker_tag, "prod")
       run_bvt("prod", dind_image_name, dind_cmd_line_params)
@@ -133,6 +148,8 @@ node {
     def result_message = "Successfully deployed UDS version: $docker_tag"
     publish_status_message(result_message, "good", jenkins_env)
   } catch (error) {
+    // output the error to the jenkins console to help debug
+    echo error
     currentBuild.result = "FAILURE"
 
     def failure_message = "Error deploying UDS version: $docker_tag"
@@ -178,11 +195,15 @@ def deploy_container(String app, String tag, String deploy_env) {
   }
 }
 
-def run_perf(String deploy_env, String image_name, String docker_params) {
+def run_perf(String deploy_env, String image_name, String docker_params, String dockerfile, String tag) {
+  stage("Build perf test image") {
+    echo "Building Docker image for perf testing" // installs utils for test such as scala, openjdk, sbt
+    sh "builder build $image_name $tag -f $dockerfile"
+  }
   // Launch containing docker image and run suite of Perfomance Tests for given environment
-  docker.image(image_name).inside(docker_params) {
+  docker.image("docker.br.hmheng.io/$image_name:$tag").inside(docker_params) {
     stage("Run Perfomance: $deploy_env") {
-      sh "npm run perf:$deploy_env"
+        sh "export NODE_ENV='$deploy_env' && ./test/perf/scripts/gatling_test.sh"
     }
   }
 }
