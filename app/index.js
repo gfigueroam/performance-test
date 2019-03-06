@@ -6,6 +6,9 @@ import server from './server';
 
 // Boot the server using shared HMH Grid framework
 const app = gridFramework({
+  cors_options: {
+    allowed_origins: '*',
+  },
   health: common.monitoring.health,
   helmet: {
     csp: {

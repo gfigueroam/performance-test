@@ -6,25 +6,35 @@ def docker_folder = "com-hmhco-uds"
 //  Docker-in-Docker causes permission issues for the host user inside the container
 //  Use volumes to give container access to user info and permissions to home directory
 def node_version = "10-latest"
-def dind_image_name = "docker.br.hmheng.io/com-hmhco-csl/bifrost-build-env:${node_version}"
-def dind_cmd_line_params = "--privileged -v /etc/passwd:/etc/passwd -v /home/ec2-user:/home/ec2-user"
 
-def dockerfile_filename = "Dockerfile"
-def dockerfile_perftest_filename = "perftest.Dockerfile"
+// Unique name for this pipeline used to target running docker containers
+def docker_bvt_container_id
+// sem_version + git_commit used to identify image on bedrock artifactory
+def docker_tag
+// series of names used to identify the runtime image being built
+def docker_runtime_registry_relative_name
+def docker_runtime_registry_absolute_name
+def docker_runtime_registry_absolute_tagged_name
+
+// Image used for local bvts
+def docker_dynamodb_image_name = "docker.br.hmheng.io/com-hmhco-uds/dynamodb:latest"
+
+// Bifrost build image which is used to perform builds and run tests, has
+// common build dependencies such as python, git installed
+def docker_build_image_name = "docker.br.hmheng.io/com-hmhco-csl/bifrost-build-env:${node_version}"
+def docker_build_image_params = "--privileged -v /etc/passwd:/etc/passwd -v /home/ec2-user:/home/ec2-user"
+
+// Source controlled docker files used to create runtimes
+def docker_runtime_dockerfile = "Dockerfile"
+def docker_perftest_dockerfile = "perftest.Dockerfile"
 
 // GUID for 'hmheng-ci' Credentials configured on Jenkins instance (devel + prod)
 def ssh_agent_git_credentials = "66427afc-2571-4f67-b135-c9a4e6b50ca2"
 
-
 def git_commit
-def docker_tag
-def docker_perftest_tag
 def jenkins_env
 def sem_version
 def package_version
-def docker_bvt_container_id
-def generated_docker_image_name
-def generated_docker_perftest_image_name
 
 node {
   try {
@@ -47,14 +57,12 @@ node {
       docker_tag = "$sem_version-$git_commit"
       echo "Docker Tag -> $docker_tag"
 
-      docker_perftest_tag = "$sem_version-$git_commit-perftest"
-      echo "Docker Perf Test Tag -> $docker_perftest_tag"      
-      
-      generated_docker_perftest_image_name = "docker.br.hmheng.io/com-hmhco-uds/$app_name:$docker_perftest_tag"
-      echo "Generated Docker Testing Image Name -> $generated_docker_perftest_image_name"
-
-      generated_docker_image_name = "docker.br.hmheng.io/com-hmhco-uds/$app_name:$docker_tag"
-      echo "Generated Docker Image Name -> $generated_docker_image_name"
+      docker_runtime_registry_relative_name = "$docker_folder/$app_name"
+      docker_runtime_registry_absolute_name = "docker.br.hmheng.io/$docker_runtime_registry_relative_name"
+      docker_runtime_registry_absolute_tagged_name = "$docker_runtime_registry_absolute_name:$docker_tag"
+      echo "Generated Docker Registry Name -> $docker_runtime_registry_relative_name"
+      echo "Generated Docker Registry Absolute Name -> $docker_runtime_registry_absolute_name"
+      echo "Generated Docker Registry Absolute Name with Tag -> $docker_runtime_registry_absolute_tagged_name"
 
       // Jenkins builds are parameterized with Jenkins env (devel/prod)
       jenkins_env = env.JENKINS_ENV
@@ -74,7 +82,7 @@ node {
     // build app and run unit test locally
     // app_deploy folder will get populated
     // all code for deployment will now be on the volume
-    docker.image(dind_image_name).inside(dind_cmd_line_params) {
+    docker.image(docker_build_image_name).inside(docker_build_image_params) {
       stage("Build + Test") {
         sshagent([ssh_agent_git_credentials]) {
           sh "npm run build:app"
@@ -94,51 +102,90 @@ node {
     stage("Build Docker Images") {
       if (jenkins_env.equalsIgnoreCase("prod")) {
         echo "Building Docker container in Jenkins production and pushing to HMH Artifactory"
-        sh "builder build -p $docker_folder/$app_name $docker_tag -f $dockerfile_filename"
+        sh "builder build -p $docker_runtime_registry_relative_name $docker_tag -f $docker_runtime_dockerfile"
       } else {
         echo "Building Docker container locally in non-production Jenkins environment: $jenkins_env"
-        sh "builder build $docker_folder/$app_name $docker_tag -f $dockerfile_filename"
+        sh "builder build $docker_runtime_registry_relative_name $docker_tag -f $docker_runtime_dockerfile"
       }
     }
 
     stage("Launch BVT Docker Containers") {
+      // Setup
       sh "docker ps"
       stop_docker_containers(docker_bvt_container_id)
-      sh "docker run --name dynamodb-$docker_bvt_container_id -d docker.br.hmheng.io/com-hmhco-uds/dynamodb:latest"
-      sh "sleep 10" // Give DynamoDB some startup breathing room. If this goes by too quickly UDS will fail to connect
-      sh "docker run --name uds-$docker_bvt_container_id -e NODE_ENV=docker --link dynamodb-$docker_bvt_container_id:dynamodb -d $generated_docker_image_name npm start"
-      sh "sleep 10" // Give UDS a moment to start up before executing
 
-      sh "docker ps"
-      sh "docker logs uds-$docker_bvt_container_id"
-      sh "docker logs dynamodb-$docker_bvt_container_id"
-      sh "docker run --name db-create-$docker_bvt_container_id --link dynamodb-$docker_bvt_container_id:dynamodb -d $generated_docker_image_name npm run db:create:docker"
-      sh "sleep 20" // Give the database creation script a moment to complete
-      sh "docker logs db-create-$docker_bvt_container_id"
+      def dynamoDB
+      def udsService
+      def dbCreate
 
-      docker.image(generated_docker_image_name).inside("--link uds-$docker_bvt_container_id:uds --link dynamodb-$docker_bvt_container_id:dynamodb $dind_cmd_line_params") {
-        stage("Run BVT: docker") {
-          // sh "npm run db:create:docker"
-          sh "npm run bvt:docker"          
+      try {
+        // Run DynamoDB instance
+        dynamoDB = docker
+          .image(docker_dynamodb_image_name)
+          .run("--name dynamodb-$docker_bvt_container_id -d")
+        sh "sleep 10" // Give DynamoDB some startup breathing room. If this goes by too quickly UDS will fail to connect
+
+        // Run UDS service instance
+        udsService = docker
+          .image(docker_runtime_registry_absolute_tagged_name)
+          .run("--name uds-$docker_bvt_container_id -e NODE_ENV=docker --link dynamodb-$docker_bvt_container_id:dynamodb -d", "npm run start-transpiled")
+        sh "sleep 10" // Give UDS a moment to start up before executing
+
+        sh "docker ps"
+        sh "docker logs uds-$docker_bvt_container_id"
+        sh "docker logs dynamodb-$docker_bvt_container_id"
+
+        // Run Create DynamoDB Tables instance
+        dbCreate = docker
+          .image(docker_build_image_name)
+          .run("--name db-create-$docker_bvt_container_id --link dynamodb-$docker_bvt_container_id:dynamodb -d -v \"${WORKSPACE}\":/opt/uds -w=/opt/uds", "npm run db:create:docker")
+        sh "sleep 20" // Give the database creation script a moment to complete
+        sh "docker logs db-create-$docker_bvt_container_id"
+
+        // Use the bifrost build image to run the BVT mocha tests without transpiling
+        docker
+          .image(docker_build_image_name)
+          .inside("--link uds-$docker_bvt_container_id:uds --link dynamodb-$docker_bvt_container_id:dynamodb $docker_build_image_params") {
+            stage("Run BVT: docker") {
+              sh "npm run bvt:docker"
+            }
+          }
+        sh "docker logs uds-$docker_bvt_container_id"
+      }
+      catch (Exception e) {
+        // Leaving the catch/throw to make it explicit that if there is an
+        // error the error will be thrown but always finally is executed
+        throw e;
+      }
+      finally {
+        if (dynamoDB) {
+          dynamoDB.stop()
+        }
+
+        if (udsService) {
+          udsService.stop()
+        }
+
+        if (dbCreate) {
+          dbCreate.stop()
         }
       }
-      sh "docker logs uds-$docker_bvt_container_id"
     }
 
     if (jenkins_env.equalsIgnoreCase("prod")) {
       deploy_container(app_name, docker_tag, "dev")
-      run_bvt("dev", dind_image_name, dind_cmd_line_params)
+      run_bvt("dev", docker_build_image_name, docker_build_image_params)
 
       deploy_container(app_name, docker_tag, "int")
-      run_bvt("int", dind_image_name, dind_cmd_line_params)
+      run_bvt("int", docker_build_image_name, docker_build_image_params)
 
       deploy_container(app_name, docker_tag, "cert")
-      run_bvt("cert", dind_image_name, dind_cmd_line_params)
+      run_bvt("cert", docker_build_image_name, docker_build_image_params)
 
-      run_perf("cert", "$docker_folder/$app_name", dind_cmd_line_params, dockerfile_perftest_filename, "$docker_tag-perf")
+      run_perf("cert", docker_runtime_registry_relative_name, docker_build_image_params, docker_perftest_dockerfile, "$docker_tag-perf")
 
       deploy_container(app_name, docker_tag, "prod")
-      run_bvt("prod", dind_image_name, dind_cmd_line_params)
+      run_bvt("prod", docker_build_image_name, docker_build_image_params)
     } else {
       echo "Skipping deploy and BVT stages in non-production Jenkins environment: $jenkins_env"
     }

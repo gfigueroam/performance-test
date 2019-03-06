@@ -3,7 +3,7 @@
 # Script to install packages, copy static resources, transpile code
 
 echo Installing node app
-npm install
+npm ci
 
 echo Deleting and re-creating app_deploy folder
 rm -rf app_deploy
@@ -11,10 +11,13 @@ mkdir -p app_deploy
 
 echo Copying config and package.json
 cp package.json app_deploy
+cp package-lock.json app_deploy
 cp -Rf config app_deploy/config
 
 echo Copying libraries
-cp -Rf node_modules app_deploy/node_modules
+cd app_deploy
+npm ci --only=production
+cd ..
 
 echo Copying database folder
 cp -Rf database app_deploy/database
