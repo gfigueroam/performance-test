@@ -7,6 +7,11 @@ import config from '../../../../app/config';
 import constants from '../../../../app/utils/constants';
 import errors from '../../../../app/models/errors';
 import logger from '../../../../app/monitoring/logger';
+import {
+  noUniqueIdentifierKey,
+  noUniqueIdentifierValue,
+  emptyStringUniqueIdentifierValue,
+} from '../../../common/helpers/tokens';
 
 const expect = chai.expect;
 
@@ -56,6 +61,21 @@ describe('auth.adapter', () => {
       const unknownTokenBody = 'SE1IX0RNUFM6azBicXRBbmF1NVpsK1VMeGJtd1dnRGluN1FMZ2V5SXAxUS9FajBqVFBQYz0K';
       const mockCtx = createMockCtx(`SIF_HMACSHA256 ${unknownTokenBody}`);
       expect(() => auth.adapter.internal(mockCtx)).to.throw(errors.codes.ERROR_CODE_AUTH_INVALID);
+    });
+
+    it('should throw if claim uniqueIdentifer value is empty', () => {
+      const mockCtx = createMockCtx(noUniqueIdentifierValue);
+      expect(() => auth.adapter.internal(mockCtx)).to.throw(errors.codes.ERROR_CODE_INVALID_AUTHZ);
+    });
+
+    it('should throw if claim uniqueIdentifer key is not present', () => {
+      const mockCtx = createMockCtx(noUniqueIdentifierKey);
+      expect(() => auth.adapter.internal(mockCtx)).to.throw(errors.codes.ERROR_CODE_INVALID_AUTHZ);
+    });
+
+    it('should throw if claim uniqueIdentifer value is an empty string', () => {
+      const mockCtx = createMockCtx(emptyStringUniqueIdentifierValue);
+      expect(() => auth.adapter.internal(mockCtx)).to.throw(errors.codes.ERROR_CODE_INVALID_AUTHZ);
     });
 
     it('should successfully validate a service token', () => {

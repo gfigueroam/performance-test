@@ -22,10 +22,14 @@ function getTokenUserId(tokenMetadata) {
   // Add some logic to safely parse claims string and get unique user ID
   const subClaim = tokenMetadata.sub || '';
   const subClaims = subClaim.split(',');
-  const userIdClaims = subClaims.filter(claim => (
-    claim.includes('uniqueIdentifier=')),
-  ).map(claim => (claim.split('=')[1] || 'Unknown'));
-  return userIdClaims[0] || 'Unknown';
+  const [userIdClaims] = subClaims
+    .filter(claim => claim.includes('uniqueIdentifier='))
+    .map(claim => claim.split('=')[1]);
+
+  if (!userIdClaims || userIdClaims === '""') {
+    throw errors.codes.ERROR_CODE_INVALID_AUTHZ;
+  }
+  return userIdClaims;
 }
 
 function deserializeHeader(ctx, header) {
@@ -77,6 +81,11 @@ function buildInternalAuthToken(ctx) {
 
     return userToken;
   } catch (error) {
+    // Check if the thrown error was an authz error
+    if (error === errors.codes.ERROR_CODE_INVALID_AUTHZ) {
+      throw errors.codes.ERROR_CODE_INVALID_AUTHZ;
+    }
+
     // Token that failed JWT decoding must be a service token
     const serviceId = tokenInfo.body;
 
