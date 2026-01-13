@@ -184,7 +184,7 @@
     "aguid": "2.0.0",
     "ajv": "6.9.2",
     "avsc": "5.4.7",
-    "aws-sdk": "2.411.0",
+    "aws-sdk": "2.1693.0",
     "bunyan": "^1.8.10",
     "glob": "^7.1.2",
     "grid-framework": "github:hmhco/hmh.grid.framework#v2.0.2",
